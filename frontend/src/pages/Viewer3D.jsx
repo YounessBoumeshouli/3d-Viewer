@@ -5,6 +5,7 @@ import ControlsPanel from "../components//ControlsPanel";
 import LayersPanel from "../components/LayersPanel";
 import ViewerCanvas from "../components/ViewerCanvas";
 import ObjectToolbar from "../components/ObjectToolbar";
+import House from "./house.jsx";
 
 function Viewer3D() {
     return (
@@ -24,9 +25,10 @@ function Viewer3D() {
                             </div>
                         </aside>
                         <section className="ml-5 w-[76%] max-md:ml-0 max-md:w-full">
-                            <ViewerCanvas />
+                            <House />
                         </section>
                     </div>
+                            <ObjectToolbar />
                 </main>
             </div>
         </div>

@@ -9,7 +9,7 @@ const DXFModel = () => {
     useEffect(() => {
         fetch('http://127.0.0.1:8000/api/files/dxf-files/BwXYdeqq7dDUCAajWibgzggsJVIZbswG4jyjIH2O.txt',{
             headers: {
-                'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzQyNzMyNDI1LCJleHAiOjE3NDI3MzYwMjUsIm5iZiI6MTc0MjczMjQyNSwianRpIjoiVzhKV1liM2dCYWQyZVJ4dSIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6bnVsbH0.d2VQHISziT0TyxDExIVPs9qtHwD3pZWb8d3mSY3JTek` // Add this line
+                'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzQzMjUyNDA1LCJleHAiOjE3NDMyNTYwMDUsIm5iZiI6MTc0MzI1MjQwNSwianRpIjoiTGpPUm56RFpSSE1IU3p6aiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6bnVsbH0.elwvHS3FVCd2QO1VN3inJ0-HaCWyOsj4ovFW2-oh6Kg` // Add this line
             }
         })
             .then(response => {
@@ -51,7 +51,7 @@ const Scene = ({ entities }) => {
 
 const Entity = ({ entity }) => {
     // Placeholder for useGLTF if needed
-    const { nodes, materials } = useGLTF('/src/assets/3d/foxs_islands.glb'); // Replace with actual path
+    const { nodes, materials } = useGLTF('/foxs_islands.glb'); // Replace with actual path
     switch (entity.type) {
         case 'LINE':
             return entity.start && entity.end ? (
