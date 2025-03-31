@@ -8,6 +8,7 @@ import React from "react";
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import Dashboard from "./pages/Dashboard.jsx";
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
                   <Route path="/" element={<Home/>} />
                   <Route path="/house" element={<House/>} />
                   <Route path="/3D" element={<Viewer3D/>} />
+                  <Route path="/Dashboard" element={<Dashboard/>} />
               </Routes>
 
           </Router>

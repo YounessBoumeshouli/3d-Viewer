@@ -14,9 +14,11 @@
     "@react-three/fiber": "^9.1.0",
     "axios": "^1.8.4",
     "dxf-parser": "^1.1.2",
+    "lucide-react": "^0.485.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.4.1",
+    "recharts": "^2.15.1",
     "three": "^0.175.0"
   },
   "devDependencies": {

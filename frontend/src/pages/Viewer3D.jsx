@@ -28,8 +28,8 @@ function Viewer3D() {
                             <House />
                         </section>
                     </div>
-                            <ObjectToolbar />
                 </main>
+                <ObjectToolbar />
             </div>
         </div>
     );
