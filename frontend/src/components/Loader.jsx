@@ -6,9 +6,10 @@ function Loader() {
             <div className='flex justify-center items-center h-screen'>
                 <div className='w-20 h-20 border-2 border-opacity-20 border-blue-500 rounded-full animate-spin animate-spin'></div>
             </div>
+
+
+
         </Html>
     )
 }
-
-
 export default Loader
