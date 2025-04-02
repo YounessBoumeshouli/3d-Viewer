@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('components', function (Blueprint $table) {
             $table->id();
-            $table->enum(["porte","fenetre"]);
+            $table->enum('type',["door","window"]);
             $table->text('path');
+            $table->string('dimensions')->nullable();
+            $table->double('price')->nullable();
             $table->timestamps();
         });
     }
