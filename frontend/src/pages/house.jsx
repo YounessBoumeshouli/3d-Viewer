@@ -107,6 +107,7 @@ function House() {
 
     const [islandScale, islandPosition] = adjustIslandForScreenSize();
     const [longestWall, setLongestWall] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (longestWall) {
@@ -114,45 +115,46 @@ function House() {
             console.log("📍 Start:", longestWall.start);
             console.log("📍 End:", longestWall.end);
             console.log("📏 Length:", longestWall.length);
+            setLoading(false);
         }
     }, [longestWall]);
 
     return (
-        <Canvas
-            className="w-full h-screen bg-transparent"
-            camera={{ position: [10, 5, 10], fov: 75, near: 0.1, far: 1000 }}
-            shadows
-        >
-            <primitive object={new AxesHelper(100)} />
-            <primitive object={new GridHelper(100, 100)} />
+        <>
+            {loading && <Loader />}
+            <Canvas
+                className="w-full h-screen bg-transparent"
+                camera={{ position: [10, 5, 10], fov: 75, near: 0.1, far: 1000 }}
+                shadows
+            >
+                <primitive object={new AxesHelper(100)} />
+                <primitive object={new GridHelper(100, 100)} />
 
-            <CameraController />
+                <CameraController />
 
-            <Suspense fallback={<Loader />}>
-                <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
-                    <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
-                </directionalLight>
-                <ambientLight intensity={0.4} />
-                <hemisphereLight intensity={0.3} groundColor="#080820" />
+                <Suspense fallback={null}>
+                    <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
+                        <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
+                    </directionalLight>
+                    <ambientLight intensity={0.4} />
+                    <hemisphereLight intensity={0.3} groundColor="#080820" />
 
-                <Sky />
+                    <Sky />
+                    <Floor />
 
-                <Floor />
+                    <group rotation={[-Math.PI / 2, 0, 0]}>
+                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} />
+                    </group>
 
-                <group rotation={[-Math.PI / 2, 0, 0]}>
-                    <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} />
-                </group>
-
-                {longestWall && (
-                    <Door
-                        wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                        wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-
-                    />
-                )}
-            </Suspense>
-        </Canvas>
+                    {longestWall && (
+                        <Door
+                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                        />
+                    )}
+                </Suspense>
+            </Canvas>
+        </>
     );
 }
-
 export default House;
