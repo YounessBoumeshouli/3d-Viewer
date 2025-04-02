@@ -6,6 +6,7 @@ import { Loader, useTexture } from "@react-three/drei";
 import DXFModel from '../models/DFXModel.jsx';
 import Door from '../components/Door/Door.jsx';
 import * as THREE from "three";
+import Window from "../components/Window/Window.jsx";
 
 // Floor component with realistic texture
 const Floor = () => {
@@ -151,6 +152,14 @@ function House() {
                             wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
                             wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
                         />
+
+                    )}
+                    {longestWall && (
+                        <Window
+                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                        />
+
                     )}
                 </Suspense>
             </Canvas>
