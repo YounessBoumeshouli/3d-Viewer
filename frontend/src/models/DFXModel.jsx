@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { DxfParser } from 'dxf-parser';
 import { useTexture } from '@react-three/drei';
 import Loader from '../components/Loader';
+import api from "../services/api.js";
 
 const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall }) => {
     const [entities, setEntities] = useState([]);
@@ -89,31 +90,25 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall }) =
         return walls;
     }, [entities, setLongestWall]);
 
-    // Load DXF file
     useEffect(() => {
-        fetch('http://127.0.0.1:8000/api/files/dxf-files/iwqPbLCgsntd4Ou9Lbc8Ykot58ESSIw8cXhbd9zn.txt', {
-            headers: {
-                'Authorization': `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzQzNTExOTkwLCJleHAiOjE3NDM1MTU1OTAsIm5iZiI6MTc0MzUxMTk5MCwianRpIjoiNWhFQW9kNlVpQmU4UE9DayIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6bnVsbH0.rJYuHZb1ZCUuFXlGFO42zB-_8INhwGJH0gEbhym_gz8`
-            }
-        })
-            .then(response => {
-                if (!response.ok) throw new Error('Failed to fetch DXF file');
-                return response.text();
-            })
-            .then(dxfData => {
-                const parser = new DxfParser();
-                try {
-                    const parsedDxf = parser.parseSync(dxfData);
-                    setEntities(parsedDxf.entities);
-                } catch (error) {
-                    console.error('Error parsing DXF file:', error);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching DXF file:', error);
-            });
-    }, []);
+        const fetchDxfFile = async () => {
+            try {
+                const response = await api.get("/files/dxf-files/iwqPbLCgsntd4Ou9Lbc8Ykot58ESSIw8cXhbd9zn.txt", {
+                    responseType: "text",
+                });
 
+                console.log("DXF File Data:"); // Debugging
+                const parser = new DxfParser();
+                const parsedDxf = parser.parseSync(response.data);
+
+                setEntities(parsedDxf.entities);
+            } catch (error) {
+                    console.error("Error fetching DXF file:", error);
+            }
+        };
+
+         fetchDxfFile();
+    }, []);
     // Entity component - handles rendering of each wall
     const Entity = ({ wall }) => {
         const wallMaterial = wall.isMaxLengthWall ? MAX_LENGTH_WALL_MATERIAL : WALL_MATERIAL;

@@ -147,6 +147,7 @@ function House() {
                     <Door
                         wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
                         wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+
                     />
                 )}
             </Suspense>

@@ -9,18 +9,18 @@ const api = axios.create({
     },
 });
 
-export const getUser = async (token) => {
-    try {
-        const response = await api.get('/user', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        throw error;
-    }
-};
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("token"); // Get token from localStorage or cookies
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }else {
+            config.headers.Authorization = `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzQzNjAwMjQxLCJleHAiOjE3NDM2MDM4NDEsIm5iZiI6MTc0MzYwMDI0MSwianRpIjoiWDlQblBGYWNEWHp6blZjQiIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6bnVsbH0.1AsUKB0aeMFnqXM9SFSdfEfmg_4L3e3gudE3J7S63EE`;
+
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
 export default api;

@@ -1,45 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import {Upload, Search, RotateCw, RotateCcw, Move, Square, Circle, Dot} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ComponentModal from "../components/Maker/ComponentModel.jsx"
 import House from "../pages/house.jsx"
+import {DxfParser} from "dxf-parser";
+import api from "../services/api.js";
 // Component categories
-const categories = [
-    { id: "doors", name: "Portes", icon: "🚪" },
-    { id: "windows", name: "Fenêtres", icon: "🪟" },
-    { id: "furniture", name: "Meubles", icon: "🪑" },
-    { id: "lighting", name: "Éclairage", icon: "💡" },
-]
 
 // Component items for each category
-const componentItems = {
-    doors: [
-        { id: 1, name: "Porte Moderne", dimensions: "90×210 cm", price: "299€" },
-        { id: 2, name: "Porte Classique", dimensions: "80×200 cm", price: "249€" },
-        { id: 3, name: "Porte Coulissante", dimensions: "100×220 cm", price: "399€" },
-        { id: 4, name: "Porte Vitrée", dimensions: "90×210 cm", price: "349€" },
-    ],
-    windows: [
-        { id: 1, name: "Fenêtre Standard", dimensions: "120×100 cm", price: "199€" },
-        { id: 2, name: "Fenêtre Panoramique", dimensions: "180×120 cm", price: "349€" },
-        { id: 3, name: "Fenêtre Basculante", dimensions: "80×60 cm", price: "149€" },
-        { id: 4, name: "Fenêtre Double Vitrage", dimensions: "120×100 cm", price: "249€" },
-    ],
-    furniture: [
-        { id: 1, name: "Canapé Moderne", dimensions: "220×90×85 cm", price: "899€" },
-        { id: 2, name: "Table Basse", dimensions: "120×60×45 cm", price: "299€" },
-        { id: 3, name: "Lit Double", dimensions: "160×200×45 cm", price: "599€" },
-        { id: 4, name: "Armoire", dimensions: "180×60×220 cm", price: "749€" },
-    ],
-    lighting: [
-        { id: 1, name: "Suspension Design", dimensions: "40×40×120 cm", price: "199€" },
-        { id: 2, name: "Lampadaire", dimensions: "30×30×180 cm", price: "249€" },
-        { id: 3, name: "Applique Murale", dimensions: "15×20×10 cm", price: "99€" },
-        { id: 4, name: "Spot Encastré", dimensions: "10×10×8 cm", price: "49€" },
-    ],
-}
 
 function Viewer3D() {
     const [zoom, setZoom] = useState(100)
@@ -48,9 +18,19 @@ function Viewer3D() {
     const [activeCategory, setActiveCategory] = useState(null)
     const [modelLoaded, setModelLoaded] = useState(false)
 
-    const handleCategoryClick = (categoryId) => {
+    const handleCategoryClick = async (categoryId) => {
+        console.log("Category clicked:", categoryId);
         setActiveCategory(categoryId)
+
         setShowModal(true)
+        try {
+            const response = await api.get('components/'+categoryId);
+
+            console.log("Server Response:", response.data);
+            setComponentItems(response.data)
+        } catch (error) {
+            console.error("Error selecting item:", error);
+        }
     }
 
     const handleCloseModal = () => {
@@ -60,7 +40,25 @@ function Viewer3D() {
     const handleUpload = () => {
         setModelLoaded(true)
     }
+    let [categories, setCategories] = useState([]);
+    const [componentItems, setComponentItems] = useState([]);
 
+    useEffect(() => {
+        const  fetchCategories = async ()=>{
+            try {
+                const response = await api.get('components',{
+                    responseType:"json"
+                });
+                console.log(response.data)
+                setCategories(response.data);
+                console.log(categories)
+            }catch (error){
+                console.error("Error fetching DXF file:", error);
+
+            }
+        }
+         fetchCategories();
+    }, []);
     return (
         <div className="flex h-[calc(100vh-64px)]">
             {/* Left sidebar */}
@@ -156,22 +154,19 @@ function Viewer3D() {
                             <button
                                 key={category.id}
                                 className="flex flex-col items-center text-gray-700 hover:text-blue-600"
-                                onClick={() => handleCategoryClick(category.id)}
+                                onClick={() => handleCategoryClick(category.type)}
                             >
-                                <span className="text-2xl mb-1">{category.icon}</span>
-                                <span className="text-sm">{category.name}</span>
+                                <span className="text-2xl mb-1">{category.type}</span>
                             </button>
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Component Modal */}
             {showModal && activeCategory && (
                 <ComponentModal
-                    title={categories.find((c) => c.id === activeCategory).name}
-                    icon={categories.find((c) => c.id === activeCategory).icon}
-                    items={componentItems[activeCategory]}
+                    title={categories.find((c) => c.type === activeCategory).type}
+                    items={componentItems}
                     onClose={handleCloseModal}
                 />
             )}

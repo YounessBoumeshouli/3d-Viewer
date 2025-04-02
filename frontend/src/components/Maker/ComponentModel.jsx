@@ -1,8 +1,21 @@
 "use client"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {useEffect,useState} from "react";
+
+
+function handleSelect(item,title) {
+
+    console.log("selected item :",item);
+    console.log('selected type : ',title)
+    localStorage.setItem(title,item.path);
+    const storedDoor = localStorage.getItem("door");
+    console.log(title,storedDoor)
+
+}
 
 function ComponentModal({ title, icon, items, onClose }) {
+    console.log('items',items);
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
@@ -21,7 +34,7 @@ function ComponentModal({ title, icon, items, onClose }) {
                         {items.map((item) => (
                             <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden">
                                 <div className="bg-gray-100 h-48 flex items-center justify-center">
-                                    <img src="/placeholder.svg?height=300&width=200" alt={item.name} className="max-h-full max-w-full" />
+                                    <img src={`http://127.0.0.1:8000/storage/${item.path}`} alt={item.name} className="max-h-full max-w-full" />
                                 </div>
                                 <div className="p-4">
                                     <h3 className="font-medium text-lg">{item.name}</h3>
@@ -32,7 +45,13 @@ function ComponentModal({ title, icon, items, onClose }) {
                                             <Button variant="outline" className="text-gray-700 border-gray-300">
                                                 Aperçu
                                             </Button>
-                                            <Button className="bg-blue-600 text-white hover:bg-blue-700">Sélectionner</Button>
+                                            <Button className="bg-blue-600 text-white hover:bg-blue-700"
+                                                    onClick={() =>{
+                                                        handleSelect(item,title);
+                                                onClose();
+                                            }}
+
+                                            >Sélectionner</Button>
                                         </div>
                                     </div>
                                 </div>
