@@ -7,8 +7,10 @@ import DXFModel from '../models/DFXModel.jsx';
 import Door from '../components/Door/Door.jsx';
 import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
+import Table from "../components/table/Table.jsx";
 
 // Floor component with realistic texture
+
 const Floor = () => {
     const floorTextures = useTexture({
         map: '/textures/floor/wooden_floor_diffuse.jpg',
@@ -148,18 +150,35 @@ function House() {
                     </group>
 
                     {longestWall && (
-                        <Door
-                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                        />
+                        <>
+                            <Door
+                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                            />
+                            <Table
+                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                            />
+                        </>
 
                     )}
                     {longestWall && (
-                        <Window
-                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                        />
+                        <>
+                            <Window
+                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                position="left"
+                                key="left-window"  // Add a key for React to differentiate
+                            />
 
+                            {/* Right window */}
+                            <Window
+                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                position="right"
+                                key="right-window"  // Add a key for React to differentiate
+                            />
+                        </>
                     )}
                 </Suspense>
             </Canvas>

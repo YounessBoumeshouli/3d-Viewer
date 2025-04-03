@@ -93,7 +93,7 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall }) =
     useEffect(() => {
         const fetchDxfFile = async () => {
             try {
-                const response = await api.get("/files/dxf-files/iwqPbLCgsntd4Ou9Lbc8Ykot58ESSIw8cXhbd9zn.txt", {
+                const response = await api.get("/files/dxf-files/whBnwHN4NHGeqkriIfIaUEv8Nyw1WmHZbL4CTe4H.txt", {
                     responseType: "text",
                 });
 

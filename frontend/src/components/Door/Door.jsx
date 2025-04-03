@@ -3,6 +3,8 @@ import { useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 const Door = ({ wallStart, wallEnd }) => {
+    console.log('in door wallstart',wallStart)
+
     const [doorPath, setDoorPath] = useState(null);
 
     // Function to load the door texture
@@ -109,8 +111,9 @@ const Door = ({ wallStart, wallEnd }) => {
 
     const angle = Math.atan2(endY - startY, endX - startX);
 
-    console.log("📍 Placing Door at:", { x: centerX, y: centerY, z: centerZ });
-    console.log("🔄 Door Rotation Angle:", { radians: angle, degrees: (angle * 180) / Math.PI });
+    // console.log("📍 Placing Door at:", { x: centerX, y: centerY, z: centerZ });
+    // console.log("🔄 Door Rotation Angle:", { radians: angle, degrees: (angle * 180) / Math.PI });
+    console.log('angle for door :',angle)
 
     const { scene } = useGLTF("/door.glb");
 
