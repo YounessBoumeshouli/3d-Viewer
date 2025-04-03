@@ -181,7 +181,7 @@ function Viewer3D() {
                                 ) : (
 
                                         showHouse ? (
-                                            <div className="relative w-full h-full">
+                                            <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
                                                 <House
                                                     file={showHouse}
                                                 />
