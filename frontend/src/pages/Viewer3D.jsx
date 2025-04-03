@@ -181,9 +181,11 @@ function Viewer3D() {
                                 ) : (
 
                                         showHouse ? (
-                                            <House
-                                                file={showHouse}
-                                            />
+                                            <div className="relative w-full h-full">
+                                                <House
+                                                    file={showHouse}
+                                                />
+                                            </div>
 
                                         ):(
                                             <span className="text-2xl mb-1">No file yet</span>
