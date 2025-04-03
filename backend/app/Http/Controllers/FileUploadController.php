@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\component;
 use App\Models\DxfFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 class FileUploadController extends Controller
 {
@@ -20,7 +21,7 @@ class FileUploadController extends Controller
         if ($type == 'model'){
 
         $path = $file->store('dxf-files', 'public');
-        DxfFile::create(["path"=>$path]);
+            DxfFile::create(['user_id'=>auth()->id(),'path'=>$path]);
         return response()->json([
             'message' => 'DXF file uploaded successfully',
             'path' => asset("storage/$path"),

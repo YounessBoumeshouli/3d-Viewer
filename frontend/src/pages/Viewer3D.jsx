@@ -15,8 +15,10 @@ function Viewer3D() {
     const [zoom, setZoom] = useState(100)
     const [rotation, setRotation] = useState(0)
     const [showModal, setShowModal] = useState(false)
+    const [showHouse, setShowHouse] = useState(false)
     const [activeCategory, setActiveCategory] = useState(null)
     const [modelLoaded, setModelLoaded] = useState(false)
+    const [dxfFiles, setDxfFiles] = useState(false)
 
     const handleCategoryClick = async (categoryId) => {
         console.log("Category clicked:", categoryId);
@@ -38,13 +40,45 @@ function Viewer3D() {
     }
 
     const handleUpload = () => {
-        setModelLoaded(true)
+        const  UploadPopUp = async ()=>{
+            try {
+                console.log('is trying to fetch the data')
+                const response = await api.get('myfiles',{
+                    responseType:"json"
+                });
+                console.log(response.data)
+                setDxfFiles(response.data);
+                setModelLoaded(true)
+            }catch (error){
+                console.error("Error fetching DXF file:", error);
+
+            }
+        }
+        UploadPopUp();
+    }
+    const uploadFile = (selectedFile) => {
+        const  Model = async ()=>{
+            try {
+                console.log('is trying to fetch the data')
+                const response = await api.get(`files/${selectedFile}`,{
+                    responseType:"json"
+                });
+                console.log(response.data)
+                setShowHouse(selectedFile);
+                setDxfFiles(false);
+            }catch (error){
+                console.error("Error fetching DXF file:", error);
+
+            }
+        }
+        Model();
     }
     let [categories, setCategories] = useState([]);
     const [componentItems, setComponentItems] = useState([]);
 
     useEffect(() => {
         const  fetchCategories = async ()=>{
+            console.log('fetch categories')
             try {
                 const response = await api.get('components',{
                     responseType:"json"
@@ -132,7 +166,39 @@ function Viewer3D() {
                 <div className="flex-1 bg-gray-100 flex items-center justify-center">
                     {modelLoaded ? (
                         <div className="relative w-full h-full">
-                        <House/>
+                            {
+                                dxfFiles ? (
+                                    dxfFiles.map((dxfFile) => (
+                                            <button
+                                                key={dxfFile.id}
+                                                className="flex flex-col items-center text-gray-700 hover:text-blue-600"
+                                                onClick={()=>uploadFile(dxfFile.path)}
+                                            >
+                                                <span className="text-2xl mb-1">{dxfFile.path}</span>
+                                            </button>
+                                        ))
+
+                                ) : (
+
+                                        showHouse ? (
+                                            <House
+                                                file={showHouse}
+                                            />
+
+                                        ):(
+                                            <span className="text-2xl mb-1">No file yet</span>
+
+                                        )
+
+                                )
+                            }
+
+                            <button
+                                className="flex flex-col items-center text-gray-700 hover:text-blue-600"
+
+                            >
+                                <span className="text-2xl mb-1">Upload a File</span>
+                            </button>
                         </div>
                     ) : (
                         <div className="text-center">

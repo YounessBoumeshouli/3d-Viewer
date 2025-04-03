@@ -5,9 +5,9 @@ import { useTexture } from '@react-three/drei';
 import Loader from '../components/Loader';
 import api from "../services/api.js";
 
-const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall }) => {
+const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file  }) => {
+    let path = file.file;
     const [entities, setEntities] = useState([]);
-
     // Load textures for different wall materials
     const stoneTextures = useTexture({
         map: '/textures/stone/stone_diffuse.jpg',
@@ -91,9 +91,10 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall }) =
     }, [entities, setLongestWall]);
 
     useEffect(() => {
-        const fetchDxfFile = async () => {
+        const fetchDxfFile = async (file) => {
+            console.log(file)
             try {
-                const response = await api.get("/files/dxf-files/whBnwHN4NHGeqkriIfIaUEv8Nyw1WmHZbL4CTe4H.txt", {
+                const response = await api.get(`/files/${path}`, {
                     responseType: "text",
                 });
 

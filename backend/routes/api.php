@@ -16,16 +16,17 @@ Route::get('image/door/{filename}', function ($filename) {
     }
     return response()->file($path);
 });
+
 Route::post('register', [JWTAuthController::class, 'register']);
 Route::post('login', [JWTAuthController::class, 'login']);
 Route::get('components',[ComponentController::class,'index']);
 Route::get('components/{type}',[ComponentController::class,'show']);
 Route::middleware([JwtMiddleware::class])->group(function () {
-Route::get('user', [JWTAuthController::class, 'getUser']);
+    Route::get('myfiles',[FileController::class,'index']);
+
+    Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);
 Route::get('/house', [HouseController::class, 'show']);
 Route::get('files/{path}', [FileController::class, 'serve'])->where('path', '.*');
-
-
 });

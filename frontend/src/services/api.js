@@ -15,7 +15,8 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }else {
-            config.headers.Authorization = `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzQzNjgxNjU3LCJleHAiOjE3NDM2ODUyNTcsIm5iZiI6MTc0MzY4MTY1NywianRpIjoia2Q4R1lDOERKaVQyTlJHdSIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6bnVsbH0.kuTwmeHJn_BA0sByNlptW8SRFW-9mIR3oMeZJy-bbd4`;      }
+            config.headers.Authorization = `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzQzNjkxMjE0LCJleHAiOjE3NDM2OTQ4MTQsIm5iZiI6MTc0MzY5MTIxNCwianRpIjoic3A0d3FnblJaNWJNREtBeSIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6bnVsbH0.t2WCv57nqP8Gn9x2MQVI694Sug71ouJMyU8XrYorHto`;
+        }
         return config;
     },
     (error) => Promise.reject(error)

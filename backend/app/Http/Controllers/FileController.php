@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DxfFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
+    public function index()
+    {
+        return DxfFile::all()->where("user_id",\auth()->id());
+    }
     public function serve(Request $request, $path = null) {
         // Log the requested path for debugging
         \Log::info('File requested: ' . $path);
@@ -28,7 +34,6 @@ class FileController extends Controller
             $mimeType = Storage::disk('public')->mimeType($path) ?: 'text/plain';
 
             \Log::info('Serving file: ' . $path . ' with mime type: ' . $mimeType);
-
             // Return the file with proper headers
             return response($content)
                 ->header('Content-Type', $mimeType)

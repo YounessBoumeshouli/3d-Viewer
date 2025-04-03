@@ -102,7 +102,7 @@ const CameraController = () => {
     return null;
 };
 
-function House() {
+function House(file) {
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];
         return [screenScale, [0, 0, 0]];
@@ -146,7 +146,7 @@ function House() {
                     <Floor />
 
                     <group rotation={[-Math.PI / 2, 0, 0]}>
-                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} />
+                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} />
                     </group>
 
                     {longestWall && (
