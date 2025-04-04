@@ -31,6 +31,7 @@ function FileUploadModel({ title = 'Upload a new File', onClose }) {
             const response = await api.post('upload', formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
+
         }catch (error){
             console.error(error)
         }

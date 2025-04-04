@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/user/Layout';
 import DesignerCard from '../components/user/DesignerCard';
@@ -6,36 +6,21 @@ import ModelCard from '../components/user/ModelCard';
 import ProjectCard from '../components/user/ProjectCard';
 import {Button} from "@/components/ui/button.jsx";
     import LoginModel from "../components/User/LoginModel.jsx";
+    import api from "../services/api.js"
 
 const HomePage = () => {
     const  [loginModel , setLoginModel] = useState(false);
+    const  [designers , setDesigners] = useState([]);
     const closeLoginModel = () => {
         setLoginModel(false)
     }
-    const designers = [
-        {
-            id: 1,
-            name: 'Alex Thompson',
-            title: '3D Modeling Expert',
-            image: '/path/to/alex.jpg',
-            socialLinks: ['behance', 'instagram']
-        },
-        {
-            id: 2,
-            name: 'Sarah Chen',
-            title: 'UI/UX Designer',
-            image: '/path/to/sarah.jpg',
-            socialLinks: ['linkedin', 'twitter', 'behance']
-        },
-        {
-            id: 3,
-            name: 'Mike Rodriguez',
-            title: 'Product Designer',
-            image: '/path/to/mike.jpg',
-            socialLinks: ['linkedin', 'dribbble', 'behance']
-        }
-    ];
-
+    const fetchDesigners = async ()=>{
+        const response = await api.get('designers');
+        setDesigners(response.data);
+    }
+    useEffect(() => {
+        fetchDesigners();
+    }, []);
     const models = [
         {
             id: 1,

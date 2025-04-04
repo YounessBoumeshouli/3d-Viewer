@@ -21,6 +21,7 @@ Route::post('register', [JWTAuthController::class, 'register']);
 Route::post('login', [JWTAuthController::class, 'login']);
 Route::get('categories',[ComponentController::class,'index']);
 Route::get('components/{type}',[ComponentController::class,'show']);
+Route::get('components/{type}',[DesignerController::class,'show']);
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);
 
