@@ -19,7 +19,7 @@ Route::get('image/door/{filename}', function ($filename) {
 
 Route::post('register', [JWTAuthController::class, 'register']);
 Route::post('login', [JWTAuthController::class, 'login']);
-Route::get('components',[ComponentController::class,'index']);
+Route::get('categories',[ComponentController::class,'index']);
 Route::get('components/{type}',[ComponentController::class,'show']);
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);

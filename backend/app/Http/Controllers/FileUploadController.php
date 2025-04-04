@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\component;
 use App\Models\DxfFile;
 use Illuminate\Http\Request;
@@ -12,14 +13,15 @@ class FileUploadController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimetypes:application/dxf,text/plain,image/jpeg,image/png,application/pdf|max:5120',
-            'type'=>'in:model,door,window'
+            'type'=>'required|integer'
         ]);
+
 
         $file = $request->file('file');
 
         $type = $request->input('type');
-        if ($type == 'model'){
-
+        $category = Category::find($type);
+        if (!$category){
         $path = $file->store('dxf-files', 'public');
             DxfFile::create(['user_id'=>auth()->id(),'path'=>$path]);
         return response()->json([
@@ -28,7 +30,7 @@ class FileUploadController extends Controller
         ], 201);
         } else{
             $path = $file->store('components/'.$type, 'public');
-            component::create(["path"=>$path,"type"=>$type]);
+            component::create(["path"=>$path,"category_id"=>$type]);
             return response()->json([
                 'message' => 'component file uploaded successfully',
                 'path' => asset("storage/$path"),

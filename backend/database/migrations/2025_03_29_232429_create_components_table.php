@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('components', function (Blueprint $table) {
             $table->id();
-            $table->enum('type',["door","window"]);
+            $table->foreignId('category_id');
             $table->text('path');
             $table->string('dimensions')->nullable();
             $table->double('price')->nullable();

@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\DB;
 class ComponentController extends Controller
 {
     public function index(){
-        return DB::table('components')->get();
+        return DB::table('categories')->get();
     }
     public function show($type){
-        return DB::table('components')->where('type',$type)->get();
+        return DB::table('components')->where('category_id',$type)->get();
     }
 }
