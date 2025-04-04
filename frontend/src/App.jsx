@@ -13,7 +13,11 @@ import Analytics from "./pages/Analytics.jsx";
 import Components from "./pages/Components.jsx";
 import Team from "./pages/Team.jsx";
 import CreatorDashboard from "./pages/CreatorDashboard.jsx";
-
+import ViewerPage from "./pages/ViewerPage.jsx";
+import ModelPage from "./pages/ModelPage.jsx";
+import DesignerPage from "./pages/DesignerPage.jsx";
+import ModelsPage from "./pages/ModelsPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
 function AnalyticsPage() {
     return null;
 }
@@ -35,6 +39,11 @@ function App() {
                   <Route path="/3D" element={<Viewer3D/>} />
                   <Route path="/Dashboard" element={<Dashboard/>} />
                   <Route path="/analytics" element={<AnalyticsPage/>} />
+                  <Route path="/user" element={<HomePage />} />
+                  <Route path="/models" element={<ModelsPage />} />
+                  <Route path="/designer/:id" element={<DesignerPage />} />
+                  <Route path="/model/:id" element={<ModelPage />} />
+                  <Route path="/viewer" element={<ViewerPage />} />
               </Routes>
 
           </Router>
