@@ -7,18 +7,18 @@ import ComponentModal from "../components/Maker/ComponentModel.jsx"
 import House from "../pages/house.jsx"
 import {DxfParser} from "dxf-parser";
 import api from "../services/api.js";
-// Component categories
-
-// Component items for each category
 
 function Viewer3D() {
     const [zoom, setZoom] = useState(100)
     const [rotation, setRotation] = useState(0)
     const [showModal, setShowModal] = useState(false)
-    const [showHouse, setShowHouse] = useState(false)
+    const [selectedFile, setSelectedFile] = useState(null)
     const [activeCategory, setActiveCategory] = useState(null)
     const [modelLoaded, setModelLoaded] = useState(false)
-    const [dxfFiles, setDxfFiles] = useState(false)
+    const [dxfFiles, setDxfFiles] = useState([])
+    const [fileListVisible, setFileListVisible] = useState(false)
+    const [categories, setCategories] = useState([]);
+    const [componentItems, setComponentItems] = useState([]);
 
     const handleCategoryClick = async (categoryId) => {
         console.log("Category clicked:", categoryId);
@@ -27,7 +27,6 @@ function Viewer3D() {
         setShowModal(true)
         try {
             const response = await api.get('components/'+categoryId);
-
             console.log("Server Response:", response.data);
             setComponentItems(response.data)
         } catch (error) {
@@ -39,60 +38,51 @@ function Viewer3D() {
         setShowModal(false)
     }
 
-    const handleUpload = () => {
-        const  UploadPopUp = async ()=>{
-            try {
-                console.log('is trying to fetch the data')
-                const response = await api.get('myfiles',{
-                    responseType:"json"
-                });
-                console.log(response.data)
-                setDxfFiles(response.data);
-                setModelLoaded(true)
-            }catch (error){
-                console.error("Error fetching DXF file:", error);
-
-            }
+    const handleUpload = async () => {
+        try {
+            console.log('is trying to fetch the data')
+            const response = await api.get('myfiles', {
+                responseType: "json"
+            });
+            console.log(response.data)
+            setDxfFiles(response.data);
+            setFileListVisible(true);
+            setModelLoaded(true);
+        } catch (error) {
+            console.error("Error fetching DXF file:", error);
         }
-        UploadPopUp();
     }
-    const uploadFile = (selectedFile) => {
-        const  Model = async ()=>{
-            try {
-                console.log('is trying to fetch the data')
-                const response = await api.get(`files/${selectedFile}`,{
-                    responseType:"json"
-                });
-                console.log(response.data)
-                setShowHouse(selectedFile);
-                setDxfFiles(false);
-            }catch (error){
-                console.error("Error fetching DXF file:", error);
 
-            }
+    const uploadFile = async (selectedFilePath) => {
+        try {
+            console.log('Fetching file:', selectedFilePath)
+            const response = await api.get(`files/${selectedFilePath}`, {
+                responseType: "json"
+            });
+            console.log(response.data)
+            setSelectedFile(selectedFilePath);
+            setFileListVisible(false); // Hide the file list
+        } catch (error) {
+            console.error("Error fetching DXF file:", error);
         }
-        Model();
     }
-    let [categories, setCategories] = useState([]);
-    const [componentItems, setComponentItems] = useState([]);
 
     useEffect(() => {
-        const  fetchCategories = async ()=>{
+        const fetchCategories = async () => {
             console.log('fetch categories')
             try {
-                const response = await api.get('components',{
-                    responseType:"json"
+                const response = await api.get('components', {
+                    responseType: "json"
                 });
                 console.log(response.data)
                 setCategories(response.data);
-                console.log(categories)
-            }catch (error){
-                console.error("Error fetching DXF file:", error);
-
+            } catch (error) {
+                console.error("Error fetching categories:", error);
             }
         }
-         fetchCategories();
+        fetchCategories();
     }, []);
+
     return (
         <div className="flex h-[calc(100vh-64px)]">
             {/* Left sidebar */}
@@ -166,41 +156,41 @@ function Viewer3D() {
                 <div className="flex-1 bg-gray-100 flex items-center justify-center">
                     {modelLoaded ? (
                         <div className="relative w-full h-full">
-                            {
-                                dxfFiles ? (
-                                    dxfFiles.map((dxfFile) => (
+                            {fileListVisible ? (
+                                <div className="p-4 flex flex-col items-center">
+                                    <h2 className="text-xl mb-4">Select a DXF File</h2>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {dxfFiles.map((dxfFile) => (
                                             <button
                                                 key={dxfFile.id}
-                                                className="flex flex-col items-center text-gray-700 hover:text-blue-600"
-                                                onClick={()=>uploadFile(dxfFile.path)}
+                                                className="p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                                                onClick={() => uploadFile(dxfFile.path)}
                                             >
-                                                <span className="text-2xl mb-1">{dxfFile.path}</span>
+                                                <span>{dxfFile.path}</span>
                                             </button>
-                                        ))
-
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : (
+                                selectedFile ? (
+                                    <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
+                                        <House file={selectedFile} />
+                                        <button
+                                            className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                            onClick={() => setFileListVisible(true)}
+                                        >
+                                            Choose Another File
+                                        </button>
+                                    </div>
                                 ) : (
-
-                                        showHouse ? (
-                                            <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
-                                                <House
-                                                    file={showHouse}
-                                                />
-                                            </div>
-
-                                        ):(
-                                            <span className="text-2xl mb-1">No file yet</span>
-
-                                        )
-
+                                    <div className="text-center">
+                                        <p className="text-gray-500 mb-4">No file selected. Please select a file.</p>
+                                        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => setFileListVisible(true)}>
+                                            Choose DXF File
+                                        </Button>
+                                    </div>
                                 )
-                            }
-
-                            <button
-                                className="flex flex-col items-center text-gray-700 hover:text-blue-600"
-
-                            >
-                                <span className="text-2xl mb-1">Upload a File</span>
-                            </button>
+                            )}
                         </div>
                     ) : (
                         <div className="text-center">
@@ -233,7 +223,7 @@ function Viewer3D() {
 
             {showModal && activeCategory && (
                 <ComponentModal
-                    title={categories.find((c) => c.type === activeCategory).type}
+                    title={categories.find((c) => c.type === activeCategory)?.type || activeCategory}
                     items={componentItems}
                     onClose={handleCloseModal}
                 />
@@ -243,4 +233,3 @@ function Viewer3D() {
 }
 
 export default Viewer3D
-

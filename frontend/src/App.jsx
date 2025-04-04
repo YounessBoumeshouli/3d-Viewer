@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Analytics from "./pages/Analytics.jsx";
 import Components from "./pages/Components.jsx";
 import Team from "./pages/Team.jsx";
+import CreatorDashboard from "./pages/CreatorDashboard.jsx";
 
 function AnalyticsPage() {
     return null;
@@ -29,8 +30,8 @@ function App() {
                   <Route path="/analytics" element={<Analytics />} />
                   <Route path="/team" element={<Team />} />
                   <Route path="/components" element={<Components />} />
+                  <Route path="/creator" element={<CreatorDashboard />} />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/house" element={<House/>} />
                   <Route path="/3D" element={<Viewer3D/>} />
                   <Route path="/Dashboard" element={<Dashboard/>} />
                   <Route path="/analytics" element={<AnalyticsPage/>} />
