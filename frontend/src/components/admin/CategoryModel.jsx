@@ -15,10 +15,21 @@ function handleSelect(item,title) {
 }
 
 function CategoryModel({ title = 'hello', onClose }) {
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
                 <div className="p-6">
+                    {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold flex items-center">
                             {title}
@@ -29,53 +40,59 @@ function CategoryModel({ title = 'hello', onClose }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
-                        {/* Left Side (Image or Illustration) */}
                         <div className="hidden md:flex items-center justify-center bg-gray-100 rounded-lg">
-                            <img src="/login-illustration.svg" alt="Login" className="w-3/4 h-auto" />
+                            <img
+                                src={imagePreview || "/placeholder-image.png"}
+                                alt="Category"
+                                className="w-3/4 h-auto object-cover rounded-lg"
+                            />
                         </div>
 
-                        {/* Right Side (Login Form) */}
+                        {/* Right Side (Form) */}
                         <div className="flex flex-col justify-center">
                             <form className="space-y-4">
+                                {/* Image Upload */}
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                        Email
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Upload Image
                                     </label>
                                     <input
-                                        type="email"
-                                        id="email"
-                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
-                                        placeholder="you@example.com"
+                                        type="file"
+                                        accept="image/*"
+                                        className="mt-1 block w-full text-sm text-gray-600 border border-gray-300 rounded-lg shadow-sm cursor-pointer focus:ring focus:ring-blue-200"
+                                        onChange={handleImageChange}
                                     />
                                 </div>
 
+                                {/* Name Input */}
                                 <div>
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                        Password
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Category Name
                                     </label>
                                     <input
-                                        type="password"
-                                        id="password"
+                                        type="text"
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
-                                        placeholder="••••••••"
+                                        placeholder="Enter category name"
                                     />
                                 </div>
 
-                                <div className="flex items-center justify-between">
-                                    <label className="flex items-center space-x-2 text-sm text-gray-600">
-                                        <input type="checkbox" className="rounded border-gray-300" />
-                                        <span>Remember me</span>
+                                {/* Description Input */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Description
                                     </label>
-                                    <a href="#" className="text-sm text-blue-600 hover:underline">
-                                        Forgot password?
-                                    </a>
+                                    <textarea
+                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
+                                        placeholder="Enter category description"
+                                        rows="3"
+                                    />
                                 </div>
 
                                 <button
                                     type="submit"
                                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
                                 >
-                                    Sign In
+                                    Save Category
                                 </button>
                             </form>
                         </div>
@@ -83,6 +100,7 @@ function CategoryModel({ title = 'hello', onClose }) {
                 </div>
             </div>
         </div>
+
 
     )
 }

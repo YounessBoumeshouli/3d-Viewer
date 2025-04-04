@@ -15,7 +15,6 @@ function handleSelect(item,title) {
 }
 
 function ComponentModal({ title, icon, items, onClose }) {
-    console.log('items',items);
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">

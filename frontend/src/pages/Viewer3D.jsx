@@ -7,6 +7,7 @@ import ComponentModal from "../components/Maker/ComponentModel.jsx"
 import House from "../pages/house.jsx"
 import {DxfParser} from "dxf-parser";
 import api from "../services/api.js";
+import FileUploadModal from "../components/Maker/FileUploadModal.jsx";
 
 function Viewer3D() {
     const [zoom, setZoom] = useState(100)
@@ -17,16 +18,17 @@ function Viewer3D() {
     const [modelLoaded, setModelLoaded] = useState(false)
     const [dxfFiles, setDxfFiles] = useState([])
     const [fileListVisible, setFileListVisible] = useState(false)
+    const [fileUploadVisible, setFileUploadVisible] = useState(false)
     const [categories, setCategories] = useState([]);
     const [componentItems, setComponentItems] = useState([]);
 
-    const handleCategoryClick = async (categoryId) => {
-        console.log("Category clicked:", categoryId);
-        setActiveCategory(categoryId)
+    const handleCategoryClick = async (category) => {
+        console.log("Category clicked:", category.id);
+        setActiveCategory(category.name)
 
         setShowModal(true)
         try {
-            const response = await api.get('components/'+categoryId);
+            const response = await api.get('components/'+category.id);
             console.log("Server Response:", response.data);
             setComponentItems(response.data)
         } catch (error) {
@@ -36,6 +38,7 @@ function Viewer3D() {
 
     const handleCloseModal = () => {
         setShowModal(false)
+        setFileUploadVisible(false)
     }
 
     const handleUpload = async () => {
@@ -55,11 +58,9 @@ function Viewer3D() {
 
     const uploadFile = async (selectedFilePath) => {
         try {
-            console.log('Fetching file:', selectedFilePath)
             const response = await api.get(`files/${selectedFilePath}`, {
                 responseType: "json"
             });
-            console.log(response.data)
             setSelectedFile(selectedFilePath);
             setFileListVisible(false); // Hide the file list
         } catch (error) {
@@ -71,7 +72,7 @@ function Viewer3D() {
         const fetchCategories = async () => {
             console.log('fetch categories')
             try {
-                const response = await api.get('components', {
+                const response = await api.get('categories', {
                     responseType: "json"
                 });
                 console.log(response.data)
@@ -155,6 +156,7 @@ function Viewer3D() {
             <div className="flex-1 flex flex-col">
                 <div className="flex-1 bg-gray-100 flex items-center justify-center">
                     {modelLoaded ? (
+
                         <div className="relative w-full h-full">
                             {fileListVisible ? (
                                 <div className="p-4 flex flex-col items-center">
@@ -170,8 +172,15 @@ function Viewer3D() {
                                             </button>
                                         ))}
                                     </div>
-                                </div>
-                            ) : (
+
+                                    <button
+                                        className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                        onClick={() => setFileUploadVisible(true)  }
+                                    >
+                                        Upload a new DXF File
+                                    </button>                                </div>
+
+                                ) : (
                                 selectedFile ? (
                                     <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
                                         <House file={selectedFile} />
@@ -212,9 +221,9 @@ function Viewer3D() {
                             <button
                                 key={category.id}
                                 className="flex flex-col items-center text-gray-700 hover:text-blue-600"
-                                onClick={() => handleCategoryClick(category.type)}
+                                onClick={() => handleCategoryClick(category)}
                             >
-                                <span className="text-2xl mb-1">{category.type}</span>
+                                <span className="text-2xl mb-1">{category.name}</span>
                             </button>
                         ))}
                     </div>
@@ -223,8 +232,13 @@ function Viewer3D() {
 
             {showModal && activeCategory && (
                 <ComponentModal
-                    title={categories.find((c) => c.type === activeCategory)?.type || activeCategory}
+                    title={categories.find((c) => c.name === activeCategory)?.type || activeCategory}
                     items={componentItems}
+                    onClose={handleCloseModal}
+                />
+            )}
+            {fileUploadVisible && (
+                <FileUploadModal
                     onClose={handleCloseModal}
                 />
             )}
