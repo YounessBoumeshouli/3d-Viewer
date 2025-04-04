@@ -1,33 +1,38 @@
 "use client"
 
-import {useEffect, useState} from "react"
+import React, {useEffect, useState} from "react"
 import Layout from "../components/admin/Layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog.jsx"
 import { Plus } from "lucide-react"
 import api from "../services/api.js";
+import CategoryModel from "../components/admin/CategoryModel.jsx";
 
 function Components() {
-    const [doors,setDoors] = useState([])
+    const [items,setItems] = useState([])
+    const [category,setCategory] = useState([])
+    const  [categoryModel , setCategoryModel] = useState(false);
+    const closeCategoryModel = () => {
+        setCategoryModel(false)
+    }
     useEffect(() => {
-        const  Doors = async ()=>{
+        const  Items = async ()=>{
             try {
-                const response = await  api.get('components/door',{
+                const response = await  api.get(`components/${category}`,{
                     responseType : "json"
                 });
-                setDoors(response.data)
+                setItems(response.data)
 
             }
             catch (error){
             console.error(error)
             }
         }
-        Doors();
-    }, []);
+        Items();
+    }, [category]);
     const [selectedComponent, setSelectedComponent] = useState(null)
     const [showDoorDialog, setShowDoorDialog] = useState(false)
-    console.log(doors)
     return (
         <Layout>
             <div className="grid grid-cols-1 gap-6">
@@ -38,9 +43,10 @@ function Components() {
                         <p className="text-gray-400 mb-6 max-w-md">
                             Create new project and customize it with your priority base UI kit element.
                         </p>
-                        <Button className="bg-transparent hover:bg-[#3e435d]/20 border border-[#3e435d] rounded-full">
+                        <Button className="bg-transparent hover:bg-[#3e435d]/20 border border-[#3e435d] rounded-full"
+                                onClick={() => setCategoryModel(true)}>
                             <Plus className="h-5 w-5 mr-2" />
-                            Create New Component
+                            add New Category
                         </Button>
                     </CardContent>
                 </Card>
@@ -49,15 +55,17 @@ function Components() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                     {[
                         { name: "Maison Moderne", dimensions: "200×150×180 cm", icon: "cube" },
-                        { name: "Canapé Design", dimensions: "180×80×90 cm", icon: "sofa" },
-                        { name: "Structure Industrielle", dimensions: "500×300×400 cm", icon: "building" },
+                        { name: "door", dimensions: "180×80×90 cm", icon: "sofa" },
+                        { name: "window", dimensions: "500×300×400 cm", icon: "building" },
                         { name: "Table Classique", dimensions: "120×75×80 cm", icon: "table" },
                     ].map((component, i) => (
                         <Dialog
                             key={i}
                             open={component.name === "Maison Moderne" && showDoorDialog}
-                            onOpenChange={setShowDoorDialog}
-                        >
+                            onOpenChange={(isOpen) => {
+                                setShowDoorDialog(isOpen);
+                                if (isOpen) setCategory(component.name);
+                            }}                        >
                             <DialogTrigger asChild>
                                 <Card
                                     className={`bg-gray-100 text-gray-800 cursor-pointer transition-all hover:shadow-md ${
@@ -148,25 +156,39 @@ function Components() {
 
                             <DialogContent className="bg-white text-black">
                                 <DialogHeader>
-                                    <DialogTitle>Doors</DialogTitle>
-                                    {doors.map((door) => (
-                                        <div
-                                            key={door.id}
-                                            className="p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
-                                        >
-                                            <img src={`http://127.0.0.1:8000/storage/${door.path}`} alt={door.name} className="max-h-full max-w-full" />
-
-                                            <span>{door.path}</span>
+                                    <DialogTitle>{category}</DialogTitle>
+                                    {Array.isArray(items) && items.length > 0 ? (
+                                        <div className="flex flex-wrap gap-4">
+                                            {items.map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    className="w-1/2 md:w-1/3 lg:w-1/4 p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                                                >
+                                                    <img
+                                                        src={`http://127.0.0.1:8000/storage/${item.path}`}
+                                                        alt={item.name}
+                                                        className="w-full h-32 object-cover rounded"
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <p className="text-gray-500">No {category}s found.</p>
+                                    )}
+
                                 </DialogHeader>
                                 <div className="py-6">{/* Empty content for door dialog */}</div>
-                                <Button className="w-full bg-[#6366f1] hover:bg-[#4f46e5]">add Door</Button>
+                                <Button className="w-full bg-[#6366f1] hover:bg-[#4f46e5]">add {category}</Button>
                             </DialogContent>
                         </Dialog>
                     ))}
                 </div>
             </div>
+            {categoryModel &&(
+                <CategoryModel
+                    onClose = {closeCategoryModel}
+                />
+            )}
         </Layout>
     )
 }
