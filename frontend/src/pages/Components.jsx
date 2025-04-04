@@ -1,16 +1,33 @@
 "use client"
 
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import Layout from "../components/admin/Layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog.jsx"
 import { Plus } from "lucide-react"
+import api from "../services/api.js";
 
 function Components() {
+    const [doors,setDoors] = useState([])
+    useEffect(() => {
+        const  Doors = async ()=>{
+            try {
+                const response = await  api.get('components/door',{
+                    responseType : "json"
+                });
+                setDoors(response.data)
+
+            }
+            catch (error){
+            console.error(error)
+            }
+        }
+        Doors();
+    }, []);
     const [selectedComponent, setSelectedComponent] = useState(null)
     const [showDoorDialog, setShowDoorDialog] = useState(false)
-
+    console.log(doors)
     return (
         <Layout>
             <div className="grid grid-cols-1 gap-6">
@@ -132,6 +149,16 @@ function Components() {
                             <DialogContent className="bg-white text-black">
                                 <DialogHeader>
                                     <DialogTitle>Doors</DialogTitle>
+                                    {doors.map((door) => (
+                                        <div
+                                            key={door.id}
+                                            className="p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                                        >
+                                            <img src={`http://127.0.0.1:8000/storage/${door.path}`} alt={door.name} className="max-h-full max-w-full" />
+
+                                            <span>{door.path}</span>
+                                        </div>
+                                    ))}
                                 </DialogHeader>
                                 <div className="py-6">{/* Empty content for door dialog */}</div>
                                 <Button className="w-full bg-[#6366f1] hover:bg-[#4f46e5]">add Door</Button>
