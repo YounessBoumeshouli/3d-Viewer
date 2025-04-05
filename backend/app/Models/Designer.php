@@ -13,7 +13,7 @@ class Designer extends Model
     }
     public function houses()
     {
-        return $this->hasMany(House::class);
+        return $this->hasMany(DxfFile::class);
     }
     public function user()
     {

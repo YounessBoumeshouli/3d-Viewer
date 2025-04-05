@@ -15,7 +15,7 @@ class FileController extends Controller
     }
     public function index()
     {
-        return DxfFile::all()->where("user_id",\auth()->id());
+        return DxfFile::all()->where("designer_id",\auth()->id());
     }
     public function serve(Request $request, $path = null) {
         // Log the requested path for debugging

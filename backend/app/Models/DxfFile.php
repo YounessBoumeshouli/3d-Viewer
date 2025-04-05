@@ -11,4 +11,8 @@ class DxfFile extends Model
     {
         return $this->hasOne(House::class);
     }
+    public function designer()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

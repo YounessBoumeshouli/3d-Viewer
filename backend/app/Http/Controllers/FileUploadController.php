@@ -30,7 +30,7 @@ class FileUploadController extends Controller
         $category = Category::find($type);
         if (!$category){
         $path = $file->store('dxf-files', 'public');
-            DxfFile::create(['user_id'=>auth()->id(),'path'=>$path]);
+            DxfFile::create(['designer_id'=>auth()->id(),'path'=>$path]);
         return response()->json([
             'message' => 'DXF file uploaded successfully',
             'path' => asset("storage/$path"),
