@@ -17,6 +17,13 @@ Route::get('image/door/{filename}', function ($filename) {
     }
     return response()->file($path);
 });
+Route::get('image/window/{filename}', function ($filename) {
+    $path = storage_path('app/public/components/window/' . $filename);
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'Image not found'], 404);
+    }
+    return response()->file($path);
+});
 
 Route::post('register', [JWTAuthController::class, 'register']);
 Route::post('login', [JWTAuthController::class, 'login']);
