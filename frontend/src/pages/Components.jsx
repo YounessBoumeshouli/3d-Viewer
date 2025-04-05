@@ -38,7 +38,7 @@ function Components() {
     }, []);
 
     useEffect(() => {
-        if (!category) return;
+        if (Object.keys(category).length === 0) return;
 
         const Items = async () => {
             console.log(category.id)

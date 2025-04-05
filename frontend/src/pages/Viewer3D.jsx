@@ -21,7 +21,7 @@ function Viewer3D() {
     const [fileUploadVisible, setFileUploadVisible] = useState(false)
     const [categories, setCategories] = useState([]);
     const [componentItems, setComponentItems] = useState([]);
-
+    const [models,setModels] = useState([]);
     const handleCategoryClick = async (category) => {
         console.log("Category clicked:", category.id);
         setActiveCategory(category.name)
@@ -150,6 +150,30 @@ function Viewer3D() {
                         </div>
                     </div>
                 </div>
+                <div>
+                    <h2 className="text-lg font-semibold mb-4">Models</h2>
+                    <div className="space-y-2">
+                        <div className="flex items-center">
+                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                                <Square className="h-4 w-4 text-white" />
+                            </div>
+                            <span>Lignes</span>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                                <Circle className="h-4 w-4 text-white" />
+                            </div>
+                            <span>Cercles</span>
+                        </div>
+                        <div className="flex items-center">
+                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                                <Dot className="h-4 w-4 text-white" />
+                            </div>
+                            <span>Points</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             {/* Main content */}
@@ -229,6 +253,7 @@ function Viewer3D() {
                     </div>
                 )}
             </div>
+
 
             {showModal && activeCategory && (
                 <ComponentModal
