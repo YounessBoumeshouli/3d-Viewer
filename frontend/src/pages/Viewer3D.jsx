@@ -35,7 +35,13 @@ function Viewer3D() {
             console.error("Error selecting item:", error);
         }
     }
+    const handleSaveModel = () => {
+        const model = selectedFile.file;
+        categories.map((category)=>(
+            console.log(category.name)
+        ))
 
+    }
     const handleCloseModal = () => {
         setShowModal(false)
         setFileUploadVisible(false)
@@ -82,6 +88,20 @@ function Viewer3D() {
             }
         }
         fetchCategories();
+    }, []);
+    useEffect(() => {
+        const fetchModels = async () => {
+            console.log('fetch categories')
+            try {
+                const response = await api.get('creator/models', {
+                    responseType: "json"
+                });
+                console.log(response.data)
+                setCategories(response.data);
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        }
     }, []);
 
     return (
@@ -152,26 +172,32 @@ function Viewer3D() {
                 </div>
                 <div>
                     <h2 className="text-lg font-semibold mb-4">Models</h2>
-                    <div className="space-y-2">
-                        <div className="flex items-center">
-                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
-                                <Square className="h-4 w-4 text-white" />
+                    {models.map((model)=>(
+                        <div className="space-y-2">
+                            <div className="flex items-center">
+                                <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                                    <Square className="h-4 w-4 text-white" />
+                                </div>
+                                <span>Lignes</span>
                             </div>
-                            <span>Lignes</span>
-                        </div>
-                        <div className="flex items-center">
-                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
-                                <Circle className="h-4 w-4 text-white" />
+                            <div className="flex items-center">
+                                <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                                    <Circle className="h-4 w-4 text-white" />
+                                </div>
+                                <span>Cercles</span>
                             </div>
-                            <span>Cercles</span>
-                        </div>
-                        <div className="flex items-center">
-                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
-                                <Dot className="h-4 w-4 text-white" />
+                            <div className="flex items-center">
+                                <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                                    <Dot className="h-4 w-4 text-white" />
+                                </div>
+                                <span>Points</span>
                             </div>
-                            <span>Points</span>
                         </div>
-                    </div>
+                        ))
+
+
+
+                    }
                 </div>
 
             </div>
@@ -251,7 +277,18 @@ function Viewer3D() {
                             </button>
                         ))}
                     </div>
+
                 )}
+                {
+                    selectedFile &&
+                <button
+                    className="absolute bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    onClick={handleSaveModel}
+                >
+                    <span className="text-2xl mb-1">Save</span>
+                </button>
+
+                }
             </div>
 
 

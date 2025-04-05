@@ -17,10 +17,13 @@ class ComponentController extends Controller
     }
     public function store(Request $request){
         $request->validate([
-            'name'=>'required|string'
+            'name'=>'required|string',
+            'description'=>'required|string',
+            'url'=>'string'
         ]);
         $name = $request->input('name');
-        Category::create(['name'=>$name]);
+        $description = $request->input('description');
+        Category::create(['name'=>$name,'description'=>$description]);
         return response()->json([
             'message' => 'Category added successfully',
         ], 201);

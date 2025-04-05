@@ -29,10 +29,10 @@ Route::get('models/designer/{id}',[DesignerController::class,'show']);
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);
     Route::post('categories',[ComponentController::class,'store']);
-
+    Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
     Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);
-Route::get('/house', [HouseController::class, 'show']);
+Route::get('/house/{id}', [FileController::class, 'show']);
 Route::get('files/{path}', [FileController::class, 'serve'])->where('path', '.*');
 });

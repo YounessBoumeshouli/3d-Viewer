@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
+    public function show($id)
+    {
+        return  DxfFile::find($id);
+    }
     public function index()
     {
         return DxfFile::all()->where("user_id",\auth()->id());

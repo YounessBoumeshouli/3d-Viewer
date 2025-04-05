@@ -8,8 +8,7 @@ use Illuminate\Http\Request;
 
 class HouseController extends Controller
 {
-    public function show()
-    {
-      return  DxfFile::find(1);
+    public function ModelsByCreator(){
+
     }
 }
