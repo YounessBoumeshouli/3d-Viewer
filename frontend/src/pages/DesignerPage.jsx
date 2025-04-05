@@ -1,11 +1,39 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {Link, useParams} from 'react-router-dom';
 import Layout from '../components/user/Layout';
+import api from "../services/api.js";
+import {Button} from "@/components/ui/button.jsx";
+import ModelCard from "../components/user/ModelCard.jsx";
 
 const DesignerPage = () => {
     // This component renders either Image 3 or Image 4 depending on props
     // For simplicity, I'm implementing Image 3 (Youness profile)
-
+    const [designer,setDesinger] = useState(null);
+    const [popularModels,setPopularModels] = useState([]);
+ const {id} = useParams();
+ const fetchUserData = async ()=>{
+     try {
+         const response = await api.get(`designers/${id}`)
+         setDesinger(response.data)
+     }catch (error){
+         console.error(error)
+     }
+ }
+ const fetchPopularModels = async ()=>{
+     try {
+         const response = await api.get(`models/designer/${id}`)
+         setDesinger(response.data)
+     }catch (error){
+         console.error(error)
+     }
+ }
+    useEffect(() => {
+        fetchUserData();
+    }, []);
+        console.log(designer)
+    if (!designer) {
+        return <div>Loading...</div>; // Show loading while fetching data
+    }
     return (
         <Layout>
             <div className="max-w-6xl mx-auto px-4 py-8">
@@ -23,11 +51,11 @@ const DesignerPage = () => {
                 {/* Profile information */}
                 <div className="mt-16 flex justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold">Youness Boumeshouli</h1>
+                        <h1 className="text-2xl font-bold">{designer.user.name}</h1>
                         <p className="text-gray-600">Architectural Designer</p>
                         <div className="mt-2">
                             <p className="text-lg font-semibold">4.9</p>
-                            <p className="text-gray-600">boumeshouliyouness6@gmail.com</p>
+                            <p className="text-gray-600">{designer.social_links[0].url}</p>
                         </div>
                     </div>
 
@@ -52,13 +80,14 @@ const DesignerPage = () => {
                 <div className="mt-12">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold">Popular Models</h2>
-                        <Link to="/models" className="text-blue-600 hover:underline">View All Models</Link>
+                        <Button  className="text-blue-600 hover:underline"
+
+                        >View All Models</Button>
                     </div>
 
                     {/* This would be populated with your ModelCard component */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Model cards would go here */}
-                        {/* You could map through an array of models */}
+                       <ModelCard/>
                     </div>
                 </div>
             </div>

@@ -13,7 +13,10 @@ class User extends Authenticatable implements JWTSubject
     protected $guarded = [];
     use HasFactory, Notifiable;
 
-
+    public function designer()
+    {
+        return $this->hasOne(Designer::class);
+    }
     public function getJWTIdentifier()
     {
         return $this->getKey();

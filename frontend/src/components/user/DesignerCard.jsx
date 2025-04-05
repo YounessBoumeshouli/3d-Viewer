@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom';
 const DesignerCard = (props) => {
 
     const designer =  props.designer
-    const links = designer.socialLinks
+    const links = designer.social_links
     const avatar = designer.avatar
-    const name = designer.name
-    const role =  designer.role
+    const name = designer.user.name
+    const role =  designer.user.role
     const id = designer.id
-    console.log(id)
+    console.log(designer)
     return (
 
         <div className="bg-white rounded-lg shadow-md p-6 text-center">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ComponentController;
+use App\Http\Controllers\DesignerController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HouseController;
@@ -21,7 +22,10 @@ Route::post('register', [JWTAuthController::class, 'register']);
 Route::post('login', [JWTAuthController::class, 'login']);
 Route::get('categories',[ComponentController::class,'index']);
 Route::get('components/{type}',[ComponentController::class,'show']);
-Route::get('components/{type}',[DesignerController::class,'show']);
+Route::get('designers',[DesignerController::class,'index']);
+Route::get('designers/{id}',[DesignerController::class,'show']);
+Route::get('models/designer/{id}',[DesignerController::class,'show']);
+
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);
 
