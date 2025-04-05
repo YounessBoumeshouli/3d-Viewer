@@ -37,6 +37,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);
     Route::post('categories',[ComponentController::class,'store']);
     Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
+    Route::apiResource('houses', HouseController::class);
     Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);

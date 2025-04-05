@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('dxf_file_id');
             $table->timestamps();
         });
-        Schema::create('house_comoponents', function (Blueprint $table) {
+        Schema::create('house_components', function (Blueprint $table) {
             $table->id();
             $table->foreignId('house_id');
             $table->foreignId('component_id');
@@ -30,6 +30,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('houses');
-        Schema::dropIfExists('house_comoponents');
+        Schema::dropIfExists('house_components');
     }
 };

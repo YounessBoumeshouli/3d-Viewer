@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DxfFile extends Model
+class HouseComponent extends Model
 {
     protected $guarded = [];
+
     public function house()
     {
-        return $this->hasOne(House::class);
+        return $this->belongsTo(House::class);
     }
 }

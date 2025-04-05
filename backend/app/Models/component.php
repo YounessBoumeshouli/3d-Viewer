@@ -7,4 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class component extends Model
 {
     protected $guarded = [];
+
 }
