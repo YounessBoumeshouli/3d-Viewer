@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('components', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id');
+            $table->string('name');
             $table->text('path');
             $table->string('dimensions')->nullable();
             $table->double('price')->nullable();

@@ -8,31 +8,55 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus } from "lucide-react"
 import api from "../services/api.js";
 import CategoryModel from "../components/admin/CategoryModel.jsx";
+import ItemModel from "../components/admin/ItemModel.jsx";
 
 function Components() {
     const [items,setItems] = useState([])
-    const [category,setCategory] = useState([])
+    const [category,setCategory] = useState({});
+    const [categoryList,setCataegoryList] = useState([]);
     const  [categoryModel , setCategoryModel] = useState(false);
+    const  [itemModel , setItemModel] = useState(false);
+    console.log(category)
     const closeCategoryModel = () => {
         setCategoryModel(false)
     }
+    const closeItemModel = () => {
+        setItemModel(false)
+    }
     useEffect(() => {
-        const  Items = async ()=>{
+        const fetchCategoryList = async ()=>{
             try {
-                const response = await  api.get(`components/${category}`,{
-                    responseType : "json"
+                const response = await api.get('categories');
+                setCataegoryList(response.data);
+            }catch (e) {
+                console.error(e)
+            }
+        }
+
+        fetchCategoryList()
+
+    }, []);
+
+    useEffect(() => {
+        if (!category) return;
+
+        const Items = async () => {
+            console.log(category.id)
+            try {
+                const response = await api.get(`components/${category.id}`, {
+                    responseType: "json"
                 });
                 setItems(response.data)
 
+            } catch (error) {
+                console.error(error)
             }
-            catch (error){
-            console.error(error)
-            }
+            console.log(items)
         }
         Items();
     }, [category]);
-    const [selectedComponent, setSelectedComponent] = useState(null)
-    const [showDoorDialog, setShowDoorDialog] = useState(false)
+
+    const [showDialog, setShowDialog] = useState(false)
     return (
         <Layout>
             <div className="grid grid-cols-1 gap-6">
@@ -53,25 +77,20 @@ function Components() {
 
                 {/* Components Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-                    {[
-                        { name: "Maison Moderne", dimensions: "200×150×180 cm", icon: "cube" },
-                        { name: "door", dimensions: "180×80×90 cm", icon: "sofa" },
-                        { name: "window", dimensions: "500×300×400 cm", icon: "building" },
-                        { name: "Table Classique", dimensions: "120×75×80 cm", icon: "table" },
-                    ].map((component, i) => (
+                    {categoryList.map((component, i) => (
                         <Dialog
                             key={i}
-                            open={component.name === "Maison Moderne" && showDoorDialog}
+                            open={showDialog}
                             onOpenChange={(isOpen) => {
-                                setShowDoorDialog(isOpen);
-                                if (isOpen) setCategory(component.name);
+                                setShowDialog(isOpen);
+                                if (isOpen) setCategory(component);
                             }}                        >
                             <DialogTrigger asChild>
                                 <Card
                                     className={`bg-gray-100 text-gray-800 cursor-pointer transition-all hover:shadow-md ${
-                                        selectedComponent === component.name ? "ring-2 ring-[#4353ff]" : ""
+                                       category && category.name === component.name ? "ring-2 ring-[#4353ff]" : ""
                                     }`}
-                                    onClick={() => setSelectedComponent(component.name)}
+                                    onClick={() => setCategory(component)}
                                 >
                                     <CardContent className="p-6 flex flex-col items-center justify-center min-h-[200px]">
                                         <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center mb-4">
@@ -156,7 +175,7 @@ function Components() {
 
                             <DialogContent className="bg-white text-black">
                                 <DialogHeader>
-                                    <DialogTitle>{category}</DialogTitle>
+                                    <DialogTitle>{category.name}</DialogTitle>
                                     {Array.isArray(items) && items.length > 0 ? (
                                         <div className="flex flex-wrap gap-4">
                                             {items.map((item) => (
@@ -173,12 +192,19 @@ function Components() {
                                             ))}
                                         </div>
                                     ) : (
-                                        <p className="text-gray-500">No {category}s found.</p>
+                                        <p className="text-gray-500">No {category.name}s found.</p>
                                     )}
 
                                 </DialogHeader>
                                 <div className="py-6">{/* Empty content for door dialog */}</div>
-                                <Button className="w-full bg-[#6366f1] hover:bg-[#4f46e5]">add {category}</Button>
+                                <Button
+                                    className="w-full bg-[#6366f1] hover:bg-[#4f46e5]"
+                                    onClick={() => {
+                                        setItemModel(true);
+                                        setShowDialog(false);
+                                    }}>
+
+                                add {category.name}</Button>
                             </DialogContent>
                         </Dialog>
                     ))}
@@ -187,6 +213,17 @@ function Components() {
             {categoryModel &&(
                 <CategoryModel
                     onClose = {closeCategoryModel}
+                />
+            )}
+            {itemModel && category &&(
+                <ItemModel
+                    onClose = {
+                    ()=>{
+                        closeItemModel();
+                        setCategory({});
+                    }
+                }
+                    category ={category}
                 />
             )}
         </Layout>

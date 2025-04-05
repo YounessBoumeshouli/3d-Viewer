@@ -16,26 +16,24 @@ function handleSelect(item,title) {
 
 }
 
-function CategoryModel({ title = 'hello', onClose }) {
+function ItemModel({ title = 'hello', onClose ,category }) {
+    console.log(category.id)
     const [imagePreview, setImagePreview] = useState(null);
-    const [imageFile, setImageFile] = useState(null);
-    const [category,SetCategory] = useState({
-        name : '',
-    });
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
-            setImagePreview(URL.createObjectURL(file));
-        }
-    };
+    const [formData,setFormData] = useState(new FormData())
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!category){
-            console.error('you should fill the name fieald');
+        if (!formData.dimensions || !formData.price){
+            console.error('you should fill the name field');
+            return
         }
+        const newFormData = new FormData();
+        newFormData.append('type',category.id);
+        newFormData.append('dimensions',formData.dimensions);
+        newFormData.append('price',formData.price);
+        newFormData.append('file',formData.file);
+
         try {
-            const request = await api.post('categories',category,{
+            const request = await api.post('upload',newFormData,{
                 headers : {"Content-Type": "multipart/form-data" }
             })
             console.log(request);
@@ -44,12 +42,26 @@ function CategoryModel({ title = 'hello', onClose }) {
         }
 
     }
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
     const handleChange = (e) => {
-        const {name,value} = e.target;
-        SetCategory(prev =>({
+        const {name,value,type,files} = e.target;
+        if (type === 'file'){
+            setFormData(prev =>({
+                ...prev,
+                [name]:files[0]
+            }))
+        }else {
+        setFormData(prev =>({
             ...prev,
             [name]:value
         }))
+        }
+        console.log(formData);
     }
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -85,34 +97,36 @@ function CategoryModel({ title = 'hello', onClose }) {
                                     <input
                                         type="file"
                                         accept="image/*"
+                                        name="file"
                                         className="mt-1 block w-full text-sm text-gray-600 border border-gray-300 rounded-lg shadow-sm cursor-pointer focus:ring focus:ring-blue-200"
-                                        onChange={handleImageChange}
+                                        onChange = {(e)=>{
+                                            handleImageChange(e);
+                                            handleChange(e);
+                                        }
+                                    }
                                     />
                                 </div>
 
-                                {/* Name Input */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Category Name
+                                        Dimensions
                                     </label>
-                                    <input
-                                        type="text"
-                                        name='name'
+                                    <input type='text'
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
-                                        placeholder="Enter category name"
-                                        onChange={handleChange}
+                                        placeholder="Enter item dimenions 18x8"
+                                           name='dimensions'
+                                           onChange={handleChange}
                                     />
                                 </div>
-
-                                {/* Description Input */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
-                                        Description
+                                        Price
                                     </label>
-                                    <textarea
+                                    <input type='number'
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
-                                        placeholder="Enter category description"
-                                        rows="3"
+                                        placeholder="Enter item dimenions 18x8"
+                                           name='price'
+                                           onChange={handleChange}
                                     />
                                 </div>
 
@@ -120,7 +134,7 @@ function CategoryModel({ title = 'hello', onClose }) {
                                     type="submit"
                                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
                                 >
-                                    Save Category
+                                    Save {category.name}
                                 </button>
                             </form>
                         </div>
@@ -133,5 +147,5 @@ function CategoryModel({ title = 'hello', onClose }) {
     )
 }
 
-export default CategoryModel
+export default ItemModel
 
