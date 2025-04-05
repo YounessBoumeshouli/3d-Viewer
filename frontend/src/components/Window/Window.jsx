@@ -3,6 +3,48 @@ import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 const Window = ({ wallStart, wallEnd, position = "center" }) => {
+
+    const loadDoorTexture = () => {
+        const storedDoor = localStorage.getItem("door");
+
+        if (storedDoor) {
+            let image = storedDoor.split("/");
+            console.log("Stored door path:", image[1]);
+            const localURL = `/textures/door/${image[2]}`;
+            const backendURL = `http://127.0.0.1:8000/api/image/${image[1]}/${image[2]}`;
+
+            // Check if the local file exists first
+            const img = new Image();
+            img.src = localURL;
+            img.onload = () => {
+                console.log("✅ Using local image:", localURL);
+                setDoorPath(localURL);
+            };
+            img.onerror = () => {
+                console.log("❌ Local image not found, downloading...");
+
+                // Fetch from backend and store locally
+                fetch(backendURL)
+                    .then((response) => {
+                        if (!response.ok) throw new Error("Image not found on backend");
+                        return response.blob();
+                    })
+                    .then((blob) => {
+                        const objectURL = URL.createObjectURL(blob);
+                        console.log("📥 Image downloaded from backend:", objectURL);
+                        setDoorPath(objectURL); // Use object URL
+                    })
+                    .catch((error) => {
+                        console.error("⚠️ Error downloading image:", error);
+                    });
+            };
+        } else {
+            console.log("❌ No stored door in localStorage");
+            setDoorPath(null); // Reset the door path when nothing is in localStorage
+        }
+    };
+
+
     const instanceId = useRef(`window-${position}-${Math.random().toString(36).substring(2, 9)}`);
     console.log(`Window ${instanceId.current} initializing with position: ${position}`);
 

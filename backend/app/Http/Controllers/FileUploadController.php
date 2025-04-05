@@ -11,11 +11,13 @@ class FileUploadController extends Controller
 {
     public function upload(Request $request)
     {
+
         $request->validate([
-            'file' => 'required|file|mimetypes:application/dxf,text/plain,image/jpeg,image/png,application/pdf|max:5120',
+            'file' => 'required|file|mimetypes:model/gltf-binary,application/octet-stream,image/jpeg,image/png,application/pdf,application/dxf,text/plain|max:5120',
             'type'=>'required|integer',
             'dimensions'=>'string',
-            'price'=>'integer'
+            'price'=>'integer',
+            'name'=>'string'
         ]);
 
 
@@ -24,6 +26,7 @@ class FileUploadController extends Controller
         $type = $request->input('type');
         $dimensions = $request->input('dimensions');
         $price = $request->input('price');
+        $name = $request->input('name');
         $category = Category::find($type);
         if (!$category){
         $path = $file->store('dxf-files', 'public');
@@ -33,8 +36,8 @@ class FileUploadController extends Controller
             'path' => asset("storage/$path"),
         ], 201);
         } else{
-            $path = $file->store('components/'.$type, 'public');
-            component::create(["path"=>$path,"category_id"=>$type,"dimensions"=>$dimensions,"price"=>$price]);
+            $path = $file->store('components/'.$category->name, 'public');
+            component::create(["path"=>$path,"category_id"=>$type,"dimensions"=>$dimensions,"price"=>$price,"name"=>$name]);
             return response()->json([
                 'message' => 'component file uploaded successfully',
                 'path' => asset("storage/$path"),

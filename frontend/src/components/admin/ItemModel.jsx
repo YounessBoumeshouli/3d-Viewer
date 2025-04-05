@@ -22,7 +22,7 @@ function ItemModel({ title = 'hello', onClose ,category }) {
     const [formData,setFormData] = useState(new FormData())
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formData.dimensions || !formData.price){
+        if (!formData.dimensions || !formData.price ||!formData.name){
             console.error('you should fill the name field');
             return
         }
@@ -31,6 +31,7 @@ function ItemModel({ title = 'hello', onClose ,category }) {
         newFormData.append('dimensions',formData.dimensions);
         newFormData.append('price',formData.price);
         newFormData.append('file',formData.file);
+        newFormData.append('name',formData.name);
 
         try {
             const request = await api.post('upload',newFormData,{
@@ -96,7 +97,6 @@ function ItemModel({ title = 'hello', onClose ,category }) {
                                     </label>
                                     <input
                                         type="file"
-                                        accept="image/*"
                                         name="file"
                                         className="mt-1 block w-full text-sm text-gray-600 border border-gray-300 rounded-lg shadow-sm cursor-pointer focus:ring focus:ring-blue-200"
                                         onChange = {(e)=>{
@@ -115,6 +115,17 @@ function ItemModel({ title = 'hello', onClose ,category }) {
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
                                         placeholder="Enter item dimenions 18x8"
                                            name='dimensions'
+                                           onChange={handleChange}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Name
+                                    </label>
+                                    <input type='text'
+                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
+                                        placeholder="Enter item dimenions 18x8"
+                                           name='name'
                                            onChange={handleChange}
                                     />
                                 </div>

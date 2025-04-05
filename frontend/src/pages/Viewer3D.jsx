@@ -22,6 +22,7 @@ function Viewer3D() {
     const [categories, setCategories] = useState([]);
     const [componentItems, setComponentItems] = useState([]);
     const [models,setModels] = useState([]);
+    const [savedComponent,setSavedComponents] = useState({})
     const handleCategoryClick = async (category) => {
         console.log("Category clicked:", category.id);
         setActiveCategory(category.name)
@@ -35,13 +36,18 @@ function Viewer3D() {
             console.error("Error selecting item:", error);
         }
     }
-    const handleSaveModel = () => {
-        const model = selectedFile.file;
-        categories.map((category)=>(
-            console.log(category.name)
-        ))
+        const handleSaveModel = () => {
 
-    }
+         const components =   categories.map((category)=>(
+             {
+                 name: category.name,
+                 path: localStorage.getItem(category.name)
+             }
+
+            ))
+            console.log(components);
+        }
+
     const handleCloseModal = () => {
         setShowModal(false)
         setFileUploadVisible(false)
