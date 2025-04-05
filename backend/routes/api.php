@@ -28,6 +28,7 @@ Route::get('models/designer/{id}',[DesignerController::class,'show']);
 
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);
+    Route::post('categories',[ComponentController::class,'store']);
 
     Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);

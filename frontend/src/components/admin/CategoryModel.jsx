@@ -2,6 +2,8 @@
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {useEffect,useState} from "react";
+import {useParams} from "react-router-dom";
+import api from "./../../services/api.js";
 
 
 function handleSelect(item,title) {
@@ -17,7 +19,9 @@ function handleSelect(item,title) {
 function CategoryModel({ title = 'hello', onClose }) {
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
-
+    const [category,SetCategory] = useState({
+        category_name : '',
+    });
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -25,6 +29,28 @@ function CategoryModel({ title = 'hello', onClose }) {
             setImagePreview(URL.createObjectURL(file));
         }
     };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!category){
+            console.error('you should fill the name fieald');
+        }
+        try {
+            const request = await api.post('categories',category,{
+                headers : {"Content-Type": "multipart/form-data" }
+            })
+            console.log(request);
+        }catch (e) {
+            console.error(e)
+        }
+
+    }
+    const handleChange = (e) => {
+        const {name,value} = e.target;
+        SetCategory(prev =>({
+            ...prev,
+            [name]:value
+        }))
+    }
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
@@ -50,7 +76,7 @@ function CategoryModel({ title = 'hello', onClose }) {
 
                         {/* Right Side (Form) */}
                         <div className="flex flex-col justify-center">
-                            <form className="space-y-4">
+                            <form className="space-y-4" onSubmit={handleSubmit}>
                                 {/* Image Upload */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
@@ -71,8 +97,10 @@ function CategoryModel({ title = 'hello', onClose }) {
                                     </label>
                                     <input
                                         type="text"
+                                        name='category_name'
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
                                         placeholder="Enter category name"
+                                        onChange={handleChange}
                                     />
                                 </div>
 
