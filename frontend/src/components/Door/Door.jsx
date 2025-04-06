@@ -2,14 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-const Door = ({ wallStart, wallEnd }) => {
-    console.log('in door wallstart',wallStart)
+const Door = ({ wallStart, wallEnd ,path}) => {
+    console.log('in door ',path)
 
     const [doorPath, setDoorPath] = useState(null);
 
     // Function to load the door texture
-    const loadDoorTexture = () => {
-        const storedDoor = localStorage.getItem("door");
+    const loadDoorTexture = (path) => {
+        console.log('loadDoorTexture',path)
+        const storedDoor =  path != null ? path : localStorage.getItem("door");
 
         if (storedDoor) {
             let image = storedDoor.split("/");
@@ -50,13 +51,13 @@ const Door = ({ wallStart, wallEnd }) => {
 
     // Initial load
     useEffect(() => {
-        loadDoorTexture();
+        loadDoorTexture(path);
 
         // Add storage event listener
         const handleStorageChange = (event) => {
             if (event.key === "door") {
                 console.log("🔄 Door selection changed in localStorage");
-                loadDoorTexture();
+                loadDoorTexture(path);
             }
         };
 
@@ -89,7 +90,7 @@ const Door = ({ wallStart, wallEnd }) => {
         // Listen for our custom event
         const handleDoorChanged = () => {
             console.log("🔄 Door selection changed in same tab");
-            loadDoorTexture();
+            loadDoorTexture(path);
         };
         window.addEventListener("doorChanged", handleDoorChanged);
 

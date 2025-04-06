@@ -21,6 +21,7 @@ function CategoryModel({ title = 'hello', onClose }) {
     const [imageFile, setImageFile] = useState(null);
     const [category,SetCategory] = useState({
         name : '',
+        description:''
     });
     const handleImageChange = (e) => {
         const file = e.target.files[0];
@@ -34,6 +35,7 @@ function CategoryModel({ title = 'hello', onClose }) {
         if (!category){
             console.error('you should fill the name fieald');
         }
+        console.log(category)
         try {
             const request = await api.post('categories',category,{
                 headers : {"Content-Type": "multipart/form-data" }
@@ -113,6 +115,8 @@ function CategoryModel({ title = 'hello', onClose }) {
                                         className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
                                         placeholder="Enter category description"
                                         rows="3"
+                                        name='description'
+                                        onChange={handleChange}
                                     />
                                 </div>
 

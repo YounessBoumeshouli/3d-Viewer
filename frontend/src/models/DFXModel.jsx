@@ -6,6 +6,7 @@ import Loader from '../components/Loader';
 import api from "../services/api.js";
 
 const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file  }) => {
+    console.log(file)
     let path = file.file;
     const [entities, setEntities] = useState([]);
     // Load textures for different wall materials
@@ -92,9 +93,8 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
 
     useEffect(() => {
         const fetchDxfFile = async (file) => {
-            console.log(file)
             try {
-                const response = await api.get(`/files/${path}`, {
+                const response = await api.get(`/files/${file}`, {
                     responseType: "text",
                 });
 
@@ -108,7 +108,7 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
             }
         };
 
-         fetchDxfFile();
+         fetchDxfFile(file);
     }, []);
     // Entity component - handles rendering of each wall
     const Entity = ({ wall }) => {

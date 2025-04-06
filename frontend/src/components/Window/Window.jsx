@@ -1,70 +1,119 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useGLTF } from "@react-three/drei";
-import * as THREE from "three";
+import { useLoader, useThree } from "@react-three/fiber";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import React, { useEffect, useState, useRef, Suspense } from "react";
+import api from "./../../services/api.js";
 
-const Window = ({ wallStart, wallEnd, position = "center" }) => {
+// Separate loader component handles the async GLTF loading
+const WindowModel = ({ windowPath, position, rotation, scale }) => {
+    const gltf = useLoader(GLTFLoader, windowPath);
 
-    const loadDoorTexture = () => {
-        const storedDoor = localStorage.getItem("door");
+    return (
+        <primitive
+            object={gltf.scene}
+            position={position}
+            rotation={rotation}
+            scale={[scale, scale, scale]}
+        />
+    );
+};
 
-        if (storedDoor) {
-            let image = storedDoor.split("/");
-            console.log("Stored door path:", image[1]);
-            const localURL = `/textures/door/${image[2]}`;
-            const backendURL = `http://127.0.0.1:8000/api/image/${image[1]}/${image[2]}`;
-
-            // Check if the local file exists first
-            const img = new Image();
-            img.src = localURL;
-            img.onload = () => {
-                console.log("✅ Using local image:", localURL);
-                setDoorPath(localURL);
-            };
-            img.onerror = () => {
-                console.log("❌ Local image not found, downloading...");
-
-                // Fetch from backend and store locally
-                fetch(backendURL)
-                    .then((response) => {
-                        if (!response.ok) throw new Error("Image not found on backend");
-                        return response.blob();
-                    })
-                    .then((blob) => {
-                        const objectURL = URL.createObjectURL(blob);
-                        console.log("📥 Image downloaded from backend:", objectURL);
-                        setDoorPath(objectURL); // Use object URL
-                    })
-                    .catch((error) => {
-                        console.error("⚠️ Error downloading image:", error);
-                    });
-            };
-        } else {
-            console.log("❌ No stored door in localStorage");
-            setDoorPath(null); // Reset the door path when nothing is in localStorage
-        }
-    };
-
-
-    const instanceId = useRef(`window-${position}-${Math.random().toString(36).substring(2, 9)}`);
-    console.log(`Window ${instanceId.current} initializing with position: ${position}`);
-
-    // Use state to track loading status
+// Main component that handles state and calculations
+const Window = ({ wallStart, wallEnd, position = "center",path }) => {
+    const [windowPath, setWindowPath] = useState(null);
     const [modelError, setModelError] = useState(null);
-
-    // Properly handle model loading with error boundary
-    let windowModel;
-    try {
-        // Use the useGLTF hook with error handling
-        windowModel = useGLTF("/window__wodden_4_mb.glb");
-    } catch (error) {
-        console.error("Error in useGLTF:", error);
-        setModelError(error.message);
-    }
-
-    // Position and scale calculations (same as before)
     const [scale, setScale] = useState(0.3);
     const [windowPosition, setWindowPosition] = useState([0, 0, 0]);
+    const instanceId = useRef(Math.random().toString(36).substring(7));
+    const [angle, setAngle] = useState(0);
+    const [isReady, setIsReady] = useState(false);
 
+    const fetchModel = async (path) => {
+        try {
+            console.log('loadWindowTexture',path)
+
+            const storedWindow = path != null ? path : localStorage.getItem("window");
+
+            console.log(storedWindow)
+            if (!storedWindow) {
+                setModelError("No window model in localStorage");
+                return;
+            }
+
+            let image = storedWindow.split("/");
+            const response = await api.get(`image/${image[1]}/${image[2]}`, {
+                responseType: "blob",
+            });
+
+            const blobURL = URL.createObjectURL(response.data);
+            setWindowPath(blobURL);
+            setIsReady(true);
+        } catch (error) {
+            console.error("Error loading GLB:", error);
+            setModelError(error.message);
+        }
+
+    };
+    useEffect(()=>{
+        return () => {
+            if (windowPath && windowPath.startsWith("blob:")) {
+                URL.revokeObjectURL(windowPath);
+            }
+        };
+    },[])
+    ///
+    useEffect(() => {
+        // Create a custom event listener for same-tab changes
+        const handleSameTabChange = () => {
+            const customEvent = new Event("windowChanged");
+            window.dispatchEvent(customEvent);
+        };
+
+        // Override the setItem method to dispatch our custom event
+        const originalSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, value) {
+            originalSetItem.apply(this, arguments);
+            if (key === "window") {
+                handleSameTabChange();
+            }
+        };
+
+        // Listen for our custom event
+        const handleWindowChanged = () => {
+            console.log("🔄 Window selection changed in same tab");
+            fetchModel(path);
+        };
+        window.addEventListener("windowChanged", handleWindowChanged);
+
+        return () => {
+            // Restore original setItem
+            localStorage.setItem = originalSetItem;
+            window.removeEventListener("windowChanged", handleWindowChanged);
+        };
+    }, []);
+
+    // Fetch model effect
+    useEffect(() => {
+
+        fetchModel(path);
+        const handleStorageChange = (event) => {
+            if (event.key === "window") {
+                console.log("🔄 Window selection changed in localStorage");
+                fetchModel(path);
+            }
+        };
+
+        // Listen for storage events (only fires when localStorage is changed in OTHER tabs)
+        window.addEventListener("storage", handleStorageChange);
+
+        // Clean up listener when component unmounts
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+        };
+        // Clean up any created object URLs
+
+    }, []);
+
+    // Position calculation effect
     useEffect(() => {
         if (!wallStart || !wallEnd) return;
 
@@ -74,7 +123,7 @@ const Window = ({ wallStart, wallEnd, position = "center" }) => {
             Math.pow(wallEnd[1] - wallStart[1], 2)
         );
 
-        // Direction vector calculations...
+        // Direction vector calculations
         const dirX = wallEnd[0] - wallStart[0];
         const dirY = wallEnd[1] - wallStart[1];
 
@@ -110,32 +159,38 @@ const Window = ({ wallStart, wallEnd, position = "center" }) => {
             setScale(Math.max(minScale, calculatedScale));
         }
 
+        // Calculate rotation angle
+        const newAngle = Math.atan2(wallEnd[1] - wallStart[1], wallEnd[0] - wallStart[0]);
+        setAngle(newAngle);
+
         console.log(`Window ${instanceId.current} calculated position:`, [centerX + offsetX, 2, -(centerY + offsetY)]);
     }, [wallStart, wallEnd, position]);
 
-    if (!wallStart || !wallEnd) return null;
-    if (modelError) {
-        console.warn(`Window ${instanceId.current} failed to load model:`, modelError);
-        return null; // Return null or a fallback component when model fails to load
+    // Early returns for invalid states
+    if (!wallStart || !wallEnd) {
+        return null;
     }
 
-    const angle = Math.atan2(wallEnd[1] - wallStart[1], wallEnd[0] - wallStart[0]);
+    if (modelError) {
+        console.warn(`Window ${instanceId.current} model error:`, modelError);
+        return null;
+    }
 
+    if (!isReady || !windowPath) {
+        return null;
+    }
+
+    // Render the window model with a fallback
     return (
-        <>
-            {windowModel && (
-                <primitive
-                    object={windowModel.scene.clone()}
-                    position={windowPosition}
-                    rotation={[0, angle, 0]}
-                    scale={[scale, scale, scale]}
-                />
-            )}
-        </>
+        <Suspense fallback={null}>
+            <WindowModel
+                windowPath={windowPath}
+                position={windowPosition}
+                rotation={[0, angle, 0]}
+                scale={scale}
+            />
+        </Suspense>
     );
 };
-
-// Preload the model to avoid suspense issues
-useGLTF.preload("/window__wodden_4_mb.glb");
 
 export default Window;

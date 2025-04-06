@@ -22,7 +22,9 @@ function Viewer3D() {
     const [categories, setCategories] = useState([]);
     const [componentItems, setComponentItems] = useState([]);
     const [models,setModels] = useState([]);
-    const [savedComponent,setSavedComponents] = useState({})
+    const [isExistingModel,setIsExistingModel] = useState(false);
+    const [selectedModel,setSelectedModel] = useState(null);
+    const [savedComponent,setSavedComponents] = useState([])
     const handleCategoryClick = async (category) => {
         console.log("Category clicked:", category.id);
         setActiveCategory(category.name)
@@ -36,30 +38,66 @@ function Viewer3D() {
             console.error("Error selecting item:", error);
         }
     }
-        const handleSaveModel = () => {
+       const handleSelectedModel = (id) =>{
+           setSelectedModel(id);
+           console.log(isExistingModel);
+       }
+        const handleSaveModel = async () => {
 
+            console.log('########## category', categories);
          const components =   categories.map((category)=>(
              {
-                 name: category.name,
                  path: localStorage.getItem(category.name)
              }
 
             ))
-            console.log(components);
+            console.log('########## components', components);
+            if (isExistingModel){
+                console.log(selectedModel)
+            }else{
+            try {
+                console.log("dxf_file_id",selectedFile.id)
+                console.log("components",components)
+
+                const response = await api.post('houses',{
+                    "dxf_file_id":selectedFile.id,
+                    "components":components
+                },)
+            }catch (e) {
+                console.error(e)
+            }
+            }
         }
 
     const handleCloseModal = () => {
         setShowModal(false)
         setFileUploadVisible(false)
     }
-
+    useEffect(() => {
+        const fetchCeatorModels = async ()=>{
+            try {
+                const response = await api.get('creator/models')
+                console.log(response.data[0].houses)
+                setModels(response.data[0].houses)
+            }catch (e) {
+                console.error(e)
+            }
+        }
+        fetchCeatorModels();
+    }, []);
+    useEffect(() => {
+        console.log(selectedModel)
+        if (selectedModel){
+            setIsExistingModel(true);
+        }
+    }, [selectedModel]);
     const handleUpload = async () => {
         try {
             console.log('is trying to fetch the data')
             const response = await api.get('myfiles', {
                 responseType: "json"
             });
-            console.log(response.data)
+            console.log('dxfFiles',response.data)
             setDxfFiles(response.data);
             setFileListVisible(true);
             setModelLoaded(true);
@@ -69,17 +107,39 @@ function Viewer3D() {
     }
 
     const uploadFile = async (selectedFilePath) => {
+        console.log(selectedFilePath.path)
         try {
-            const response = await api.get(`files/${selectedFilePath}`, {
+            const response = await api.get(`files/${selectedFilePath.path}`, {
                 responseType: "json"
             });
+            console.log(' ############### file      :',selectedFilePath);
             setSelectedFile(selectedFilePath);
             setFileListVisible(false); // Hide the file list
         } catch (error) {
             console.error("Error fetching DXF file:", error);
         }
     }
+    useEffect(()=>{
+        console.log(selectedModel);
+        const fetchExistingModel = async ()=>{
+            if (isExistingModel){
+                console.log('checking')
+                try {
+                    const response = await api.get(`houses/${selectedModel}`);
+                    setSavedComponents(response.data.components)
+                    setModelLoaded(true)
+                    uploadFile(response.data.dxf_file)
+                    console.log(response.data.components)
+                }catch (e) {
+                    console.error(e)
+                }
+            }
 
+
+        }
+        console.log(savedComponent)
+        fetchExistingModel();
+    },[isExistingModel])
     useEffect(() => {
         const fetchCategories = async () => {
             console.log('fetch categories')
@@ -182,21 +242,13 @@ function Viewer3D() {
                         <div className="space-y-2">
                             <div className="flex items-center">
                                 <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
-                                    <Square className="h-4 w-4 text-white" />
-                                </div>
-                                <span>Lignes</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
-                                    <Circle className="h-4 w-4 text-white" />
-                                </div>
-                                <span>Cercles</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
                                     <Dot className="h-4 w-4 text-white" />
                                 </div>
-                                <span>Points</span>
+                                <Button className="bg-blue-600 text-white hover:bg-blue-700"
+                                        onClick={()=>handleSelectedModel(model.id)}
+
+                                >{model.id}</Button>
+
                             </div>
                         </div>
                         ))
@@ -222,7 +274,7 @@ function Viewer3D() {
                                             <button
                                                 key={dxfFile.id}
                                                 className="p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
-                                                onClick={() => uploadFile(dxfFile.path)}
+                                                onClick={() => uploadFile(dxfFile)}
                                             >
                                                 <span>{dxfFile.path}</span>
                                             </button>
@@ -237,9 +289,9 @@ function Viewer3D() {
                                     </button>                                </div>
 
                                 ) : (
-                                selectedFile ? (
+                                selectedFile && savedComponent ? (
                                     <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
-                                        <House file={selectedFile} />
+                                        <House file={selectedFile.path} components = {savedComponent} />
                                         <button
                                             className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                                             onClick={() => setFileListVisible(true)}

@@ -102,7 +102,29 @@ const CameraController = () => {
     return null;
 };
 
-function House(file) {
+function House({file,components}) {
+    if (!components || components.length === 0) {
+        return <div>Loading components...</div>;
+    }
+    const [selectedComponent,setSelectedComponent] = useState([])
+    useEffect(() => {
+        console.log('########### file #########',file);
+
+        if (Array.isArray(components) && components.length > 0){
+                const data =   components.map((component)=>(
+                    {
+                        category:component.component.category.name,
+                        path:component.component.path
+                    }
+
+                ));
+            setSelectedComponent(data)
+
+        }
+    }, [components]);
+    useEffect(() => {
+        console.log('selected :',selectedComponent)
+    }, [selectedComponent]);
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];
         return [screenScale, [0, 0, 0]];
@@ -146,14 +168,16 @@ function House(file) {
                     <Floor />
 
                     <group rotation={[-Math.PI / 2, 0, 0]}>
-                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} />
+                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file}  />
                     </group>
 
-                    {longestWall && (
+                        {longestWall &&(
                         <>
                             <Door
                                 wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
                                 wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                path={        selectedComponent.find(item => item.category === "door")?.path
+                                }
                             />
                             <Table
                                 wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
@@ -169,6 +193,8 @@ function House(file) {
                                 wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
                                 position="left"
                                 key="left-window"  // Add a key for React to differentiate
+                                path={        selectedComponent.find(item => item.category === "window")?.path
+                                }
                             />
 
                             {/* Right window */}
@@ -177,6 +203,8 @@ function House(file) {
                                 wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
                                 position="right"
                                 key="right-window"  // Add a key for React to differentiate
+                                path={        selectedComponent.find(item => item.category === "window")?.path
+                                }
                             />
                         </>
                     )}
