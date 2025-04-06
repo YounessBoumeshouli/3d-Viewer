@@ -12,4 +12,8 @@ class HouseComponent extends Model
     {
         return $this->belongsTo(House::class);
     }
+    public function component()
+    {
+        return $this->belongsTo(Component::class);
+    }
 }

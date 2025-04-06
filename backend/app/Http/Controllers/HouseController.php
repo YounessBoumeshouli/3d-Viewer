@@ -17,7 +17,7 @@ class HouseController extends Controller
        return Designer::with('user','houses')->where('user_id',auth()->id())->get();
     }
     public function show(House $house){
-       return $house->load(['dxfFile','components']);
+       return $house->load(['dxfFile','components.component.category']);
     }
     public function store(Request $request)
     {
