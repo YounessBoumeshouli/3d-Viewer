@@ -2,14 +2,14 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const ModelCard = (props) => {
-    const id = props.id
+    const id = props.model.id
     const title = props.title
     const image = props.image
-    // const creator = props.creator
+    const creator = props.model.dxf_file.designer
     const downloads = props.downloads
     const comments = props.comments
     const tags = props.tags
-    console.log(props)
+    console.log(props.model.id)
     return (
         <div className="bg-white rounded-lg overflow-hidden shadow-md">
             <Link to={`/model/${id}`}>
@@ -33,13 +33,13 @@ const ModelCard = (props) => {
                 </Link>
 
                 <div className="flex items-center mb-2">
-                    <Link to={`/designer/1`} className="flex items-center">
+                    <Link to={`/designer/${creator.id}`} className="flex items-center">
                         <img
                             src={"dd"}
                             alt={"dd"}
                             className="w-6 h-6 rounded-full mr-2"
                         />
-                        <span className="text-sm text-gray-600">by {"dd"}</span>
+                        <span className="text-sm text-gray-600">by {creator.name}</span>
                     </Link>
                 </div>
 

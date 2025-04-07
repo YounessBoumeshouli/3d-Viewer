@@ -11,6 +11,7 @@ import {Button} from "@/components/ui/button.jsx";
 const HomePage = () => {
     const  [loginModel , setLoginModel] = useState(false);
     const  [designers , setDesigners] = useState([]);
+    const  [models , setModels] = useState([]);
     const closeLoginModel = () => {
         setLoginModel(false)
     }
@@ -18,33 +19,18 @@ const HomePage = () => {
         const response = await api.get('designers');
         setDesigners(response.data);
     }
+    const fetchModels = async ()=>{
+        const response = await api.get('houses');
+        setModels(response.data);
+        console.log(response.data)
+    }
     useEffect(() => {
         fetchDesigners();
     }, []);
-    const models = [
-        {
-            id: 1,
-            title: 'Modern Furniture',
-            description: 'Contemporary furniture design with emphasis on functionality',
-            image: '/path/to/furniture.jpg',
-            category: '3D Model'
-        },
-        {
-            id: 2,
-            title: 'Interior Design',
-            description: 'Architectural visualization and interior planning',
-            image: '/path/to/interior.jpg',
-            category: '3D Model'
-        },
-        {
-            id: 3,
-            title: 'Character Design',
-            description: 'Stylized character modeling for animation',
-            image: '/path/to/character.jpg',
-            category: '3D Model'
-        }
-    ];
+    useEffect(() => {
+        fetchModels();
 
+    }, []);
     const portfolioProjects = [
         {
             id: 1,

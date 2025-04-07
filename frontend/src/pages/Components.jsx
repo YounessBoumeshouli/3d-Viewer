@@ -16,9 +16,13 @@ function Components() {
     const [categoryList,setCataegoryList] = useState([]);
     const  [categoryModel , setCategoryModel] = useState(false);
     const  [itemModel , setItemModel] = useState(false);
+    const  [isSubmited , setIsSubmited] = useState(false);
     console.log(category)
     const closeCategoryModel = () => {
         setCategoryModel(false)
+    }
+    const handleCategoryModelSubmit = () =>{
+        setIsSubmited(true);
     }
     const closeItemModel = () => {
         setItemModel(false)
@@ -33,9 +37,11 @@ function Components() {
             }
         }
 
-        fetchCategoryList()
 
-    }, []);
+        if (!isSubmited) {
+            fetchCategoryList();
+        }
+    }, [isSubmited]);
 
     useEffect(() => {
         if (Object.keys(category).length === 0) return;
@@ -213,6 +219,7 @@ function Components() {
             {categoryModel &&(
                 <CategoryModel
                     onClose = {closeCategoryModel}
+                    onSubmit = {handleCategoryModelSubmit}
                 />
             )}
             {itemModel && category &&(

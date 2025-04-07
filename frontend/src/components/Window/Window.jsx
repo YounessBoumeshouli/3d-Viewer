@@ -26,13 +26,20 @@ const Window = ({ wallStart, wallEnd, position = "center",path }) => {
     const instanceId = useRef(Math.random().toString(36).substring(7));
     const [angle, setAngle] = useState(0);
     const [isReady, setIsReady] = useState(false);
+    useEffect(() => {
 
-    const fetchModel = async (path) => {
+        if (path) {
+            localStorage.setItem("window", path);
+        }else {
+            localStorage.setItem("window", null);
+
+        }
+
+    }, []);
+    const fetchModel = async () => {
+
         try {
-            console.log('loadWindowTexture',path)
-
-            const storedWindow = path != null ? path : localStorage.getItem("window");
-
+            const storedWindow = localStorage.getItem("window");
             console.log(storedWindow)
             if (!storedWindow) {
                 setModelError("No window model in localStorage");
@@ -43,6 +50,7 @@ const Window = ({ wallStart, wallEnd, position = "center",path }) => {
             const response = await api.get(`image/${image[1]}/${image[2]}`, {
                 responseType: "blob",
             });
+            console.log(response.data)
 
             const blobURL = URL.createObjectURL(response.data);
             setWindowPath(blobURL);
@@ -80,7 +88,7 @@ const Window = ({ wallStart, wallEnd, position = "center",path }) => {
         // Listen for our custom event
         const handleWindowChanged = () => {
             console.log("🔄 Window selection changed in same tab");
-            fetchModel(path);
+            fetchModel();
         };
         window.addEventListener("windowChanged", handleWindowChanged);
 
@@ -94,11 +102,11 @@ const Window = ({ wallStart, wallEnd, position = "center",path }) => {
     // Fetch model effect
     useEffect(() => {
 
-        fetchModel(path);
+        fetchModel();
         const handleStorageChange = (event) => {
             if (event.key === "window") {
                 console.log("🔄 Window selection changed in localStorage");
-                fetchModel(path);
+                fetchModel();
             }
         };
 

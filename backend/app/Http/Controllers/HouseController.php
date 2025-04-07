@@ -13,11 +13,41 @@ use Illuminate\Support\Facades\Auth;
 
 class HouseController extends Controller
 {
+    public function index()
+    {
+        $houses = House::all();
+      return $houses->load(['dxfFile.designer']);
+    }
     public function ModelsByCreator(){
        return Designer::with('user','houses')->where('user_id',auth()->id())->get();
     }
     public function show(House $house){
        return $house->load(['dxfFile','components.component.category']);
+    }
+    public function update(Request $request, House $house)
+    {
+        $validated = $request->validate([
+            "dxf_file_id" => 'required|integer',
+            'components' => 'required|array|min:1',
+            'components.*.path' => 'required|string|min:1',
+        ]);
+
+        // Update house data
+        $house->update(['dxf_file_id' => $validated['dxf_file_id']]);
+
+        // Delete old component relations
+        $house->components()->delete();
+
+        foreach ($validated['components'] as $componentData) {
+            $component = Component::where('path', $componentData['path'])->first();
+            if ($component) {
+                $house->components()->create([
+                    'component_id' => $component->id,
+                ]);
+            }
+        }
+
+        return response()->json('House updated successfully.');
     }
     public function store(Request $request)
     {
@@ -38,4 +68,6 @@ class HouseController extends Controller
 
 
     }
+
+
 }

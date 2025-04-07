@@ -1,9 +1,13 @@
 import React from 'react';
 import Layout from '../components/user/Layout';
+import {useParams} from "react-router-dom";
 
 const ModelPage = () => {
-    // This renders Image 5 - the model detail page
 
+
+    const fetchModel = async () => {
+        const {id} = useParams()
+    }
     return (
         <Layout>
             <div className="bg-gray-900 text-white">

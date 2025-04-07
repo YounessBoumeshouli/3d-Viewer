@@ -2,19 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-const Door = ({ wallStart, wallEnd ,path}) => {
-    console.log('in door ',path)
+const Door = ({ wallStart, wallEnd ,path }) => {
+    console.log('in door wallstart',wallStart)
 
     const [doorPath, setDoorPath] = useState(null);
-
+    useEffect(() => {
+        if (path) {
+            localStorage.setItem("door", path);
+        } else {
+            // Don't set to "null" string
+            localStorage.removeItem("door");
+        }
+    }, [path]);
     // Function to load the door texture
-    const loadDoorTexture = (path) => {
-        console.log('loadDoorTexture',path)
-        const storedDoor =  path != null ? path : localStorage.getItem("door");
-
-        if (storedDoor) {
+    const loadDoorTexture = () => {
+        const storedDoor = localStorage.getItem("door");
+        if (storedDoor === null) {
+            return;
+        }
             let image = storedDoor.split("/");
-            console.log("Stored door path:", image[1]);
+            console.log("Stored door path:", image[2]);
             const localURL = `/textures/door/${image[2]}`;
             const backendURL = `http://127.0.0.1:8000/api/image/${image[1]}/${image[2]}`;
 
@@ -43,21 +50,18 @@ const Door = ({ wallStart, wallEnd ,path}) => {
                         console.error("⚠️ Error downloading image:", error);
                     });
             };
-        } else {
-            console.log("❌ No stored door in localStorage");
-            setDoorPath(null); // Reset the door path when nothing is in localStorage
-        }
+
     };
 
     // Initial load
     useEffect(() => {
-        loadDoorTexture(path);
+        loadDoorTexture();
 
         // Add storage event listener
         const handleStorageChange = (event) => {
             if (event.key === "door") {
                 console.log("🔄 Door selection changed in localStorage");
-                loadDoorTexture(path);
+                loadDoorTexture();
             }
         };
 
@@ -90,7 +94,7 @@ const Door = ({ wallStart, wallEnd ,path}) => {
         // Listen for our custom event
         const handleDoorChanged = () => {
             console.log("🔄 Door selection changed in same tab");
-            loadDoorTexture(path);
+            loadDoorTexture();
         };
         window.addEventListener("doorChanged", handleDoorChanged);
 

@@ -39,7 +39,7 @@ function App() {
                   <Route path="/3D" element={<Viewer3D/>} />
                   <Route path="/Dashboard" element={<Dashboard/>} />
                   <Route path="/analytics" element={<AnalyticsPage/>} />
-                  <Route path="/user" element={<HomePage />} />
+                  <Route path="/home" element={<HomePage />} />
                   <Route path="/models" element={<ModelsPage />} />
                   <Route path="/designer/:id" element={<DesignerPage />} />
                   <Route path="/model/:id" element={<ModelPage />} />

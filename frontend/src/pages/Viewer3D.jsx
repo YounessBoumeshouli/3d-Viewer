@@ -54,6 +54,17 @@ function Viewer3D() {
             console.log('########## components', components);
             if (isExistingModel){
                 console.log(selectedModel)
+                try {
+                    console.log("dxf_file_id",selectedFile.id)
+                    console.log("components",components)
+
+                    const response = await api.put(`houses/${selectedModel}`,{
+                        "dxf_file_id":selectedFile.id,
+                        "components":components
+                    },)
+                }catch (e) {
+                    console.error(e)
+                }
             }else{
             try {
                 console.log("dxf_file_id",selectedFile.id)

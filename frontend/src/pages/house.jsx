@@ -103,9 +103,7 @@ const CameraController = () => {
 };
 
 function House({file,components}) {
-    if (!components || components.length === 0) {
-        return <div>Loading components...</div>;
-    }
+
     const [selectedComponent,setSelectedComponent] = useState([])
     useEffect(() => {
         console.log('########### file #########',file);

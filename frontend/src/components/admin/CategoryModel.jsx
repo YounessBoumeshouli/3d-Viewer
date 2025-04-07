@@ -16,7 +16,7 @@ function handleSelect(item,title) {
 
 }
 
-function CategoryModel({ title = 'hello', onClose }) {
+function CategoryModel({ title = 'hello', onClose ,onSubmit }) {
     const [imagePreview, setImagePreview] = useState(null);
     const [imageFile, setImageFile] = useState(null);
     const [category,SetCategory] = useState({
@@ -78,7 +78,10 @@ function CategoryModel({ title = 'hello', onClose }) {
 
                         {/* Right Side (Form) */}
                         <div className="flex flex-col justify-center">
-                            <form className="space-y-4" onSubmit={handleSubmit}>
+                            <form className="space-y-4" onSubmit={(e) => {
+                                handleSubmit(e);
+                                onSubmit();
+                            }}>
                                 {/* Image Upload */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
