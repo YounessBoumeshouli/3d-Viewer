@@ -13,6 +13,11 @@ class DesignerController extends Controller
         return Designer::with('socialLinks','user')->get();
 
     }
+    public function modelsByCreator(Designer $designer)
+    {
+        return $designer->load(['user.designer.houses']);
+
+    }
     public function show($id)
     {
         return Designer::with('socialLinks','user')->where('id',$id)->first();

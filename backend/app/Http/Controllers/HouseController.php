@@ -22,7 +22,7 @@ class HouseController extends Controller
        return Designer::with('user','houses')->where('user_id',auth()->id())->get();
     }
     public function show(House $house){
-       return $house->load(['dxfFile','components.component.category']);
+       return $house->load(['dxfFile.designer','components.component.category']);
     }
     public function update(Request $request, House $house)
     {
@@ -30,10 +30,12 @@ class HouseController extends Controller
             "dxf_file_id" => 'required|integer',
             'components' => 'required|array|min:1',
             'components.*.path' => 'required|string|min:1',
+            'stage'=>'required|integer'
+
         ]);
 
         // Update house data
-        $house->update(['dxf_file_id' => $validated['dxf_file_id']]);
+        $house->update(['dxf_file_id' => $validated['dxf_file_id'] ,'stage'=>$validated['stage']]);
 
         // Delete old component relations
         $house->components()->delete();
@@ -54,11 +56,13 @@ class HouseController extends Controller
        $validated =  $request->validate([
             "dxf_file_id"=>'required|integer',
             'components' => 'required|array|min:1',
-            'components.*.path' => 'required|string|min:1',
+            'components.*.path' => 'string|min:1|nullable',
+            'stage'=>'required|integer'
         ]);
         $dxfFileid = $request->input('dxf_file_id');
+        $stage = $request->input('stage');
         if ($validated){
-        $house = House::create(["dxf_file_id"=>$dxfFileid]);
+        $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage]);
             foreach ($validated['components'] as $component){
                 $id = Component::where('path', $component['path'])->first();
                 $house->components()->create(['component_id'=>$id->id]);

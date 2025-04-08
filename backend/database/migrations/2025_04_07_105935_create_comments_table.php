@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dxf_files', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('designer_id');
-            $table->text('path')->nullable();
+            $table->foreignId('house_id');
+            $table->foreignId('user_id');
+            $table->text('content');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dxf_files');
+        Schema::dropIfExists('comments');
     }
 };

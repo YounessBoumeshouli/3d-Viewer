@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\DesignerController;
 use App\Http\Controllers\FileController;
@@ -31,13 +32,14 @@ Route::get('categories',[ComponentController::class,'index']);
 Route::get('components/{type}',[ComponentController::class,'show']);
 Route::get('designers',[DesignerController::class,'index']);
 Route::get('designers/{id}',[DesignerController::class,'show']);
-Route::get('models/designer/{id}',[DesignerController::class,'show']);
+Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCreator']);
 
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('myfiles',[FileController::class,'index']);
     Route::post('categories',[ComponentController::class,'store']);
     Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
     Route::apiResource('houses', HouseController::class);
+    Route::apiResource('house.comments',CommentController::class);
     Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);

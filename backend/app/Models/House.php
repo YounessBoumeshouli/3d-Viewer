@@ -15,5 +15,9 @@ class House extends Model
     {
       return $this->hasMany(HouseComponent::class);
     }
+    public function comments()
+    {
+      return $this->hasMany(Comment::class);
+    }
 
 }
