@@ -102,11 +102,10 @@ const CameraController = () => {
     return null;
 };
 
-function House({file,components}) {
-
+function House({file,components ,height}) {
+        console.log(height)
     const [selectedComponent,setSelectedComponent] = useState([])
     useEffect(() => {
-        console.log('########### file #########',file);
 
         if (Array.isArray(components) && components.length > 0){
                 const data =   components.map((component)=>(
@@ -121,7 +120,6 @@ function House({file,components}) {
         }
     }, [components]);
     useEffect(() => {
-        console.log('selected :',selectedComponent)
     }, [selectedComponent]);
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];
@@ -134,10 +132,7 @@ function House({file,components}) {
 
     useEffect(() => {
         if (longestWall) {
-            console.log("🟦 Longest Wall Detected!");
-            console.log("📍 Start:", longestWall.start);
-            console.log("📍 End:", longestWall.end);
-            console.log("📏 Length:", longestWall.length);
+
             setLoading(false);
         }
     }, [longestWall]);
@@ -166,7 +161,7 @@ function House({file,components}) {
                     <Floor />
 
                     <group rotation={[-Math.PI / 2, 0, 0]}>
-                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file}  />
+                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} wallH={height}  />
                     </group>
 
                         {longestWall &&(
@@ -184,28 +179,32 @@ function House({file,components}) {
                         </>
 
                     )}
-                    {longestWall && (
+                    {longestWall && height && (
                         <>
-                            <Window
-                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                position="left"
-                                key="left-window"  // Add a key for React to differentiate
-                                path={        selectedComponent.find(item => item.category === "window")?.path
-                                }
-                            />
+                            {Array.from({ length: height }, (_, i) => (
+                                <React.Fragment key={i}>
+                                    <Window
+                                        wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                        wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                        position="left"
+                                        key={`left-window-${i}`}
+                                        stage ={i}
+                                        path={selectedComponent.find(item => item.category === "window")?.path}
+                                    />
 
-                            {/* Right window */}
-                            <Window
-                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                position="right"
-                                key="right-window"  // Add a key for React to differentiate
-                                path={        selectedComponent.find(item => item.category === "window")?.path
-                                }
-                            />
+                                    <Window
+                                        wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                        wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                        position="right"
+                                        key={`right-window-${i}`}
+                                        path={selectedComponent.find(item => item.category === "window")?.path}
+                                        stage ={i}
+                                    />
+                                </React.Fragment>
+                            ))}
                         </>
                     )}
+
                 </Suspense>
             </Canvas>
         </>

@@ -10,7 +10,7 @@ import api from "../services/api.js";
 import FileUploadModal from "../components/Maker/FileUploadModal.jsx";
 
 function Viewer3D() {
-    const [zoom, setZoom] = useState(100)
+    const [height, setHeight] = useState(1)
     const [rotation, setRotation] = useState(0)
     const [showModal, setShowModal] = useState(false)
     const [selectedFile, setSelectedFile] = useState(null)
@@ -25,6 +25,7 @@ function Viewer3D() {
     const [isExistingModel,setIsExistingModel] = useState(false);
     const [selectedModel,setSelectedModel] = useState(null);
     const [savedComponent,setSavedComponents] = useState([])
+
     const handleCategoryClick = async (category) => {
         console.log("Category clicked:", category.id);
         setActiveCategory(category.name)
@@ -57,11 +58,14 @@ function Viewer3D() {
                 try {
                     console.log("dxf_file_id",selectedFile.id)
                     console.log("components",components)
+                    console.log("components",height)
 
                     const response = await api.put(`houses/${selectedModel}`,{
                         "dxf_file_id":selectedFile.id,
-                        "components":components
-                    },)
+                        "components":components,
+                        "stage":height
+                    })
+                    console.log(response.data)
                 }catch (e) {
                     console.error(e)
                 }
@@ -72,7 +76,8 @@ function Viewer3D() {
 
                 const response = await api.post('houses',{
                     "dxf_file_id":selectedFile.id,
-                    "components":components
+                    "components":components,
+                    "stage":height
                 },)
             }catch (e) {
                 console.error(e)
@@ -139,6 +144,7 @@ function Viewer3D() {
                     const response = await api.get(`houses/${selectedModel}`);
                     setSavedComponents(response.data.components)
                     setModelLoaded(true)
+                    setHeight(response.data.stage)
                     uploadFile(response.data.dxf_file)
                     console.log(response.data.components)
                 }catch (e) {
@@ -190,16 +196,16 @@ function Viewer3D() {
                     <div className="space-y-4">
                         <div className="flex items-center">
                             <Search className="h-5 w-5 text-gray-500 mr-2" />
-                            <span className="mr-2">Zoom: {zoom}%</span>
+                            <span className="mr-2">Zoom: {height} tages</span>
                             <button
                                 className="px-2 py-1 border border-gray-300 rounded mr-1"
-                                onClick={() => setZoom(Math.max(10, zoom - 10))}
+                                onClick={() => setHeight(Math.max(1, height - 1))}
                             >
                                 -
                             </button>
                             <button
                                 className="px-2 py-1 border border-gray-300 rounded"
-                                onClick={() => setZoom(Math.min(200, zoom + 10))}
+                                onClick={() => setHeight(Math.min(5, height + 1))}
                             >
                                 +
                             </button>
@@ -302,7 +308,7 @@ function Viewer3D() {
                                 ) : (
                                 selectedFile && savedComponent ? (
                                     <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
-                                        <House file={selectedFile.path} components = {savedComponent} />
+                                        <House file={selectedFile.path} components = {savedComponent}  height={height} />
                                         <button
                                             className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                                             onClick={() => setFileListVisible(true)}

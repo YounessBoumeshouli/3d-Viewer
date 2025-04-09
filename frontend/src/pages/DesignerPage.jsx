@@ -9,28 +9,26 @@ const DesignerPage = () => {
     // This component renders either Image 3 or Image 4 depending on props
     // For simplicity, I'm implementing Image 3 (Youness profile)
     const [designer,setDesinger] = useState(null);
-    const [popularModels,setPopularModels] = useState([]);
+    const [popularModels,setPopularModels] = useState();
  const {id} = useParams();
- const fetchUserData = async ()=>{
-     try {
-         const response = await api.get(`designers/${id}`)
-         setDesinger(response.data)
-     }catch (error){
-         console.error(error)
-     }
- }
  const fetchPopularModels = async ()=>{
      try {
-         const response = await api.get(`models/designer/${id}`)
-         setDesinger(response.data)
+         const response = await api.get(`designers/${id}/models`)
+         setPopularModels(response.data.user.designer.houses)
+         setDesinger(response.data.user)
+              console.log(response.data);
+
      }catch (error){
          console.error(error)
      }
  }
     useEffect(() => {
-        fetchUserData();
+        fetchPopularModels();
     }, []);
-        console.log(designer)
+    console.log(popularModels)
+    console.log(designer)
+
+    console.log(designer)
     if (!designer) {
         return <div>Loading...</div>; // Show loading while fetching data
     }
@@ -51,11 +49,10 @@ const DesignerPage = () => {
                 {/* Profile information */}
                 <div className="mt-16 flex justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold">{designer.user.name}</h1>
+                        <h1 className="text-2xl font-bold">{designer.name}</h1>
                         <p className="text-gray-600">Architectural Designer</p>
                         <div className="mt-2">
                             <p className="text-lg font-semibold">4.9</p>
-                            <p className="text-gray-600">{designer.social_links[0].url}</p>
                         </div>
                     </div>
 
@@ -87,7 +84,13 @@ const DesignerPage = () => {
 
                     {/* This would be populated with your ModelCard component */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                       <ModelCard/>
+                        {popularModels &&
+                            popularModels.map((model)=>(
+                            <ModelCard key = {model.id} model = {model} creator = {designer}/>
+                            ))
+
+
+                        }
                     </div>
                 </div>
             </div>

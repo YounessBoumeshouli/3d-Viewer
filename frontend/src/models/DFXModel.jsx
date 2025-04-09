@@ -5,8 +5,8 @@ import { useTexture } from '@react-three/drei';
 import Loader from '../components/Loader';
 import api from "../services/api.js";
 
-const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file  }) => {
-    console.log(file)
+const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file , wallH  }) => {
+    console.log(wallH)
     let path = file.file;
     const [entities, setEntities] = useState([]);
     // Load textures for different wall materials
@@ -111,14 +111,12 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
          fetchDxfFile(file);
     }, []);
     // Entity component - handles rendering of each wall
-    const Entity = ({ wall }) => {
+    const Entity = ({ wall  }) => {
         const wallMaterial = wall.isMaxLengthWall ? MAX_LENGTH_WALL_MATERIAL : WALL_MATERIAL;
-        const wallHeight = 5; // Set a fixed height for the walls
+        const wallHeight = wallH * 4;
 
-        // Calculate length of the wall for texture mapping
         const wallLength = wall.length;
 
-        // Create a 2D shape for the wall based on the start and end points
         const shape = new THREE.Shape();
         shape.moveTo(wall.start.x, wall.start.y);
         shape.lineTo(wall.end.x, wall.end.y);

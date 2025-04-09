@@ -66,7 +66,6 @@ function Components() {
     return (
         <Layout>
             <div className="grid grid-cols-1 gap-6">
-                {/* Add Component */}
                 <Card className="bg-[#242634] border-[#3e435d]/20 text-white">
                     <CardContent className="pt-10 pb-10 flex flex-col items-center text-center">
                         <h2 className="text-2xl font-bold mb-2">Add Component</h2>

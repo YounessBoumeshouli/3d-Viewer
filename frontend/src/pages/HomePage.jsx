@@ -92,7 +92,7 @@ const HomePage = () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {models.map(model => (
-                            <ModelCard key = {model.id} model={model} />
+                            <ModelCard key = {model.id} model={model} creator = {model.dxf_file.designer} />
                     ))}
                 </div>
             </section>

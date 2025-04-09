@@ -1,13 +1,64 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Layout from '../components/user/Layout';
 import {useParams} from "react-router-dom";
+import api from "../services/api.js"
+import House from "../pages/house.jsx";
 
 const ModelPage = () => {
 
+const [model,setModel] = useState(null);
+const [comments , setComments] = useState([]);
+const [comment , setComment] = useState(null);
+const {id} = useParams();
+const [formData , setFromData] =useState({
+    comment : '',
+    house_id : id
+});
 
-    const fetchModel = async () => {
-        const {id} = useParams()
+    const handleChange = (e)=>{
+        const {name,value} = e.target;
+        setFromData(prev =>({
+            ...prev,
+            [name] : value
+        }));
     }
+    const handleSubmit =  async (e) =>{
+        e.preventDefault();
+        if (!formData || formData['comment'] == null){
+            console.error('you should fill the comment field')
+        }else {
+            try {
+                const response = await api.post(`model/${id}/comments`,formData,{
+                    headers : {"Content-Type": "multipart/form-data" }
+                })
+                console.log(response.data);
+                setComment('');
+            }catch (e) {
+                console.error("error while posting data",e)
+            }
+        }
+
+    }
+    const fetchModel = async () => {
+        const response = await api.get(`houses/${id}`);
+        setModel(response.data)
+        console.log(response.data)
+    }
+    const fetchComments = async () =>{
+        const response = await api.get(`house/${id}/comments`);
+        setComments(response.data.comments);
+        console.log(response.data.comments)
+        comments.map((comment) =>{
+            console.log(comment)
+        })
+    }
+    useEffect(() => {
+        fetchComments();
+        console.log('comments')
+    }, []);
+    useEffect(() => {
+        fetchModel()
+    }, []);
     return (
         <Layout>
             <div className="bg-gray-900 text-white">
@@ -16,26 +67,34 @@ const ModelPage = () => {
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/* Left side - viewer */}
                         <div className="w-full lg:w-2/3">
-                            <div className="bg-gray-200 rounded-lg relative">
-                                <div className="aspect-[4/3] flex items-center justify-center">
-                                    <p className="text-gray-500 text-4xl">800 × 600</p>
-                                </div>
+                            { model &&
+                                <div className="bg-gray-200 rounded-lg relative h-[100%]">
+                                <House file={model.dxf_file.path} components={model.components}  />
+
                                 {/* Control buttons */}
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     <button className="bg-gray-800 text-white p-2 rounded-md">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20"
+                                             fill="currentColor">
+                                            <path fillRule="evenodd"
+                                                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                                  clipRule="evenodd"/>
                                         </svg>
                                     </button>
                                     <button className="bg-gray-800 text-white p-2 rounded-md">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14z" clipRule="evenodd" />
-                                            <path fillRule="evenodd" d="M16.293 2.293a1 1 0 011.414 1.414l-14 14a1 1 0 01-1.414-1.414l14-14z" clipRule="evenodd" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20"
+                                             fill="currentColor">
+                                            <path fillRule="evenodd"
+                                                  d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14z"
+                                                  clipRule="evenodd"/>
+                                            <path fillRule="evenodd"
+                                                  d="M16.293 2.293a1 1 0 011.414 1.414l-14 14a1 1 0 01-1.414-1.414l14-14z"
+                                                  clipRule="evenodd"/>
                                         </svg>
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                            }                        </div>
 
                         {/* Right side - information */}
                         <div className="w-full lg:w-1/3">
@@ -78,11 +137,12 @@ const ModelPage = () => {
                     </div>
 
                     {/* Model information */}
+                    { model &&
                     <div className="bg-gray-800 p-6 rounded-lg mt-6">
                         <h2 className="text-2xl font-bold mb-2">Modern House Design</h2>
                         <div className="flex justify-between mb-4">
                             <p className="text-gray-400">Dimensions: 200×150×180 cm</p>
-                            <p className="text-gray-400">Creator: Sarah Anderson</p>
+                            <p className="text-gray-400">Creator: {model.dxf_file.designer.name} </p>
                         </div>
                         <p className="text-gray-300">A modern house design featuring minimalist architecture with open spaces and natural light integration.</p>
                         <div className="flex items-center mt-4">
@@ -96,15 +156,18 @@ const ModelPage = () => {
                             <span className="ml-2">4.3/5 (120 ratings)</span>
                         </div>
                     </div>
-
+                    }
                     {/* Comments section */}
                     <div className="bg-gray-800 p-6 rounded-lg mt-6">
                         <h3 className="text-xl font-bold mb-4">Comments</h3>
                         <div className="flex items-center gap-2 mb-4">
                             <input
                                 type="text"
-                                placeholder="Search comments..."
+                                placeholder="add comment..."
                                 className="bg-gray-700 text-white rounded px-4 py-2 w-full"
+                                name='comment'
+                                value={comment}
+                                onChange={handleChange}
                             />
                             <div className="bg-gray-700 text-white rounded px-3 py-2 flex items-center gap-2">
                                 <span>Newest First</span>
@@ -113,29 +176,32 @@ const ModelPage = () => {
                                 </svg>
                             </div>
                         </div>
+                            <form onSubmit={handleSubmit}>
 
-                        <div className="bg-gray-700 rounded mb-4 px-3 py-2 min-h-24">
-                            {/* Comment input area */}
-                        </div>
 
-                        <button className="bg-blue-500 text-white px-4 py-2 rounded">Post Comment</button>
+                        <button type='submit' className="bg-blue-500 text-white px-4 py-2 rounded">Post Comment</button>
+                            </form>
 
                         {/* Comment */}
-                        <div className="mt-6 border-t border-gray-700 pt-4">
-                            <div className="flex justify-between">
-                                <p className="font-medium">Michael Chen <span className="text-gray-400 font-normal">18/03/2025</span></p>
-                                <button className="text-blue-400">Reply</button>
-                            </div>
-                            <p className="mt-2 text-gray-300">
-                                Love the modern aesthetic and how the spaces flow together. The natural lighting is particularly well thought out.
-                            </p>
-                            <div className="flex items-center mt-2 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-                                </svg>
-                                <span className="ml-1">12</span>
-                            </div>
-                        </div>
+                        {comments && (
+                            comments.map((comment) => (
+                                <div className="mt-6 border-t border-gray-700 pt-4">
+                                    <div className="flex justify-between">
+                                        <p className="font-medium">{comment.user.name} <span className="text-gray-400 font-normal">{comment.created_at}</span></p>
+                                        <button className="text-blue-400">Reply</button>
+                                    </div>
+                                    <p className="mt-2 text-gray-300">
+                                        {comment.content}                                    </p>
+                                    <div className="flex items-center mt-2 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                        </svg>
+                                        <span className="ml-1">12</span>
+                                    </div>
+                                </div>
+
+                            ))
+                        )}
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ const WindowModel = ({ windowPath, position, rotation, scale }) => {
 };
 
 // Main component that handles state and calculations
-const Window = ({ wallStart, wallEnd, position = "center",path }) => {
+const Window = ({ wallStart, wallEnd, position = "center",path , stage }) => {
     const [windowPath, setWindowPath] = useState(null);
     const [modelError, setModelError] = useState(null);
     const [scale, setScale] = useState(0.3);
@@ -156,7 +156,7 @@ const Window = ({ wallStart, wallEnd, position = "center",path }) => {
 
         setWindowPosition([
             centerX + offsetX,
-            2,
+            stage * 3  + 3,
             -(centerY + offsetY)
         ]);
 

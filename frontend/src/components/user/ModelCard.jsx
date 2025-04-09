@@ -5,7 +5,7 @@ const ModelCard = (props) => {
     const id = props.model.id
     const title = props.title
     const image = props.image
-    const creator = props.model.dxf_file.designer
+    const creator = props.creator
     const downloads = props.downloads
     const comments = props.comments
     const tags = props.tags

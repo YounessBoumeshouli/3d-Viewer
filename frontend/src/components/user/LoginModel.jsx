@@ -15,7 +15,6 @@ function LoginModel({ title = 'hello', onClose }) {
         e.preventDefault();
         if (!formData){
             console.error("You should fill are the fields");
-
         }
         try {
             const response =  await  api.post('login',formData,{
