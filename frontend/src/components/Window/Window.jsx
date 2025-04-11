@@ -18,7 +18,7 @@ const WindowModel = ({ windowPath, position, rotation, scale }) => {
 };
 
 // Main component that handles state and calculations
-const Window = ({ wallStart, wallEnd, position = "center",path , stage }) => {
+const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
     const [windowPath, setWindowPath] = useState(null);
     const [modelError, setModelError] = useState(null);
     const [scale, setScale] = useState(0.3);
@@ -26,31 +26,43 @@ const Window = ({ wallStart, wallEnd, position = "center",path , stage }) => {
     const instanceId = useRef(Math.random().toString(36).substring(7));
     const [angle, setAngle] = useState(0);
     const [isReady, setIsReady] = useState(false);
-    useEffect(() => {
+    const lastFetchedPath = useRef(null);
 
+    // Set the path in localStorage only if it changes
+    useEffect(() => {
         if (path) {
             localStorage.setItem("window", path);
-        }else {
+        } else if (localStorage.getItem("window") !== null) {
             localStorage.setItem("window", null);
-
         }
+    }, [path]);
 
-    }, []);
     const fetchModel = async () => {
-
         try {
             const storedWindow = localStorage.getItem("window");
-            console.log(storedWindow)
-            if (!storedWindow) {
+
+            // Don't re-fetch if we've already fetched this path
+            if (storedWindow === lastFetchedPath.current && windowPath) {
+                return;
+            }
+
+            if (!storedWindow || storedWindow === "null") {
                 setModelError("No window model in localStorage");
                 return;
             }
+
+            console.log("Fetching window model:", storedWindow);
+            lastFetchedPath.current = storedWindow;
 
             let image = storedWindow.split("/");
             const response = await api.get(`image/${image[1]}/${image[2]}`, {
                 responseType: "blob",
             });
-            console.log(response.data)
+
+            // Clean up previous blob URL if it exists
+            if (windowPath && windowPath.startsWith("blob:")) {
+                URL.revokeObjectURL(windowPath);
+            }
 
             const blobURL = URL.createObjectURL(response.data);
             setWindowPath(blobURL);
@@ -59,66 +71,52 @@ const Window = ({ wallStart, wallEnd, position = "center",path , stage }) => {
             console.error("Error loading GLB:", error);
             setModelError(error.message);
         }
-
     };
-    useEffect(()=>{
+
+    // Clean up blob URLs when component unmounts
+    useEffect(() => {
         return () => {
             if (windowPath && windowPath.startsWith("blob:")) {
                 URL.revokeObjectURL(windowPath);
             }
         };
-    },[])
-    ///
-    useEffect(() => {
-        // Create a custom event listener for same-tab changes
-        const handleSameTabChange = () => {
-            const customEvent = new Event("windowChanged");
-            window.dispatchEvent(customEvent);
-        };
+    }, [windowPath]);
 
-        // Override the setItem method to dispatch our custom event
+    // Set up localStorage change listeners
+    useEffect(() => {
+        // Fetch model on mount
+        fetchModel();
+
+        // Create a custom event listener for same-tab changes
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
+            const oldValue = localStorage.getItem(key);
             originalSetItem.apply(this, arguments);
-            if (key === "window") {
-                handleSameTabChange();
+            if (key === "window" && oldValue !== value) {
+                const event = new Event("windowChanged");
+                window.dispatchEvent(event);
             }
         };
 
-        // Listen for our custom event
+        // Listen for custom event (same tab) and storage event (other tabs)
         const handleWindowChanged = () => {
-            console.log("🔄 Window selection changed in same tab");
+            console.log("🔄 Window selection changed");
             fetchModel();
         };
+
         window.addEventListener("windowChanged", handleWindowChanged);
+        window.addEventListener("storage", (event) => {
+            if (event.key === "window") {
+                handleWindowChanged();
+            }
+        });
 
         return () => {
             // Restore original setItem
             localStorage.setItem = originalSetItem;
             window.removeEventListener("windowChanged", handleWindowChanged);
+            window.removeEventListener("storage", handleWindowChanged);
         };
-    }, []);
-
-    // Fetch model effect
-    useEffect(() => {
-
-        fetchModel();
-        const handleStorageChange = (event) => {
-            if (event.key === "window") {
-                console.log("🔄 Window selection changed in localStorage");
-                fetchModel();
-            }
-        };
-
-        // Listen for storage events (only fires when localStorage is changed in OTHER tabs)
-        window.addEventListener("storage", handleStorageChange);
-
-        // Clean up listener when component unmounts
-        return () => {
-            window.removeEventListener("storage", handleStorageChange);
-        };
-        // Clean up any created object URLs
-
     }, []);
 
     // Position calculation effect
@@ -156,7 +154,7 @@ const Window = ({ wallStart, wallEnd, position = "center",path , stage }) => {
 
         setWindowPosition([
             centerX + offsetX,
-            stage * 3  + 3,
+            stage * 3 + 3,
             -(centerY + offsetY)
         ]);
 
@@ -172,7 +170,7 @@ const Window = ({ wallStart, wallEnd, position = "center",path , stage }) => {
         setAngle(newAngle);
 
         console.log(`Window ${instanceId.current} calculated position:`, [centerX + offsetX, 2, -(centerY + offsetY)]);
-    }, [wallStart, wallEnd, position]);
+    }, [wallStart, wallEnd, position, stage]);
 
     // Early returns for invalid states
     if (!wallStart || !wallEnd) {

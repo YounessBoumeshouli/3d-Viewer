@@ -1,51 +1,58 @@
-"use client"
-import { Outlet, Link, useLocation } from "react-router-dom"
-import { Bell } from "lucide-react"
-import { Button } from "./ui/button"
+import React, { useState } from 'react';
+import { Bell } from 'lucide-react';
+import NavItem from './NavItem';
+import Header from './Header';
 
-function Layout() {
-    const location = useLocation()
-    const pathname = location.pathname
-    // const [sidebarOpen, setSidebarOpen] = useState(true) // Removed useState and sidebar logic
+const Layout = ({ children }) => {
+    const [activePage, setActivePage] = useState('overview');
 
     return (
-        <div className="flex flex-col min-h-screen bg-white">
-            {/* Header */}
-            <header className="border-b border-gray-200">
-                <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center space-x-8">
-                        <Link to="/" className="text-2xl font-bold text-blue-600">
-                            3D Viewer
-                        </Link>
-                        <nav className="hidden md:flex space-x-6">
-                            <Link to="/" className="text-gray-600 hover:text-blue-600">
-                                Visualisation
-                            </Link>
-                            <Link to="/library" className="text-gray-600 hover:text-blue-600">
-                                Bibliothèque
-                            </Link>
-                            <Link to="/help" className="text-gray-600 hover:text-blue-600">
-                                Aide
-                            </Link>
-                        </nav>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                        <Bell className="h-5 w-5 text-gray-500" />
-                        <Button variant="outline" className="text-gray-600 border-gray-300">
-                            Annuler
-                        </Button>
-                        <Button className="bg-blue-600 text-white hover:bg-blue-700">Confirmer</Button>
+        <div className="flex h-screen bg-gray-100">
+            {/* Sidebar */}
+            <div className="w-64 bg-white border-r border-gray-200">
+                <div className="p-4 border-b border-gray-200">
+                    <div className="flex items-center">
+                        <div className="flex items-center justify-center w-10 h-10 bg-blue-600 text-white font-bold rounded">
+                            3D
+                        </div>
+                        <div className="ml-3">
+                            <h1 className="text-xl font-bold">Creator</h1>
+                            <h1 className="text-xl font-bold">Dashboard</h1>
+                        </div>
                     </div>
                 </div>
-            </header>
+                <nav className="mt-2">
+                    <NavItem
+                        label="Overview"
+                        active={activePage === 'overview'}
+                        onClick={() => setActivePage('overview')}
+                    />
+                    <NavItem
+                        label="Models"
+                        active={activePage === 'models'}
+                        onClick={() => setActivePage('models')}
+                    />
+                    <NavItem
+                        label="Analytics"
+                        active={activePage === 'analytics'}
+                        onClick={() => setActivePage('analytics')}
+                    />
+                    <NavItem
+                        label="Settings"
+                        active={activePage === 'settings'}
+                        onClick={() => setActivePage('settings')}
+                    />
+                </nav>
+            </div>
 
-            {/* Main content */}
-            <main className="flex-1">
-                <Outlet />
-            </main>
+            <div className="flex-1 overflow-auto">
+                <div className="p-6">
+                    <Header />
+                    {children}
+                </div>
+            </div>
         </div>
-    )
-}
+    );
+};
 
-export default Layout
-
+export default Layout;

@@ -32,6 +32,7 @@ function Components() {
             try {
                 const response = await api.get('categories');
                 setCataegoryList(response.data);
+                setCataegoryList(response.data);
             }catch (e) {
                 console.error(e)
             }
