@@ -16,12 +16,10 @@ class DesignerController extends Controller
     public function modelsByCreator(Designer $designer)
     {
         return $designer->load(['user.designer.houses']);
-
     }
     public function profile()
     {
-        $designer = Designer::find(['user_id'=>auth()->id()]);
-        return $designer->load(['user.designer']);
+        return Designer::with('user')->where('user_id',auth()->id())->first();
 
     }
     public function show($id)

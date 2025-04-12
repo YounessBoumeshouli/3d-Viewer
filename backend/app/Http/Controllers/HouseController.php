@@ -19,7 +19,7 @@ class HouseController extends Controller
       return $houses->load(['dxfFile.designer']);
     }
     public function ModelsByCreator(){
-       return Designer::with('user','houses')->where('user_id',auth()->id())->get();
+       return Designer::with('user','houses')->where('user_id',auth()->id())->first();
     }
     public function show(House $house){
        return $house->load(['dxfFile.designer','components.component.category']);
