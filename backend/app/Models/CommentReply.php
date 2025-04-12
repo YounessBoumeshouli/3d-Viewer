@@ -4,15 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Comment extends Model
+class CommentReply extends Model
 {
-    protected $guarded =[];
+    protected $guarded = [];
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    public function replies()
+    public function comment()
     {
-        return $this->hasMany(CommentReply::class);
+        return $this->belongsTo(Comment::class);
     }
 }

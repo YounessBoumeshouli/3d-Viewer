@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CommentReplyController;
 use App\Http\Controllers\ComponentController;
 use App\Http\Controllers\DesignerController;
 use App\Http\Controllers\FileController;
@@ -41,6 +42,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
     Route::apiResource('houses', HouseController::class);
     Route::apiResource('house.comments',CommentController::class);
+    Route::apiResource('comments.replies',CommentReplyController::class);
     Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);

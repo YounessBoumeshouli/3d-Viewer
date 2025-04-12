@@ -26,7 +26,7 @@ class CommentController extends Controller
 
     }
     public function index(House $house){
-        return $house->load(['comments.user']);
+        return $house->load(['comments.user','comments.replies.user']);
     }
 
 
