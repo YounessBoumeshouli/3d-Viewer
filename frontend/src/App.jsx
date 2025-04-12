@@ -22,33 +22,51 @@ import CreatorAnalyticsPage from "./pages/Creator/CreatorAnalyticsPage.jsx";
 import CreatorModelsPage from "./pages/Creator/CreatorModelsPage.jsx";
 import OverviewPage from "./pages/Creator/OverviewPage.jsx";
 import SettingsPage from "./pages/Creator/SettingsPage.jsx";
-import { jwtDecode } from "jwt-decode";
+import PrivateRoute from "./routes/PrivateRoute.jsx";
 
-function AnalyticsPage() {
-    return null;
-}
 
 function App() {
-const  token = localStorage.getItem('token')
-    if (token){
-      const   {role} = jwtDecode(token)
-        console.log(role)
-    }
+
   return (
       <main className="bg-slate-300/20">
 
           <Router>
               <Routes>
-                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/analytics" element={<Analytics />} />
-                  <Route path="/team" element={<Team />} />
-                  <Route path="/components" element={<Components />} />
-                  <Route path="/creator" element={<CreatorDashboard />} />
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
-                  <Route path="/3D" element={<Viewer3D/>} />
-                  <Route path="/Dashboard" element={<Dashboard/>} />
-                  <Route path="/analytics" element={<AnalyticsPage/>} />
+                  <Route path="/" element={<Navigate to="/home" replace />} />
+                  <Route path="/analytics"
+                         element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <Analytics/>
+                      </PrivateRoute>
+                  } />
+                  <Route path="/team" element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <Team/>
+                      </PrivateRoute>
+                  }/>
+                  <Route path="/components" element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <Components/>
+                      </PrivateRoute>
+                  } />
+                  <Route path="/dashboard" element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <Dashboard/>
+                      </PrivateRoute>
+                  } />
+                  <Route
+                      path="/3D"
+                      element={
+                          <PrivateRoute allowedRoles={['admin', 'creator']}>
+                              <Viewer3D/>
+                          </PrivateRoute>
+                      }
+                  />
+                  <Route path="/creatorDashboard" element={
+                      <PrivateRoute allowedRoles={['creator']}>
+                          <CreatorDashboard/>
+                      </PrivateRoute>
+                  } />
                   <Route path="/home" element={<HomePage />} />
                   <Route path="/models" element={<ModelsPage />} />
                   <Route path="/designer/:id" element={<DesignerPage />} />
@@ -56,10 +74,27 @@ const  token = localStorage.getItem('token')
                   <Route path="/viewer" element={<ViewerPage />} />
 
 
-                  <Route path="/AnalyticsPage" element={<CreatorAnalyticsPage />} />
-                  <Route path="/ModelsPage" element={<CreatorModelsPage />} />
-                  <Route path="/OverView" element={<OverviewPage />} />
-                  <Route path="/SettingsPage" element={<SettingsPage />} />
+                  <Route path="/AnalyticsPage" element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <CreatorAnalyticsPage/>
+                      </PrivateRoute>
+                  } />
+                  <Route path="/ModelsPage" element={
+                      <PrivateRoute allowedRoles={['creator']}>
+                          <CreatorModelsPage/>
+                      </PrivateRoute>
+                  } />
+                  <Route path="/OverView" element={
+                      <PrivateRoute allowedRoles={[ 'creator']}>
+                          <OverviewPage/>
+                      </PrivateRoute>
+                  } />
+                  <Route path="/SettingsPage" element={
+                      <PrivateRoute allowedRoles={['creator']}>
+                          <SettingsPage/>
+                      </PrivateRoute>
+                  } />
+                  <Route path="*" element={<Navigate to="/home" replace />} />
 
               </Routes>
 
