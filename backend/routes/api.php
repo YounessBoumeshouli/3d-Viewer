@@ -31,6 +31,7 @@ Route::post('login', [JWTAuthController::class, 'login']);
 Route::get('categories',[ComponentController::class,'index']);
 Route::get('components/{type}',[ComponentController::class,'show']);
 Route::get('designers',[DesignerController::class,'index']);
+Route::get('MyProfile',[DesignerController::class,'profile']);
 Route::get('designers/{id}',[DesignerController::class,'show']);
 Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCreator']);
 

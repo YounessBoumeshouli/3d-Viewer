@@ -18,6 +18,12 @@ class DesignerController extends Controller
         return $designer->load(['user.designer.houses']);
 
     }
+    public function profile()
+    {
+        $designer = Designer::find(['user_id'=>auth()->id()]);
+        return $designer->load(['user.designer']);
+
+    }
     public function show($id)
     {
         return Designer::with('socialLinks','user')->where('id',$id)->first();

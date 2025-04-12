@@ -4,6 +4,9 @@ import { Mail } from 'lucide-react';
 import Layout from "../../components/Maker/Layout.jsx";
 
 const SettingsPage = () => {
+    const fetchData = async () =>{
+        const response = await api.get('MyProfile');
+    }
     return (
         <Layout>
         <div>
