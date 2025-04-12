@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
+import {Link} from "react-router-dom";
 const Header = () => {
     return (
         <div className="mb-8">
@@ -12,9 +13,9 @@ const Header = () => {
                     <button className="p-2 mr-2 text-gray-500 rounded-full hover:bg-gray-100">
                         <Bell size={20} />
                     </button>
-                    <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <Link to='/3D' className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         Upload New Model
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>

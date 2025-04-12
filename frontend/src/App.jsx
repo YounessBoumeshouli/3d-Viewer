@@ -18,12 +18,22 @@ import ModelPage from "./pages/ModelPage.jsx";
 import DesignerPage from "./pages/DesignerPage.jsx";
 import ModelsPage from "./pages/ModelsPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
+import CreatorAnalyticsPage from "./pages/Creator/CreatorAnalyticsPage.jsx";
+import CreatorModelsPage from "./pages/Creator/CreatorModelsPage.jsx";
+import OverviewPage from "./pages/Creator/OverviewPage.jsx";
+import SettingsPage from "./pages/Creator/SettingsPage.jsx";
+import { jwtDecode } from "jwt-decode";
+
 function AnalyticsPage() {
     return null;
 }
 
 function App() {
-
+const  token = localStorage.getItem('token')
+    if (token){
+      const   {role} = jwtDecode(token)
+        console.log(role)
+    }
   return (
       <main className="bg-slate-300/20">
 
@@ -44,6 +54,13 @@ function App() {
                   <Route path="/designer/:id" element={<DesignerPage />} />
                   <Route path="/model/:id" element={<ModelPage />} />
                   <Route path="/viewer" element={<ViewerPage />} />
+
+
+                  <Route path="/AnalyticsPage" element={<CreatorAnalyticsPage />} />
+                  <Route path="/ModelsPage" element={<CreatorModelsPage />} />
+                  <Route path="/OverView" element={<OverviewPage />} />
+                  <Route path="/SettingsPage" element={<SettingsPage />} />
+
               </Routes>
 
           </Router>

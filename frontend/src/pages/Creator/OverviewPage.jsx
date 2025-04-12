@@ -1,8 +1,10 @@
 import React from 'react';
-import StatCard from './StatCard';
+import StatCard from '../../components/Maker/StatCard.jsx';
+import Layout from "../../components/Maker/Layout.jsx";
 
 const OverviewPage = () => {
     return (
+        <Layout>
         <div>
             <div className="grid grid-cols-3 gap-4">
                 <StatCard title="Total Models" value="3" />
@@ -10,6 +12,7 @@ const OverviewPage = () => {
                 <StatCard title="Average Rating" value="4.5" />
             </div>
         </div>
+        </Layout>
     );
 };
 

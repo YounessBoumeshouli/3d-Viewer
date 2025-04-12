@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Bell } from 'lucide-react';
 import NavItem from './NavItem';
 import Header from './Header';
+import { Link, useLocation } from "react-router-dom"
 
 const Layout = ({ children }) => {
     const [activePage, setActivePage] = useState('overview');
+    const pathname = location.pathname
 
     return (
         <div className="flex h-screen bg-gray-100">
-            {/* Sidebar */}
             <div className="w-64 bg-white border-r border-gray-200">
                 <div className="p-4 border-b border-gray-200">
                     <div className="flex items-center">
@@ -21,27 +22,36 @@ const Layout = ({ children }) => {
                         </div>
                     </div>
                 </div>
-                <nav className="mt-2">
-                    <NavItem
-                        label="Overview"
-                        active={activePage === 'overview'}
-                        onClick={() => setActivePage('overview')}
-                    />
-                    <NavItem
-                        label="Models"
-                        active={activePage === 'models'}
-                        onClick={() => setActivePage('models')}
-                    />
-                    <NavItem
-                        label="Analytics"
-                        active={activePage === 'analytics'}
-                        onClick={() => setActivePage('analytics')}
-                    />
-                    <NavItem
-                        label="Settings"
-                        active={activePage === 'settings'}
-                        onClick={() => setActivePage('settings')}
-                    />
+                <nav className="flex flex-col gap-6">
+                    <Link
+                        to='/OverView'
+                        className={`px-4 py-3 cursor-pointer ${pathname === "/OverView"  ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                    >
+
+                        <span className="text-gray-700">OverView</span>
+                    </Link>
+                    <Link
+                        to='/SettingsPage'
+                        className={`px-4 py-3 cursor-pointer ${pathname === "/SettingsPage"  ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                    >
+
+                        <span className="text-gray-700">SettingsPage</span>
+                    </Link>
+                    <Link
+                        to='/ModelsPage'
+                        className={`px-4 py-3 cursor-pointer ${pathname === "/ModelsPage"  ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                    >
+
+                        <span className="text-gray-700">ModelsPage</span>
+                    </Link>
+                    <Link
+                        to='/AnalyticsPage'
+                        className={`px-4 py-3 cursor-pointer ${pathname === "/AnalyticsPage"  ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
+                    >
+
+                        <span className="text-gray-700">AnalyticsPage</span>
+                    </Link>
+
                 </nav>
             </div>
 
