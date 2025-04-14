@@ -6,11 +6,8 @@ import {useEffect,useState} from "react";
 
 function handleSelect(item,title) {
 
-    console.log("selected item :",item);
-    console.log('selected type : ',title)
     localStorage.setItem(title,item.path);
     const storedDoor = localStorage.getItem("door");
-    console.log(title,storedDoor)
 
 }
 

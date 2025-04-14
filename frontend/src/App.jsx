@@ -12,7 +12,6 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Analytics from "./pages/Analytics.jsx";
 import Components from "./pages/Components.jsx";
 import Team from "./pages/Team.jsx";
-import CreatorDashboard from "./pages/CreatorDashboard.jsx";
 import ViewerPage from "./pages/ViewerPage.jsx";
 import ModelPage from "./pages/ModelPage.jsx";
 import DesignerPage from "./pages/DesignerPage.jsx";
@@ -23,6 +22,7 @@ import CreatorModelsPage from "./pages/Creator/CreatorModelsPage.jsx";
 import OverviewPage from "./pages/Creator/OverviewPage.jsx";
 import SettingsPage from "./pages/Creator/SettingsPage.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
+import Messages from "./pages/Messages.jsx";
 
 
 function App() {
@@ -62,18 +62,12 @@ function App() {
                           </PrivateRoute>
                       }
                   />
-                  <Route path="/creatorDashboard" element={
-                      <PrivateRoute allowedRoles={['creator']}>
-                          <CreatorDashboard/>
-                      </PrivateRoute>
-                  } />
                   <Route path="/home" element={<HomePage />} />
                   <Route path="/models" element={<ModelsPage />} />
                   <Route path="/designer/:id" element={<DesignerPage />} />
                   <Route path="/model/:id" element={<ModelPage />} />
+                  <Route path="/messages" element={<Messages />} />
                   <Route path="/viewer" element={<ViewerPage />} />
-
-
                   <Route path="/AnalyticsPage" element={
                       <PrivateRoute allowedRoles={['admin', 'creator']}>
                           <CreatorAnalyticsPage/>

@@ -6,7 +6,6 @@ import Loader from '../components/Loader';
 import api from "../services/api.js";
 
 const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file , wallH  }) => {
-    console.log(wallH)
     let path = file.file;
     const [entities, setEntities] = useState([]);
     // Load textures for different wall materials
@@ -98,7 +97,6 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
                     responseType: "text",
                 });
 
-                console.log("DXF File Data:"); // Debugging
                 const parser = new DxfParser();
                 const parsedDxf = parser.parseSync(response.data);
 

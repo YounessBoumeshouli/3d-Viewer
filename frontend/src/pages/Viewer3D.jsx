@@ -27,13 +27,11 @@ function Viewer3D() {
     const [savedComponent,setSavedComponents] = useState([])
 
     const handleCategoryClick = async (category) => {
-        console.log("Category clicked:", category.id);
         setActiveCategory(category.name)
 
         setShowModal(true)
         try {
             const response = await api.get('components/'+category.id);
-            console.log("Server Response:", response.data);
             setComponentItems(response.data)
         } catch (error) {
             console.error("Error selecting item:", error);
@@ -41,38 +39,29 @@ function Viewer3D() {
     }
        const handleSelectedModel = (id) =>{
            setSelectedModel(id);
-           console.log(isExistingModel);
        }
         const handleSaveModel = async () => {
 
-            console.log('########## category', categories);
          const components =   categories.map((category)=>(
              {
                  path: localStorage.getItem(category.name)
              }
 
             ))
-            console.log('########## components', components);
             if (isExistingModel){
-                console.log(selectedModel)
                 try {
-                    console.log("dxf_file_id",selectedFile.id)
-                    console.log("components",components)
-                    console.log("components",height)
+                    
 
                     const response = await api.put(`houses/${selectedModel}`,{
                         "dxf_file_id":selectedFile.id,
                         "components":components,
                         "stage":height
                     })
-                    console.log(response.data)
                 }catch (e) {
                     console.error(e)
                 }
             }else{
             try {
-                console.log("dxf_file_id",selectedFile.id)
-                console.log("components",components)
 
                 const response = await api.post('houses',{
                     "dxf_file_id":selectedFile.id,
@@ -93,8 +82,8 @@ function Viewer3D() {
         const fetchCeatorModels = async ()=>{
             try {
                 const response = await api.get('creator/models')
-                console.log(response.data[0].houses)
-                setModels(response.data[0].houses)
+                (response.data.houses)
+                setModels(response.data.houses)
             }catch (e) {
                 console.error(e)
             }
@@ -102,18 +91,15 @@ function Viewer3D() {
         fetchCeatorModels();
     }, []);
     useEffect(() => {
-        console.log(selectedModel)
         if (selectedModel){
             setIsExistingModel(true);
         }
     }, [selectedModel]);
     const handleUpload = async () => {
         try {
-            console.log('is trying to fetch the data')
             const response = await api.get('myfiles', {
                 responseType: "json"
             });
-            console.log('dxfFiles',response.data)
             setDxfFiles(response.data);
             setFileListVisible(true);
             setModelLoaded(true);
@@ -123,12 +109,10 @@ function Viewer3D() {
     }
 
     const uploadFile = async (selectedFilePath) => {
-        console.log(selectedFilePath.path)
         try {
             const response = await api.get(`files/${selectedFilePath.path}`, {
                 responseType: "json"
             });
-            console.log(' ############### file      :',selectedFilePath);
             setSelectedFile(selectedFilePath);
             setFileListVisible(false); // Hide the file list
         } catch (error) {
@@ -136,17 +120,14 @@ function Viewer3D() {
         }
     }
     useEffect(()=>{
-        console.log(selectedModel);
         const fetchExistingModel = async ()=>{
             if (isExistingModel){
-                console.log('checking')
                 try {
                     const response = await api.get(`houses/${selectedModel}`);
                     setSavedComponents(response.data.components)
                     setModelLoaded(true)
                     setHeight(response.data.stage)
                     uploadFile(response.data.dxf_file)
-                    console.log(response.data.components)
                 }catch (e) {
                     console.error(e)
                 }
@@ -154,17 +135,14 @@ function Viewer3D() {
 
 
         }
-        console.log(savedComponent)
         fetchExistingModel();
     },[isExistingModel])
     useEffect(() => {
         const fetchCategories = async () => {
-            console.log('fetch categories')
             try {
                 const response = await api.get('categories', {
                     responseType: "json"
                 });
-                console.log(response.data)
                 setCategories(response.data);
             } catch (error) {
                 console.error("Error fetching categories:", error);
@@ -174,12 +152,10 @@ function Viewer3D() {
     }, []);
     useEffect(() => {
         const fetchModels = async () => {
-            console.log('fetch categories')
             try {
                 const response = await api.get('creator/models', {
                     responseType: "json"
                 });
-                console.log(response.data)
                 setCategories(response.data);
             } catch (error) {
                 console.error("Error fetching categories:", error);

@@ -1,42 +1,34 @@
-import React from 'react';
+import React, {useEffect,useState} from 'react';
 import { Search, ChevronDown } from 'lucide-react';
 import ModelListItem from '../../components/Maker/ModelListItem.jsx';
 import Layout from "../../components/Maker/Layout.jsx";
+import api from "../../services/api.js";
 
 const CreatorModelsPage = () => {
-    const models = [
-        {
-            id: 1,
-            name: 'Modern House',
-            category: 'house',
-            dimensions: '200×150×180',
-            uploadDate: '2024-01-15',
-            views: 1250,
-            rating: 4.5,
-            thumbnail: '/api/placeholder/50/50'
-        },
-        {
-            id: 2,
-            name: 'Office Chair',
-            category: 'furniture',
-            dimensions: '60×90×60',
-            uploadDate: '2024-01-10',
-            views: 850,
-            rating: 4.2,
-            thumbnail: '/api/placeholder/50/50'
-        },
-        {
-            id: 3,
-            name: 'Kitchen Table',
-            category: 'furniture',
-            dimensions: '150×75×90',
-            uploadDate: '2024-01-05',
-            views: 650,
-            rating: 4.8,
-            thumbnail: '/api/placeholder/50/50'
-        }
-    ];
+    const [models,setModels] = useState([])
+    const fetchData = async () =>{
+        const response = await api.get('creator/models');
+        setModels(response.data.houses)
+        console.log(response.data)
+    }
+    useEffect(() => {
+        fetchData();
+    }, []);
+    if (!models){
+        return (
+            <Layout>
+                <div>
+                    <div className="bg-gradient-to-r from-blue-100 to-orange-100 h-32 rounded-lg mb-6"></div>
 
+                    <div className="flex justify-between items-start mb-8">
+                        <h2>Loading ...</h2>
+                    </div>
+
+
+                </div>
+            </Layout>
+        );
+    }
     return (
         <Layout>
         <div className="bg-white rounded-lg shadow-sm p-6">

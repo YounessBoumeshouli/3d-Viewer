@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 
-const FormField = ({ label, placeholder, dropdown = false }) => {
+const FormField = ({ label, placeholder, value ,dropdown = false }) => {
     return (
         <div>
             <label className="block text-gray-700 mb-2">{label}</label>
@@ -9,6 +9,7 @@ const FormField = ({ label, placeholder, dropdown = false }) => {
                 <input
                     type="text"
                     placeholder={placeholder}
+                    value={value}
                     className={`w-full p-3 border border-gray-200 rounded-md ${dropdown ? 'pr-10' : ''}`}
                 />
                 {dropdown && (

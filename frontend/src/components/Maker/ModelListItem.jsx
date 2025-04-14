@@ -19,7 +19,7 @@ const ModelListItem = ({ model }) => {
                 </div>
             </td>
             <td className="py-4">{model.dimensions}</td>
-            <td className="py-4">{model.uploadDate}</td>
+            <td className="py-4">{model.created_at}</td>
             <td className="py-4">{model.views}</td>
             <td className="py-4">
                 <div className="flex items-center">

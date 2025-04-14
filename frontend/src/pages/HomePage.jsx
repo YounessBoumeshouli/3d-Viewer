@@ -12,6 +12,7 @@ const HomePage = () => {
     const  [loginModel , setLoginModel] = useState(false);
     const  [designers , setDesigners] = useState([]);
     const  [models , setModels] = useState([]);
+
     const closeLoginModel = () => {
         setLoginModel(false)
     }

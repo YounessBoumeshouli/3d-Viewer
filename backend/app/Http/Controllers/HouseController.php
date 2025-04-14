@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentEvent;
 use App\Http\Middleware\JwtMiddleware;
 use App\Models\component;
 use App\Models\Designer;
@@ -22,7 +23,7 @@ class HouseController extends Controller
        return Designer::with('user','houses')->where('user_id',auth()->id())->first();
     }
     public function show(House $house){
-       return $house->load(['dxfFile.designer','components.component.category']);
+        return $house->load(['dxfFile.designer','components.component.category']);
     }
     public function update(Request $request, House $house)
     {

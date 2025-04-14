@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Bell } from 'lucide-react';
 import NavItem from './NavItem';
 import Header from './Header';
 import { Link, useLocation } from "react-router-dom"
+import { connectToReverb, disconnectFromReverb } from '../../services/socket.js'
 
 const Layout = ({ children }) => {
     const [activePage, setActivePage] = useState('overview');
     const pathname = location.pathname
+    useEffect(() => {
+        const socket = connectToReverb('comments-global', (data) => {
+            console.log('WebSocket Data:', data); // Debug log
 
+            if (data.event === 'comment.added') {
+                const comment = data.data?.comment || data.data;
+                alert(`💬 New Comment: ${comment}`);
+            }
+        });
+
+
+        return () => disconnectFromReverb();
+    }, []);
     return (
         <div className="flex h-screen bg-gray-100">
             <div className="w-64 bg-white border-r border-gray-200">

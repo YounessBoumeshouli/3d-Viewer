@@ -2,28 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentEvent;
 use App\Models\Comment;
 use App\Models\House;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 
 class CommentController extends Controller
 {
     public function store(House $house,Request $request)
     {
-        $validated =  $request->validate([
-            "comment"=>'required|string|min:1',
-            "house_id"=>'required|integer'
+        $validated = $request->validate([
+            "comment" => 'required|string|min:1',
+
         ]);
-        $content = $request->input('comment');
-        $house_id = $request->input('house_id');
-        $user_id = auth()->id();
-         if ($validated){
-            Comment::create(["content"=>$content,"house_id"=>$house_id,'user_id'=>$user_id]);
-        }
-        return response()->json('comment added successfully', 201);
 
+        $house->comments()->create([
+            "content" => $validated['comment'],
+            'user_id' => auth()->id()
+        ]);
 
+        event(new CommentEvent('Hello from Laravel 🎉'));
+        return response()->json($validated['comment'], 201);
     }
     public function index(House $house){
         return $house->load(['comments.user','comments.replies.user']);

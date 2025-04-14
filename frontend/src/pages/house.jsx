@@ -9,7 +9,6 @@ import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
 
-// Floor component with realistic texture
 
 const Floor = () => {
     const floorTextures = useTexture({
@@ -103,7 +102,6 @@ const CameraController = () => {
 };
 
 function House({file,components ,height}) {
-        console.log(height)
     const [selectedComponent,setSelectedComponent] = useState([])
     useEffect(() => {
 

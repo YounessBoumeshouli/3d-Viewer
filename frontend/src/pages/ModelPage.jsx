@@ -7,6 +7,11 @@ import House from "../pages/house.jsx";
 const ModelPage = () => {
 
 const [model,setModel] = useState(null);
+const [replyForm,setReplyForm] = useState(null);
+const [replyFormdata,setReplyFormData] = useState({
+    reply : ''
+});
+
 const [comments , setComments] = useState([]);
 const [comment , setComment] = useState(null);
 const {id} = useParams();
@@ -22,17 +27,44 @@ const [formData , setFromData] =useState({
             [name] : value
         }));
     }
+    const handleReplyChange = (e)=>{
+        const {name,value} = e.target;
+        setReplyFormData(prev =>({
+            ...prev,
+            [name] : value,
+        }));
+        console.log(replyFormdata)
+    }
     const handleSubmit =  async (e) =>{
         e.preventDefault();
         if (!formData || formData['comment'] == null){
             console.error('you should fill the comment field')
         }else {
             try {
-                const response = await api.post(`model/${id}/comments`,formData,{
+                const response = await api.post(`house/${id}/comments`,formData,{
                     headers : {"Content-Type": "multipart/form-data" }
                 })
                 console.log(response.data);
-                setComment('');
+                setComment(response.data)
+            }catch (e) {
+                console.error("error while posting data",e)
+            }
+        }
+
+    }
+
+    const handleReplySubmit =  async (e) =>{
+        e.preventDefault();
+        if (!replyFormdata || replyFormdata['reply'] == null){
+            console.error('you should fill the reply field')
+        }else {
+            try {
+                const response = await api.post(`comments/${replyForm}/replies`,replyFormdata,{
+                    headers : {"Content-Type": "multipart/form-data" }
+                })
+                console.log(response.data);
+                setReplyForm(false);
+
             }catch (e) {
                 console.error("error while posting data",e)
             }
@@ -47,15 +79,13 @@ const [formData , setFromData] =useState({
     const fetchComments = async () =>{
         const response = await api.get(`house/${id}/comments`);
         setComments(response.data.comments);
-        console.log(response.data.comments)
         comments.map((comment) =>{
             console.log(comment)
         })
     }
     useEffect(() => {
         fetchComments();
-        console.log('comments')
-    }, []);
+    }, [comment]);
     useEffect(() => {
         fetchModel()
     }, []);
@@ -69,7 +99,7 @@ const [formData , setFromData] =useState({
                         <div className="w-full lg:w-2/3">
                             { model &&
                                 <div className="bg-gray-200 rounded-lg relative h-[100%]">
-                                <House file={model.dxf_file.path} components={model.components}  />
+                                <House file={model.dxf_file.path} components={model.components} height={model.stage}  />
 
                                 {/* Control buttons */}
                                 <div className="absolute top-4 right-4 flex gap-2">
@@ -188,15 +218,62 @@ const [formData , setFromData] =useState({
                                 <div className="mt-6 border-t border-gray-700 pt-4">
                                     <div className="flex justify-between">
                                         <p className="font-medium">{comment.user.name} <span className="text-gray-400 font-normal">{comment.created_at}</span></p>
-                                        <button className="text-blue-400">Reply</button>
+                                        <button  onClick={()=>{
+                                            setReplyForm(comment.id);
+                                        }} className="text-blue-400">
+                                            Reply
+                                        </button>
                                     </div>
                                     <p className="mt-2 text-gray-300">
-                                        {comment.content}                                    </p>
+                                        {comment.content}
+                                    </p>
                                     <div className="flex items-center mt-2 text-gray-400">
+                                        <button onClick={()=>document.getElementById(`replies-${comment.id}`).classList.toggle('hidden')}  className="ml-1">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 3.866-3.582 7-8 7a8.738 8.738 0 01-3.5-.7L3 21l1.7-4.2A6.968 6.968 0 013 12c0-3.866 3.582-7 8-7s8 3.134 8 7z" />
                                         </svg>
-                                        <span className="ml-1">12</span>
+
+                                        {comment.replies.length}
+                                        </button>
+                                    </div>
+                                    <div id={`replies-${comment.id}`} className='hidden'>
+                                    {
+                                        comment.replies &&  (
+                                            comment.replies.map((reply)=>(
+                                                <div className="mt-6 border-t border-gray-700 pt-4 w-[70%] mx-7">
+
+                                                <div className="flex justify-between">
+                                                    <p className="font-medium">{reply.user.name} <span className="text-gray-400 font-normal">{comment.created_at}</span></p>
+                                                </div>
+                                        <p className="mt-2 text-gray-300">
+                                            {reply.content}
+                                         </p>
+
+                                                </div>
+                                            ))
+                                        )
+                                    }
+                                    {
+                                        replyForm &&
+                                       <form onSubmit={handleReplySubmit}>
+                                           <div className="flex items-center gap-2 mb-4">
+                                               <input
+                                                   type="text"
+                                                   placeholder="Reply to the comment..."
+                                                   className="bg-gray-700 text-white rounded px-4 py-2 w-full"
+                                                   name='reply'
+                                                   onChange={handleReplyChange}
+                                               />
+                                               <input
+                                                   type="hidden"
+                                                   name='comment_id'
+                                                   value={comment.id}
+                                                   onChange={handleReplyChange}
+                                               />
+
+                                           </div>
+                                       </form>
+                                    }
                                     </div>
                                 </div>
 
