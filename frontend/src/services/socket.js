@@ -1,3 +1,4 @@
+// src/utils/reverbSocket.js
 
 let socket = null;
 
@@ -5,9 +6,9 @@ export function connectToReverb(channelName, onMessageCallback) {
     const REVERB_KEY = import.meta.env.VITE_REVERB_APP_KEY;
     const REVERB_HOST = import.meta.env.VITE_REVERB_HOST || '127.0.0.1';
     const REVERB_PORT = import.meta.env.VITE_REVERB_PORT || 8080;
-        socket = new WebSocket(
-            `ws://${REVERB_HOST}:${REVERB_PORT}/app/${REVERB_KEY}?protocol=7&client=js&version=1.0&flash=false`
-        );
+    socket = new WebSocket(
+        `ws://${REVERB_HOST}:${REVERB_PORT}/app/${REVERB_KEY}?protocol=7&client=js&version=1.0&flash=false`
+    );
 
     socket.onopen = () => {
         console.log('🔌 Reverb WebSocket connected',channelName);
@@ -29,7 +30,7 @@ export function connectToReverb(channelName, onMessageCallback) {
             console.log('📨 Received Raw:', rawData);
             console.log('📨 Parsed Data:', data);
 
-            if (data.event === 'comment.added') {
+            if (data.event === 'pusher:ping') {
                 console.log('📤 Sending pong response');
                 socket.send(JSON.stringify({
                     event: 'pusher:pong',
@@ -38,7 +39,7 @@ export function connectToReverb(channelName, onMessageCallback) {
             }
 
             if (data.event && data.event !== 'pusher:ping') {
-                console.log(`🔔 Event received: `,data);
+                console.log(`🔔 Event received: ${data.event}`);
                 if (data.data) {
                     console.log('📦 Event data:', typeof data.data === 'string' ? JSON.parse(data.data) : data.data);
                 }

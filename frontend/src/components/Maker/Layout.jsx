@@ -9,19 +9,28 @@ const Layout = ({ children }) => {
     const [activePage, setActivePage] = useState('overview');
     const pathname = location.pathname
     useEffect(() => {
-        const socket = connectToReverb('comments-global', (data) => {
-            console.log('WebSocket Data:', data); // Debug log
+        const socket = connectToReverb('comments', (data) => {
+            console.log('🎯 Event in Layout component:', data.event);
 
-            if (data.event === 'comment.added') {
-                const comment = data.data?.comment || data.data;
-                alert(`💬 New Comment: ${comment}`);
+            if (data.event === 'comment.created') {
+                console.log('💬 Comment event detected!');
+                console.log('💬 Received comment:', data);
+                const messageData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+                alert('🔔 New Comment: ' + (messageData.comment || 'No comment found'));
+            }
+
+            // Also keep the test.message handler for compatibility
+            if (data.event === 'test.message' || data.event === '.test.message') {
+                console.log('💬 Test message event detected!');
+                const messageData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+                alert('🔔 Test Message: ' + (messageData.message || 'No message found'));
             }
         });
 
-
-        return () => disconnectFromReverb();
-    }, []);
-    return (
+        return () => {
+            disconnectFromReverb();
+        };
+    }, []);    return (
         <div className="flex h-screen bg-gray-100">
             <div className="w-64 bg-white border-r border-gray-200">
                 <div className="p-4 border-b border-gray-200">

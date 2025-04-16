@@ -9,11 +9,9 @@ const Door = ({ wallStart, wallEnd ,path }) => {
         if (path) {
             localStorage.setItem("door", path);
         } else {
-            // Don't set to "null" string
             localStorage.removeItem("door");
         }
     }, [path]);
-    // Function to load the door texture
     const loadDoorTexture = () => {
         const storedDoor = localStorage.getItem("door");
         if (storedDoor === null) {
@@ -23,7 +21,6 @@ const Door = ({ wallStart, wallEnd ,path }) => {
             const localURL = `/textures/door/${image[2]}`;
             const backendURL = `http://127.0.0.1:8000/api/image/${image[1]}/${image[2]}`;
 
-            // Check if the local file exists first
             const img = new Image();
             img.src = localURL;
             img.onload = () => {
@@ -31,7 +28,6 @@ const Door = ({ wallStart, wallEnd ,path }) => {
             };
             img.onerror = () => {
 
-                // Fetch from backend and store locally
                 fetch(backendURL)
                     .then((response) => {
                         if (!response.ok) throw new Error("Image not found on backend");
@@ -48,11 +44,9 @@ const Door = ({ wallStart, wallEnd ,path }) => {
 
     };
 
-    // Initial load
     useEffect(() => {
         loadDoorTexture();
 
-        // Add storage event listener
         const handleStorageChange = (event) => {
             if (event.key === "door") {
                 loadDoorTexture();
@@ -68,15 +62,12 @@ const Door = ({ wallStart, wallEnd ,path }) => {
         };
     }, []);
 
-    // Add a custom event listener for changes in the same tab
     useEffect(() => {
-        // Create a custom event listener for same-tab changes
         const handleSameTabChange = () => {
             const customEvent = new Event("doorChanged");
             window.dispatchEvent(customEvent);
         };
 
-        // Override the setItem method to dispatch our custom event
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
             originalSetItem.apply(this, arguments);
@@ -85,7 +76,6 @@ const Door = ({ wallStart, wallEnd ,path }) => {
             }
         };
 
-        // Listen for our custom event
         const handleDoorChanged = () => {
             loadDoorTexture();
         };
@@ -98,7 +88,7 @@ const Door = ({ wallStart, wallEnd ,path }) => {
         };
     }, []);
 
-    if (!wallStart || !wallEnd) return null; // Ensure valid data
+    if (!wallStart || !wallEnd) return null;
 
     const [startX, startY, startZ] = wallStart;
     const [endX, endY, endZ] = wallEnd;
@@ -113,7 +103,6 @@ const Door = ({ wallStart, wallEnd ,path }) => {
 
     scene.traverse((child) => {
         if (child.isMesh) {
-            // Only apply texture if doorPath exists
             if (doorPath) {
                 const texture = new THREE.TextureLoader().load(doorPath);
 

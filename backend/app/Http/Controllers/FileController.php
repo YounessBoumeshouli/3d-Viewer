@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\CommentEvent;
 use App\Models\DxfFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
@@ -15,6 +17,8 @@ class FileController extends Controller
     }
     public function index()
     {
+        Log::info("Before event dispatch");
+        event(new CommentEvent('salam'));
         return DxfFile::all()->where("designer_id",\auth()->id());
     }
     public function serve(Request $request, $path = null) {

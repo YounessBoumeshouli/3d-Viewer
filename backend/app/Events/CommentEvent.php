@@ -1,16 +1,14 @@
 <?php
 
-// app/Events/CommentEvent.php
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Support\Facades\Log;
 
-// app/Events/CommentEvent.php
 class CommentEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -19,19 +17,19 @@ class CommentEvent implements ShouldBroadcast
 
     public function __construct($comment)
     {
+        Log::info("CommentEvent constructor called with: " . $comment);
         $this->comment = $comment;
     }
-    public function broadcastWith()
-    {
-        return [
-            'comment' => $this->comment,
-            'timestamp' => now()->toDateTimeString()
-        ];
-    }
+
     public function broadcastOn()
     {
-        Log::info("Attempting to broadcast comment: {$this->comment}");
-        return new Channel('comments-global');
+        try {
+            Log::info("Broadcasting comment: {$this->comment}");
+            return new Channel('comments-global');
+        } catch (\Exception $e) {
+            Log::error("Broadcasting failed: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function broadcastAs()

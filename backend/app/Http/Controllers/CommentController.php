@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\CommentEvent;
+use App\Jobs\SendComment;
 use App\Models\Comment;
 use App\Models\House;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +25,7 @@ class CommentController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        event(new CommentEvent('Hello from Laravel 🎉'));
+        SendComment::dispatch($validated);
         return response()->json($validated['comment'], 201);
     }
     public function index(House $house){

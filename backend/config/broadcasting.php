@@ -1,31 +1,45 @@
-<?php
-return [
-    'default' => env('BROADCAST_DRIVER', 'null'),
-    'connections' => [
+    <?php
+    return [
+
+        'default' => env('BROADCAST_DRIVER', 'reverb'),
+
+        'connections' => [
+
         'pusher' => [
             'driver' => 'pusher',
-            'key' => 'filrouge-key',
-            'secret' => 'filrouge-secret',
-            'app_id' => 'filrouge-app-id',
+            'key' => env('PUSHER_APP_KEY'),
+            'secret' => env('PUSHER_APP_SECRET'),
+            'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                'cluster' => env('PUSHER_APP_CLUSTER', 'mt1'),
-                'useTLS' => false,
-                'host' => '127.0.0.1',
-                'port' => 8080,
-                'scheme' => 'http',
+                'cluster' => env('PUSHER_APP_CLUSTER'),
+                'host' => env('PUSHER_HOST') ?: 'api-'.env('PUSHER_APP_CLUSTER', 'mt1').'.pusher.com',
+                'port' => env('PUSHER_PORT', 443),
+                'scheme' => env('PUSHER_SCHEME', 'https'),
+                'encrypted' => true,
+                'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
+            ],
+            'client_options' => [
             ],
         ],
-        'reverb' => [
-            'driver' => 'reverb',
-            'key' => 'filrouge-key',
-            'secret' => 'filrouge-secret',
-            'app_id' => 'filrouge-app-id',
-            'options' => [
-                'host' => '127.0.0.1',
-                'port' => 8080,
-                'scheme' => 'http',
-                'useTLS' => false,
-            ],
+
+        'ably' => [
+            'driver' => 'ably',
+            'key' => env('ABLY_KEY'),
         ],
+
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'default',
+        ],
+
+        'log' => [
+            'driver' => 'log',
+        ],
+
+        'null' => [
+            'driver' => 'null',
+        ],
+
     ],
+
 ];

@@ -13,8 +13,12 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-// You can add channel authorization rules here
-// For example:
+// Public channel - no authorization required
 Broadcast::channel('comments-global', function () {
-    return true; // Public channel
+    return true;
 });
+
+// Example of an authenticated channel
+// Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+//     return (int) $user->id === (int) $id;
+// });
