@@ -9,6 +9,7 @@ use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\JWTAuthController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -35,7 +36,8 @@ Route::get('designers',[DesignerController::class,'index']);
 Route::get('designers/{id}',[DesignerController::class,'show']);
 Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCreator']);
 
-Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::middleware([JwtMiddleware::class])->group(function () {
+Route::get('notifications',[NotificationController::class,'index']);
     Route::get('MyProfile',[DesignerController::class,'profile']);
     Route::get('myfiles',[FileController::class,'index']);
     Route::post('categories',[ComponentController::class,'store']);

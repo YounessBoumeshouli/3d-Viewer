@@ -9,29 +9,30 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Support\Facades\Log;
 
-class CommentEvent implements ShouldBroadcast
+class createCategoryEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $comment;
+    public $message;
 
-    public function __construct($comment)
+    public function __construct($message)
     {
-        Log::info("CommentEvent constructor called with: " . $comment);
-        $this->comment = $comment;
+        Log::info("Category constructor called with: " . $message);
+        $this->message = $message;
     }
-
     public function broadcastOn()
     {
         try {
-            return new Channel('comments-global');
+            Log::info("Broadcasting message: {$this->message}");
+            return new Channel('comments-global'); // Use Channel class
         } catch (\Exception $e) {
+            Log::error("Broadcasting failed: " . $e->getMessage());
             throw $e;
         }
     }
 
     public function broadcastAs()
     {
-        return 'comment.added';
+        return 'category.added';
     }
 }

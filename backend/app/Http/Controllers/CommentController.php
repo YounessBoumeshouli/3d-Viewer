@@ -20,12 +20,15 @@ class CommentController extends Controller
 
         ]);
 
-        $house->comments()->create([
+        $comment =   $house->comments()->create([
             "content" => $validated['comment'],
             'user_id' => auth()->id()
         ]);
 
-        SendComment::dispatch($validated);
+        Log::info("CommentEvent constructor called with: " . $comment);
+        Log::info("relation: " . $comment->load('house.dxfFile.designer.user'));
+
+        event(new CommentEvent($comment->load('house.dxfFile.designer.user')));
         return response()->json($validated['comment'], 201);
     }
     public function index(House $house){

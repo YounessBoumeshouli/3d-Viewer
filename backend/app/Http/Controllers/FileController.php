@@ -18,7 +18,6 @@ class FileController extends Controller
     public function index()
     {
         Log::info("Before event dispatch");
-        event(new CommentEvent('salam'));
         return DxfFile::all()->where("designer_id",\auth()->id());
     }
     public function serve(Request $request, $path = null) {

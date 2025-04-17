@@ -13,6 +13,6 @@ class DxfFile extends Model
     }
     public function designer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Designer::class);
     }
 }

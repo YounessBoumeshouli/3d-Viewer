@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\CommentEvent;
+use App\Events\createCategoryEvent;
 use App\Models\Category;
 use App\Models\component;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ class ComponentController extends Controller
         $name = $request->input('name');
         $description = $request->input('description');
         Category::create(['name'=>$name,'description'=>$description]);
+        event(new createCategoryEvent('salam'));
 
         return response()->json([
             'message' => 'Category added successfully',
