@@ -4,32 +4,16 @@ import NavItem from './NavItem';
 import Header from './Header';
 import { Link, useLocation } from "react-router-dom"
 import { connectToReverb, disconnectFromReverb } from '../../services/socket.js'
-
+import pusher from "../../services/pusher.js";
 const Layout = ({ children }) => {
     const [activePage, setActivePage] = useState('overview');
     const pathname = location.pathname
     useEffect(() => {
-        const socket = connectToReverb('comments', (data) => {
-            console.log('🎯 Event in Layout component:', data.event);
 
-            if (data.event === 'comment.created') {
-                console.log('💬 Comment event detected!');
-                console.log('💬 Received comment:', data);
-                const messageData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
-                alert('🔔 New Comment: ' + (messageData.comment || 'No comment found'));
-            }
-
-            // Also keep the test.message handler for compatibility
-            if (data.event === 'test.message' || data.event === '.test.message') {
-                console.log('💬 Test message event detected!');
-                const messageData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
-                alert('🔔 Test Message: ' + (messageData.message || 'No message found'));
-            }
+        const channel = pusher.subscribe('comments-global');
+        channel.bind('comment.added', function(data) {
+            alert(JSON.stringify(data));
         });
-
-        return () => {
-            disconnectFromReverb();
-        };
     }, []);    return (
         <div className="flex h-screen bg-gray-100">
             <div className="w-64 bg-white border-r border-gray-200">

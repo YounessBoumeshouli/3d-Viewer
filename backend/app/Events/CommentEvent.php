@@ -13,19 +13,19 @@ class CommentEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $comment;
+    public $message;
 
-    public function __construct($comment)
+    public function __construct($message)
     {
-        Log::info("CommentEvent constructor called with: " . $comment);
-        $this->comment = $comment;
+        Log::info("CommentEvent constructor called with: " . $message);
+        $this->message = $message;
     }
 
     public function broadcastOn()
     {
         try {
-            Log::info("Broadcasting comment: {$this->comment}");
-            return new Channel('comments-global');
+            Log::info("Broadcasting message: {$this->message}");
+            return new Channel('comments-global'); // Use Channel class
         } catch (\Exception $e) {
             Log::error("Broadcasting failed: " . $e->getMessage());
             throw $e;
