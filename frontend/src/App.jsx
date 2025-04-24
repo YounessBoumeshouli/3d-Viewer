@@ -22,7 +22,6 @@ import CreatorModelsPage from "./pages/Creator/CreatorModelsPage.jsx";
 import OverviewPage from "./pages/Creator/OverviewPage.jsx";
 import SettingsPage from "./pages/Creator/SettingsPage.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
-import Messages from "./pages/Messages.jsx";
 
 
 function App() {
@@ -66,7 +65,6 @@ function App() {
                   <Route path="/models" element={<ModelsPage />} />
                   <Route path="/designer/:id" element={<DesignerPage />} />
                   <Route path="/model/:id" element={<ModelPage />} />
-                  <Route path="/messages" element={<Messages />} />
                   <Route path="/viewer" element={<ViewerPage />} />
                   <Route path="/AnalyticsPage" element={
                       <PrivateRoute allowedRoles={['admin', 'creator']}>

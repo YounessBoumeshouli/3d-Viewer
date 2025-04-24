@@ -6,6 +6,7 @@ import Loader from '../components/Loader';
 import api from "../services/api.js";
 
 const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file , wallH  }) => {
+    console.log(wallH)
     let path = file.file;
     const [entities, setEntities] = useState([]);
     // Load textures for different wall materials
@@ -16,13 +17,11 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
         aoMap: '/textures/stone/stone_ambient_occlusion.jpg',
     });
 
-    // Apply texture repetition
     Object.values(stoneTextures).forEach(texture => {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set(1, 1); // Adjust based on your wall size
     });
 
-    // Create materials with textures
     const WALL_MATERIAL = new THREE.MeshStandardMaterial({
         ...stoneTextures,
         color: 0xffffff,
@@ -32,19 +31,17 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
 
     const MAX_LENGTH_WALL_MATERIAL = new THREE.MeshStandardMaterial({
         ...stoneTextures,
-        color: 0xeeeeee, // Slightly different color for the longest wall
+        color: 0xeeeeee,
         roughness: 0.8,
         metalness: 0.1
     });
 
-    // Helper functions
     const calculateWallLength = (start, end) => {
         const dx = end.x - start.x;
         const dy = end.y - start.y;
         return Math.sqrt(dx * dx + dy * dy);
     };
 
-    // Process DXF entities to identify walls
     const processedEntities = useMemo(() => {
         if (entities.length === 0) return [];
 
@@ -97,18 +94,22 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
                     responseType: "text",
                 });
 
+                const processedData = response.data
+                    .split('\n')
+                    .filter(line => !line.trim().startsWith('999'))
+                    .join('\n');
+
+                console.log("DXF File Data:");
                 const parser = new DxfParser();
-                const parsedDxf = parser.parseSync(response.data);
+                const parsedDxf = parser.parseSync(processedData);
 
                 setEntities(parsedDxf.entities);
             } catch (error) {
-                    console.error("Error fetching DXF file:", error);
+                console.error("Error fetching DXF file:", error);
             }
         };
-
-         fetchDxfFile(file);
+        fetchDxfFile(file);
     }, []);
-    // Entity component - handles rendering of each wall
     const Entity = ({ wall  }) => {
         const wallMaterial = wall.isMaxLengthWall ? MAX_LENGTH_WALL_MATERIAL : WALL_MATERIAL;
         const wallHeight = wallH * 4;
@@ -119,7 +120,6 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
         shape.moveTo(wall.start.x, wall.start.y);
         shape.lineTo(wall.end.x, wall.end.y);
 
-        // Create the 3D extrusion from the shape
         const extrudeSettings = {
             steps: 1,
             depth: wallHeight,
@@ -162,5 +162,4 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
         </Suspense>
     );
 };
-
 export default DXFModel;

@@ -1,8 +1,28 @@
-import React from 'react';
-
-function MessageInput() {
+import React, {useState} from 'react';
+import api from '../../services/api.js';
+function MessageInput({conversation}) {
+    const [message , setMessage] = useState(null);
+    const handleChange =   (e) =>{
+        const {name,value} = e.target;
+        setMessage(prev=>({
+            ...prev,
+            [name]:value
+        }))
+    }
+    console.log(conversation)
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        console.log(message)
+        const response = await api.post(`conversations/${conversation.id}/messages`,{
+            'message':message.message
+        },{
+            headers : {"Content-Type": "multipart/form-data" }
+        });
+        setMessage(null)
+    }
     return (
         <div className="border-t border-gray-200 p-4">
+            <form onSubmit={handleSubmit}>
             <div className="flex items-center">
                 <button className="p-2 text-gray-500 hover:text-gray-700">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,8 +31,10 @@ function MessageInput() {
                 </button>
                 <div className="flex-1 mx-3">
                     <input
+                        onChange={handleChange}
                         type="text"
-                        placeholder="Text message form MTN"
+                        name='message'
+                        placeholder="Text message"
                         className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
                     />
                 </div>
@@ -45,6 +67,7 @@ function MessageInput() {
                     </button>
                 </div>
             </div>
+            </form>
         </div>
     );
 }

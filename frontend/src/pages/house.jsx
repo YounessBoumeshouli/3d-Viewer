@@ -118,6 +118,8 @@ function House({file,components ,height}) {
         }
     }, [components]);
     useEffect(() => {
+        console.log(selectedComponent)
+
     }, [selectedComponent]);
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];

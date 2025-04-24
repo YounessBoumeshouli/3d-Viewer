@@ -14,7 +14,8 @@ const Layout = ({ children }) => {
         channel.bind('comment.added', function(data) {
             alert(JSON.stringify(data));
         });
-    }, []);    return (
+    }, []);
+    return (
         <div className="flex h-screen bg-gray-100">
             <div className="w-64 bg-white border-r border-gray-200">
                 <div className="p-4 border-b border-gray-200">

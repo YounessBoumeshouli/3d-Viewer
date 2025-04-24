@@ -6,11 +6,17 @@ import {Button} from "@/components/ui/button.jsx";
 import ModelCard from "../components/user/ModelCard.jsx";
 
 const DesignerPage = () => {
-    // This component renders either Image 3 or Image 4 depending on props
-    // For simplicity, I'm implementing Image 3 (Youness profile)
+
     const [designer,setDesinger] = useState(null);
+    const [isFollowed,setIsFollowed] = useState(false);
     const [popularModels,setPopularModels] = useState();
  const {id} = useParams();
+    const checkIsFollowed = async ()=>{
+        const response = await api.get(`followed/${designer.id}`)
+        if (response.data.length > 0){
+            setIsFollowed(true)
+        }
+    }
  const fetchPopularModels = async ()=>{
      try {
          const response = await api.get(`designers/${id}/models`)
@@ -24,14 +30,20 @@ const DesignerPage = () => {
  }
     useEffect(() => {
         fetchPopularModels();
+        checkIsFollowed();
     }, []);
     console.log(popularModels)
     console.log(designer)
+    const handleFollow = async ()=>{
+        const response = await api.post(`follow/${designer.id}`)
+    }
 
     console.log(designer)
     if (!designer) {
-        return <div>Loading...</div>; // Show loading while fetching data
+        return <div>Loading...</div>;
     }
+
+
     return (
         <Layout>
             <div className="max-w-6xl mx-auto px-4 py-8">
@@ -69,7 +81,7 @@ const DesignerPage = () => {
                             <p className="text-xl font-bold">12.5k</p>
                             <p className="text-gray-600">Likes</p>
                         </div>
-                        <button className="bg-blue-600 text-white rounded-md px-6 py-2">Follow</button>
+                        <button onClick={handleFollow} className="bg-blue-600 text-white rounded-md px-6 py-2">Follow</button>
                     </div>
                 </div>
 

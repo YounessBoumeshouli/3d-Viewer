@@ -8,17 +8,22 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ImageController extends Controller
 {
-    public function getImage($filename)
+
+    public function getImage($directory, $filename)
     {
-        $path = storage_path("app/public/components/door/" . $filename);
+        $path = storage_path('app/public/components/' . $directory . '/' . $filename);
 
         if (!file_exists($path)) {
-            return response()->json(["error" => "Image not found"], Response::HTTP_NOT_FOUND);
+            return response()->json(['error' => 'Image not found'], 404);
         }
 
-        return response()->file($path, [
-            'Access-Control-Allow-Origin' => '*', // ✅ Allow CORS
-            'Content-Type' => mime_content_type($path)
-        ]);
+
+        $file = Storage::get($path);
+        $type = Storage::mimeType($path);
+
+        return (new Response($file, 200))
+            ->header('Content-Type', $type)
+            ->header('Access-Control-Allow-Origin', '*');
     }
+
 }

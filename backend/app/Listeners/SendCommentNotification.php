@@ -26,9 +26,7 @@ class SendCommentNotification
      */
     public function handle(CommentEvent $event): void
     {
-        Log::info("before : " . $event->comment->house);
         $comment = $event->comment->load('house.dxfFile.designer.user');
-
         $modelOwner = $comment->house->dxfFile->designer->user;
         $modelOwner->notify(new CommentNotification($event->comment));
     }

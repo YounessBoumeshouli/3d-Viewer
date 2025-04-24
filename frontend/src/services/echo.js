@@ -3,15 +3,16 @@ import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
 
-const echo = new Echo({
+window.Echo = new Echo({
     broadcaster: 'pusher',
-    key: 'your-key',
-    cluster: 'your-cluster',
-    encrypted: true,
+    key: import.meta.env.VITE_PUSHER_APP_KEY,
     wsHost: window.location.hostname,
     wsPort: 6001,
-    forceTLS: true,
+    forceTLS: false,
     disableStats: true,
+    auth: {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    },
 });
-
-export default echo;

@@ -82,7 +82,6 @@ function Viewer3D() {
         const fetchCeatorModels = async ()=>{
             try {
                 const response = await api.get('creator/models')
-                (response.data.houses)
                 setModels(response.data.houses)
             }catch (e) {
                 console.error(e)
@@ -114,7 +113,7 @@ function Viewer3D() {
                 responseType: "json"
             });
             setSelectedFile(selectedFilePath);
-            setFileListVisible(false); // Hide the file list
+            setFileListVisible(false);
         } catch (error) {
             console.error("Error fetching DXF file:", error);
         }

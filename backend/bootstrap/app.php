@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\JwtMiddleware;
+use Illuminate\Cookie\Middleware\EncryptCookies;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,6 +16,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'jwt' => \App\Http\Middleware\JwtMiddleware::class,
+        ]);
+        $middleware->appendToGroup('api', [
+            EncryptCookies::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+        ]);
+        $middleware->validateCsrfTokens(except: [
+            'api/broadcasting/auth',
+            'broadcasting/auth'
+        ]);
         $middleware->api(append: [
             \App\Http\Middleware\Cors::class,
         ]);

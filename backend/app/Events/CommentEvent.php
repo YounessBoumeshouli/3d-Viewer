@@ -8,7 +8,6 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Support\Facades\Log;
-
 class CommentEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
@@ -17,19 +16,30 @@ class CommentEvent implements ShouldBroadcast
 
     public function __construct($comment)
     {
-        Log::info("CommentEvent constructor called with: " . $comment);
+
         $this->comment = $comment;
     }
 
     public function broadcastOn()
     {
+        Log::info('Broadcasting on comments-global channel');
+
         try {
             return new Channel('comments-global');
         } catch (\Exception $e) {
             throw $e;
         }
     }
-
+    public function broadcastWith()
+    {
+        return [
+            'data' => [
+                'comment' => $this->comment->content,
+                'sender' => $this->comment->user_id,
+                'model_id' => $this->comment->house_id,
+            ]
+        ];
+    }
     public function broadcastAs()
     {
         return 'comment.added';

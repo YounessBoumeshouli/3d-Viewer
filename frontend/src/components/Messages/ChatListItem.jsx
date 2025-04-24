@@ -1,7 +1,7 @@
 import React from 'react';
 
 function ChatListItem({ conversation }) {
-    const { name, avatar, lastMessage, time, bgColor, textColor, active } = conversation;
+    const { title, avatar, lastMessage, time, bgColor, textColor, active } = conversation;
 
     return (
         <div className={`flex items-center p-4 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${active ? 'bg-gray-100' : ''}`}>
@@ -10,7 +10,7 @@ function ChatListItem({ conversation }) {
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-900 truncate">{name}</h3>
+                    <h3 className="text-sm font-medium text-gray-900 truncate">{title}</h3>
                     <span className="text-xs text-gray-500">{time}</span>
                 </div>
                 <p className="text-sm text-gray-500 truncate">{lastMessage}</p>

@@ -35,10 +35,8 @@ class HouseController extends Controller
 
         ]);
 
-        // Update house data
         $house->update(['dxf_file_id' => $validated['dxf_file_id'] ,'stage'=>$validated['stage']]);
 
-        // Delete old component relations
         $house->components()->delete();
 
         foreach ($validated['components'] as $componentData) {

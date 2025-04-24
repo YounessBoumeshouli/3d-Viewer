@@ -25,7 +25,8 @@
             'connection' => 'default',
         ],
 
-        'log' => [
+
+            'log' => [
             'driver' => 'log',
         ],
 
@@ -34,5 +35,7 @@
         ],
 
     ],
+        'guard' => 'api',
 
-];
+
+    ];

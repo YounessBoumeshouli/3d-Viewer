@@ -28,7 +28,6 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
     const [isReady, setIsReady] = useState(false);
     const lastFetchedPath = useRef(null);
 
-    // Set the path in localStorage only if it changes
     useEffect(() => {
         if (path) {
             localStorage.setItem("window", path);
@@ -41,7 +40,6 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
         try {
             const storedWindow = localStorage.getItem("window");
 
-            // Don't re-fetch if we've already fetched this path
             if (storedWindow === lastFetchedPath.current && windowPath) {
                 return;
             }
@@ -59,7 +57,6 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
                 responseType: "blob",
             });
 
-            // Clean up previous blob URL if it exists
             if (windowPath && windowPath.startsWith("blob:")) {
                 URL.revokeObjectURL(windowPath);
             }
@@ -73,7 +70,6 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
         }
     };
 
-    // Clean up blob URLs when component unmounts
     useEffect(() => {
         return () => {
             if (windowPath && windowPath.startsWith("blob:")) {
@@ -82,12 +78,9 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
         };
     }, [windowPath]);
 
-    // Set up localStorage change listeners
     useEffect(() => {
-        // Fetch model on mount
         fetchModel();
 
-        // Create a custom event listener for same-tab changes
         const originalSetItem = localStorage.setItem;
         localStorage.setItem = function(key, value) {
             const oldValue = localStorage.getItem(key);
@@ -98,7 +91,6 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
             }
         };
 
-        // Listen for custom event (same tab) and storage event (other tabs)
         const handleWindowChanged = () => {
             console.log("🔄 Window selection changed");
             fetchModel();
@@ -112,24 +104,20 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
         });
 
         return () => {
-            // Restore original setItem
             localStorage.setItem = originalSetItem;
             window.removeEventListener("windowChanged", handleWindowChanged);
             window.removeEventListener("storage", handleWindowChanged);
         };
     }, []);
 
-    // Position calculation effect
     useEffect(() => {
         if (!wallStart || !wallEnd) return;
 
-        // Calculate wall length (2D distance)
         const wallLength = Math.sqrt(
             Math.pow(wallEnd[0] - wallStart[0], 2) +
             Math.pow(wallEnd[1] - wallStart[1], 2)
         );
 
-        // Direction vector calculations
         const dirX = wallEnd[0] - wallStart[0];
         const dirY = wallEnd[1] - wallStart[1];
 
@@ -165,14 +153,12 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
             setScale(Math.max(minScale, calculatedScale));
         }
 
-        // Calculate rotation angle
         const newAngle = Math.atan2(wallEnd[1] - wallStart[1], wallEnd[0] - wallStart[0]);
         setAngle(newAngle);
 
         console.log(`Window ${instanceId.current} calculated position:`, [centerX + offsetX, 2, -(centerY + offsetY)]);
     }, [wallStart, wallEnd, position, stage]);
 
-    // Early returns for invalid states
     if (!wallStart || !wallEnd) {
         return null;
     }
@@ -186,7 +172,6 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
         return null;
     }
 
-    // Render the window model with a fallback
     return (
         <Suspense fallback={null}>
             <WindowModel

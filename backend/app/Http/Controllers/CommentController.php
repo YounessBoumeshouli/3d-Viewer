@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\CommentEvent;
-use App\Jobs\SendComment;
 use App\Models\Comment;
 use App\Models\House;
 use Illuminate\Database\Eloquent\Model;
@@ -25,10 +24,9 @@ class CommentController extends Controller
             'user_id' => auth()->id()
         ]);
 
-        Log::info("CommentEvent constructor called with: " . $comment);
         Log::info("relation: " . $comment->load('house.dxfFile.designer.user'));
 
-        event(new CommentEvent($comment->load('house.dxfFile.designer.user')));
+        event(new CommentEvent($comment));
         return response()->json($validated['comment'], 201);
     }
     public function index(House $house){
