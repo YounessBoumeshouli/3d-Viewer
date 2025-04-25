@@ -22,7 +22,61 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 Route::get('image/{directory}/{filename}', [ImageController::class, 'getImage']);
 
+Route::get('/storage-proxy/components/window/{path}', function ($path) {
+    while (ob_get_level()) ob_end_clean();
 
+    $filePath = storage_path('app/public/components/window/' . $path);
+
+    if (!file_exists($filePath)) {
+        echo "File not found";
+        exit;
+    }
+
+    header('Content-Type: application/octet-stream');
+    header('Content-Length: ' . filesize($filePath));
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Expose-Headers: Content-Disposition');
+
+    $fp = fopen($filePath, 'rb');
+    fpassthru($fp);
+    fclose($fp);
+    exit;
+
+});
+Route::get('/storage-proxy/components/door/{path}', function ($path) {
+    while (ob_get_level()) ob_end_clean();
+
+    $filePath = storage_path('app/public/components/door/' . $path);
+
+    if (!file_exists($filePath)) {
+        echo "File not found";
+        exit;
+    }
+
+    // Set headers with no whitespace or extra characters
+    header('Content-Type: image/jpeg');
+    header('Content-Length: ' . filesize($filePath));
+    header('Access-Control-Allow-Origin: *');
+
+    // Serve the file directly
+    $fp = fopen($filePath, 'rb');
+    fpassthru($fp);
+    fclose($fp);
+    exit;
+})->where('path', '.*');
+Route::get('/test-fixed-image', function () {
+    $filePath = "C:\\Users\\youco\\Desktop\\FilRouge\\FillRouge\\backend\\storage\\app\\public\\components\\door\\door2.jpg";
+
+    if (!file_exists($filePath)) {
+        return "File doesn't exist!";
+    }
+
+    $fileContent = file_get_contents($filePath);
+
+    return response($fileContent, 200)
+        ->header('Content-Type', 'image/jpeg')
+        ->header('Access-Control-Allow-Origin', '*');
+});
 Route::post('register', [JWTAuthController::class, 'register']);
 Route::post('login', [JWTAuthController::class, 'login']);
 Route::get('categories',[ComponentController::class,'index']);
@@ -42,7 +96,6 @@ Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCre
 Route::middleware([JwtMiddleware::class])->group(function () {
 
 
-    // In routes/api.php
 Route::post('follow/{user}',[FollowerController::class,'follow']);
 Route::get('conversations',[ConversationController::class,'index']);
 Route::post('conversations',[ConversationController::class,'store']);

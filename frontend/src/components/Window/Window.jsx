@@ -3,7 +3,6 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import React, { useEffect, useState, useRef, Suspense } from "react";
 import api from "./../../services/api.js";
 
-// Separate loader component handles the async GLTF loading
 const WindowModel = ({ windowPath, position, rotation, scale }) => {
     const gltf = useLoader(GLTFLoader, windowPath);
 
@@ -17,7 +16,6 @@ const WindowModel = ({ windowPath, position, rotation, scale }) => {
     );
 };
 
-// Main component that handles state and calculations
 const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
     const [windowPath, setWindowPath] = useState(null);
     const [modelError, setModelError] = useState(null);
@@ -53,7 +51,7 @@ const Window = ({ wallStart, wallEnd, position = "center", path, stage }) => {
             lastFetchedPath.current = storedWindow;
 
             let image = storedWindow.split("/");
-            const response = await api.get(`image/${image[1]}/${image[2]}`, {
+            const response = await api.get(`storage-proxy/components/${image[1]}/${image[2]}`, {
                 responseType: "blob",
             });
 

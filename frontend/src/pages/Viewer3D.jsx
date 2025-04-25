@@ -1,13 +1,31 @@
 "use client"
 
-import {useEffect, useState} from "react"
-import {Upload, Search, RotateCw, RotateCcw, Move, Square, Circle, Dot} from "lucide-react"
+import { useEffect, useState } from "react"
+import {
+    Upload,
+    Search,
+    RotateCw,
+    RotateCcw,
+    Move,
+    Square,
+    Circle,
+    Dot,
+    Plus,
+    Minus,
+    FileIcon,
+    ChevronLeft,
+    ChevronRight,
+    Save,
+    Layers,
+    Settings,
+    Home
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ComponentModal from "../components/Maker/ComponentModel.jsx"
 import House from "../pages/house.jsx"
-import {DxfParser} from "dxf-parser";
-import api from "../services/api.js";
-import FileUploadModal from "../components/Maker/FileUploadModal.jsx";
+import { DxfParser } from "dxf-parser"
+import api from "../services/api.js"
+import FileUploadModal from "../components/Maker/FileUploadModal.jsx"
 
 function Viewer3D() {
     const [height, setHeight] = useState(1)
@@ -19,91 +37,89 @@ function Viewer3D() {
     const [dxfFiles, setDxfFiles] = useState([])
     const [fileListVisible, setFileListVisible] = useState(false)
     const [fileUploadVisible, setFileUploadVisible] = useState(false)
-    const [categories, setCategories] = useState([]);
-    const [componentItems, setComponentItems] = useState([]);
-    const [models,setModels] = useState([]);
-    const [isExistingModel,setIsExistingModel] = useState(false);
-    const [selectedModel,setSelectedModel] = useState(null);
-    const [savedComponent,setSavedComponents] = useState([])
+    const [categories, setCategories] = useState([])
+    const [componentItems, setComponentItems] = useState([])
+    const [models, setModels] = useState([])
+    const [isExistingModel, setIsExistingModel] = useState(false)
+    const [selectedModel, setSelectedModel] = useState(null)
+    const [savedComponent, setSavedComponents] = useState([])
 
     const handleCategoryClick = async (category) => {
         setActiveCategory(category.name)
-
         setShowModal(true)
         try {
-            const response = await api.get('components/'+category.id);
+            const response = await api.get('components/' + category.id)
             setComponentItems(response.data)
         } catch (error) {
-            console.error("Error selecting item:", error);
+            console.error("Error selecting item:", error)
         }
     }
-       const handleSelectedModel = (id) =>{
-           setSelectedModel(id);
-       }
-        const handleSaveModel = async () => {
 
-         const components =   categories.map((category)=>(
-             {
-                 path: localStorage.getItem(category.name)
-             }
+    const handleSelectedModel = (id) => {
+        setSelectedModel(id)
+    }
 
-            ))
-            if (isExistingModel){
-                try {
-                    
+    const handleSaveModel = async () => {
+        const components = categories.map((category) => ({
+            path: localStorage.getItem(category.name)
+        }))
 
-                    const response = await api.put(`houses/${selectedModel}`,{
-                        "dxf_file_id":selectedFile.id,
-                        "components":components,
-                        "stage":height
-                    })
-                }catch (e) {
-                    console.error(e)
-                }
-            }else{
+        if (isExistingModel) {
             try {
-
-                const response = await api.post('houses',{
-                    "dxf_file_id":selectedFile.id,
-                    "components":components,
-                    "stage":height
-                },)
-            }catch (e) {
+                const response = await api.put(`houses/${selectedModel}`, {
+                    "dxf_file_id": selectedFile.id,
+                    "components": components,
+                    "stage": height
+                })
+            } catch (e) {
                 console.error(e)
             }
+        } else {
+            try {
+                const response = await api.post('houses', {
+                    "dxf_file_id": selectedFile.id,
+                    "components": components,
+                    "stage": height
+                })
+            } catch (e) {
+                console.error(e)
             }
         }
+    }
 
     const handleCloseModal = () => {
         setShowModal(false)
         setFileUploadVisible(false)
     }
+
     useEffect(() => {
-        const fetchCeatorModels = async ()=>{
+        const fetchCreatorModels = async () => {
             try {
                 const response = await api.get('creator/models')
                 setModels(response.data.houses)
-            }catch (e) {
+            } catch (e) {
                 console.error(e)
             }
         }
-        fetchCeatorModels();
-    }, []);
+        fetchCreatorModels()
+    }, [])
+
     useEffect(() => {
-        if (selectedModel){
-            setIsExistingModel(true);
+        if (selectedModel) {
+            setIsExistingModel(true)
         }
-    }, [selectedModel]);
+    }, [selectedModel])
+
     const handleUpload = async () => {
         try {
             const response = await api.get('myfiles', {
                 responseType: "json"
-            });
-            setDxfFiles(response.data);
-            setFileListVisible(true);
-            setModelLoaded(true);
+            })
+            setDxfFiles(response.data)
+            setFileListVisible(true)
+            setModelLoaded(true)
         } catch (error) {
-            console.error("Error fetching DXF file:", error);
+            console.error("Error fetching DXF file:", error)
         }
     }
 
@@ -111,190 +127,281 @@ function Viewer3D() {
         try {
             const response = await api.get(`files/${selectedFilePath.path}`, {
                 responseType: "json"
-            });
-            setSelectedFile(selectedFilePath);
-            setFileListVisible(false);
+            })
+            setSelectedFile(selectedFilePath)
+            setFileListVisible(false)
         } catch (error) {
-            console.error("Error fetching DXF file:", error);
+            console.error("Error fetching DXF file:", error)
         }
     }
-    useEffect(()=>{
-        const fetchExistingModel = async ()=>{
-            if (isExistingModel){
+
+    useEffect(() => {
+        const fetchExistingModel = async () => {
+            if (isExistingModel) {
                 try {
-                    const response = await api.get(`houses/${selectedModel}`);
+                    const response = await api.get(`houses/${selectedModel}`)
                     setSavedComponents(response.data.components)
                     setModelLoaded(true)
                     setHeight(response.data.stage)
                     uploadFile(response.data.dxf_file)
-                }catch (e) {
+                } catch (e) {
                     console.error(e)
                 }
             }
-
-
         }
-        fetchExistingModel();
-    },[isExistingModel])
+        fetchExistingModel()
+    }, [isExistingModel])
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
                 const response = await api.get('categories', {
                     responseType: "json"
-                });
-                setCategories(response.data);
+                })
+                setCategories(response.data)
             } catch (error) {
-                console.error("Error fetching categories:", error);
+                console.error("Error fetching categories:", error)
             }
         }
-        fetchCategories();
-    }, []);
-    useEffect(() => {
-        const fetchModels = async () => {
-            try {
-                const response = await api.get('creator/models', {
-                    responseType: "json"
-                });
-                setCategories(response.data);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        }
-    }, []);
+        fetchCategories()
+    }, [])
 
     return (
-        <div className="flex h-[calc(100vh-64px)]">
+        <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Left sidebar */}
-            <div className="w-80 bg-gray-50 p-6 border-r border-gray-200">
+            <div className="w-80 bg-white shadow-lg p-6 space-y-8 overflow-y-auto">
+                {/* Logo and title */}
+                <div className="flex items-center gap-3 mb-6">
+                    <Home className="h-6 w-6 text-blue-600" />
+                    <h1 className="text-xl font-bold text-gray-800">3D House Maker</h1>
+                </div>
+
+                {/* Controls section */}
                 <div className="mb-8">
-                    <h2 className="text-lg font-semibold mb-4">Contrôles</h2>
-                    <div className="space-y-4">
-                        <div className="flex items-center">
-                            <Search className="h-5 w-5 text-gray-500 mr-2" />
-                            <span className="mr-2">Zoom: {height} tages</span>
-                            <button
-                                className="px-2 py-1 border border-gray-300 rounded mr-1"
-                                onClick={() => setHeight(Math.max(1, height - 1))}
-                            >
-                                -
-                            </button>
-                            <button
-                                className="px-2 py-1 border border-gray-300 rounded"
-                                onClick={() => setHeight(Math.min(5, height + 1))}
-                            >
-                                +
-                            </button>
+                    <div className="flex items-center mb-4">
+                        <Settings className="h-5 w-5 text-blue-600 mr-2" />
+                        <h2 className="text-lg font-semibold text-gray-800">Controls</h2>
+                    </div>
+                    <div className="space-y-5 pl-2">
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center">
+                                    <Search className="h-4 w-4 text-blue-600 mr-2" />
+                                    <span className="text-gray-700 font-medium">Height</span>
+                                </div>
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
+                                    {height} floors
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                                <Button
+                                    className="flex-1 mr-2 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md"
+                                    onClick={() => setHeight(Math.max(1, height - 1))}
+                                >
+                                    <Minus className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md"
+                                    onClick={() => setHeight(Math.min(5, height + 1))}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
-                        <div className="flex items-center">
-                            <RotateCw className="h-5 w-5 text-gray-500 mr-2" />
-                            <span className="mr-2">Rotation: {rotation}°</span>
-                            <button
-                                className="p-1 border border-gray-300 rounded mr-1"
-                                onClick={() => setRotation((rotation - 90) % 360)}
-                            >
-                                <RotateCcw className="h-4 w-4" />
-                            </button>
-                            <button className="p-1 border border-gray-300 rounded" onClick={() => setRotation((rotation + 90) % 360)}>
-                                <RotateCw className="h-4 w-4" />
-                            </button>
+
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center">
+                                    <RotateCw className="h-4 w-4 text-blue-600 mr-2" />
+                                    <span className="text-gray-700 font-medium">Rotation</span>
+                                </div>
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
+                                    {rotation}°
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                                <Button
+                                    className="flex-1 mr-2 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md"
+                                    onClick={() => setRotation((rotation - 90) % 360)}
+                                >
+                                    <RotateCcw className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    className="flex-1 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md"
+                                    onClick={() => setRotation((rotation + 90) % 360)}
+                                >
+                                    <RotateCw className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </div>
-                        <div className="flex items-center">
-                            <Move className="h-5 w-5 text-gray-500 mr-2" />
-                            <span>Position</span>
+
+                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="flex items-center">
+                                <Move className="h-4 w-4 text-blue-600 mr-2" />
+                                <span className="text-gray-700 font-medium">Position</span>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 mt-2">
+                                <div className="col-start-2">
+                                    <Button className="w-full bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md">
+                                        <ChevronLeft className="h-4 w-4 rotate-90" />
+                                    </Button>
+                                </div>
+                                <div className="col-span-3 grid grid-cols-3 gap-2">
+                                    <Button className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md">
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </Button>
+                                    <Button className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md">
+                                        <div className="h-2 w-2 bg-blue-600 rounded-full"></div>
+                                    </Button>
+                                    <Button className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md">
+                                        <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="col-start-2">
+                                    <Button className="w-full bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-md">
+                                        <ChevronLeft className="h-4 w-4 -rotate-90" />
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <h2 className="text-lg font-semibold mb-4">Calques</h2>
-                    <div className="space-y-2">
-                        <div className="flex items-center">
-                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                <div className="mb-8">
+                    <div className="flex items-center mb-4">
+                        <Layers className="h-5 w-5 text-blue-600 mr-2" />
+                        <h2 className="text-lg font-semibold text-gray-800">Layers</h2>
+                    </div>
+                    <div className="space-y-3 pl-2">
+                        <div className="flex items-center bg-gray-50 p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
+                            <div className="w-6 h-6 bg-blue-600 flex items-center justify-center rounded-md mr-3">
                                 <Square className="h-4 w-4 text-white" />
                             </div>
-                            <span>Lignes</span>
+                            <span className="text-gray-700">Lines</span>
+                            <div className="ml-auto">
+                                <div className="w-4 h-4 rounded border border-blue-600 bg-white flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center">
-                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                        <div className="flex items-center bg-gray-50 p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
+                            <div className="w-6 h-6 bg-blue-600 flex items-center justify-center rounded-md mr-3">
                                 <Circle className="h-4 w-4 text-white" />
                             </div>
-                            <span>Cercles</span>
+                            <span className="text-gray-700">Circles</span>
+                            <div className="ml-auto">
+                                <div className="w-4 h-4 rounded border border-blue-600 bg-white flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex items-center">
-                            <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
+                        <div className="flex items-center bg-gray-50 p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
+                            <div className="w-6 h-6 bg-blue-600 flex items-center justify-center rounded-md mr-3">
                                 <Dot className="h-4 w-4 text-white" />
                             </div>
-                            <span>Points</span>
+                            <span className="text-gray-700">Points</span>
+                            <div className="ml-auto">
+                                <div className="w-4 h-4 rounded border border-blue-600 bg-white flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <h2 className="text-lg font-semibold mb-4">Models</h2>
-                    {models.map((model)=>(
-                        <div className="space-y-2">
+
+                {models.length > 0 && (
+                    <div>
+                        <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center">
-                                <div className="w-6 h-6 bg-blue-500 flex items-center justify-center rounded mr-2">
-                                    <Dot className="h-4 w-4 text-white" />
-                                </div>
-                                <Button className="bg-blue-600 text-white hover:bg-blue-700"
-                                        onClick={()=>handleSelectedModel(model.id)}
-
-                                >{model.id}</Button>
-
+                                <Home className="h-5 w-5 text-blue-600 mr-2" />
+                                <h2 className="text-lg font-semibold text-gray-800">My Models</h2>
                             </div>
+                            <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                                {models.length}
+                            </span>
                         </div>
-                        ))
-
-
-
-                    }
-                </div>
-
+                        <div className="space-y-2 pl-2 max-h-64 overflow-y-auto pr-2">
+                            {models.map((model) => (
+                                <div
+                                    key={model.id}
+                                    className={`flex items-center bg-gray-50 p-3 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer ${
+                                        selectedModel === model.id ? 'border-2 border-blue-500 bg-blue-50' : 'border border-gray-200'
+                                    }`}
+                                    onClick={() => handleSelectedModel(model.id)}
+                                >
+                                    <div className="w-8 h-8 bg-blue-600 flex items-center justify-center rounded-md mr-3">
+                                        <Home className="h-4 w-4 text-white" />
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-700 font-medium">Model #{model.id}</span>
+                                        <p className="text-xs text-gray-500">Last modified: {new Date().toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* Main content */}
-            <div className="flex-1 flex flex-col">
-                <div className="flex-1 bg-gray-100 flex items-center justify-center">
+            <div className="flex-1 flex flex-col relative">
+                <div className="flex-1 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
                     {modelLoaded ? (
-
                         <div className="relative w-full h-full">
                             {fileListVisible ? (
-                                <div className="p-4 flex flex-col items-center">
-                                    <h2 className="text-xl mb-4">Select a DXF File</h2>
-                                    <div className="grid grid-cols-2 gap-4">
+                                <div className="p-6 h-full flex flex-col">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className="text-2xl font-bold text-gray-800">Select a DXF File</h2>
+                                        <Button
+                                            variant="outline"
+                                            className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 border-none"
+                                            onClick={() => setFileUploadVisible(true)}
+                                        >
+                                            <Upload className="h-4 w-4" />
+                                            Upload New File
+                                        </Button>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1">
                                         {dxfFiles.map((dxfFile) => (
-                                            <button
+                                            <div
                                                 key={dxfFile.id}
-                                                className="p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
+                                                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer border border-gray-200 hover:border-blue-400"
                                                 onClick={() => uploadFile(dxfFile)}
                                             >
-                                                <span>{dxfFile.path}</span>
-                                            </button>
+                                                <div className="h-32 bg-blue-50 flex items-center justify-center">
+                                                    <FileIcon className="h-16 w-16 text-blue-300" />
+                                                </div>
+                                                <div className="p-3">
+                                                    <h3 className="font-medium text-gray-800 truncate">{dxfFile.path}</h3>
+                                                    <p className="text-xs text-gray-500 mt-1">Size: 2.4 MB</p>
+                                                </div>
+                                            </div>
                                         ))}
                                     </div>
-
-                                    <button
-                                        className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                        onClick={() => setFileUploadVisible(true)  }
-                                    >
-                                        Upload a new DXF File
-                                    </button>                                </div>
-
-                                ) : (
+                                </div>
+                            ) : (
                                 selectedFile && savedComponent ? (
                                     <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
-                                        <House file={selectedFile.path} components = {savedComponent}  height={height} />
-                                        <button
-                                            className="absolute top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                            onClick={() => setFileListVisible(true)}
-                                        >
-                                            Choose Another File
-                                        </button>
+                                        <House file={selectedFile.path} components={savedComponent} height={height} />
+                                        <div className="absolute top-4 right-4 flex gap-2">
+                                            <Button
+                                                className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg flex items-center gap-2"
+                                                onClick={() => setFileListVisible(true)}
+                                            >
+                                                <FileIcon className="h-4 w-4" />
+                                                Choose Another File
+                                            </Button>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center">
-                                        <p className="text-gray-500 mb-4">No file selected. Please select a file.</p>
-                                        <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={() => setFileListVisible(true)}>
+                                    <div className="text-center p-8 bg-white rounded-xl shadow-lg max-w-md">
+                                        <FileIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                        <p className="text-gray-700 mb-4">No file selected. Please select a file to continue.</p>
+                                        <Button
+                                            className="bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-2"
+                                            onClick={() => setFileListVisible(true)}
+                                        >
+                                            <FileIcon className="h-4 w-4" />
                                             Choose DXF File
                                         </Button>
                                     </div>
@@ -302,46 +409,57 @@ function Viewer3D() {
                             )}
                         </div>
                     ) : (
-                        <div className="text-center">
-                            <div className="mb-4 bg-gray-200 p-8 rounded-lg inline-flex items-center justify-center">
-                                <Square className="h-16 w-16 text-gray-400" />
+                        <div className="text-center p-8 bg-white rounded-xl shadow-lg max-w-md">
+                            <div className="mb-6 bg-blue-50 p-10 rounded-lg inline-flex items-center justify-center">
+                                <Upload className="h-20 w-20 text-blue-400" />
                             </div>
-                            <p className="text-gray-500 mb-4">Déposez un fichier DXF ou cliquez pour uploader</p>
-                            <Button className="bg-blue-600 text-white hover:bg-blue-700" onClick={handleUpload}>
-                                <Upload className="h-4 w-4 mr-2" />
-                                Upload DXF
+                            <h3 className="text-xl font-semibold text-gray-800 mb-2">Start Your 3D Project</h3>
+                            <p className="text-gray-600 mb-6">Drop a DXF file here or click to upload</p>
+                            <Button
+                                className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-lg shadow-md flex items-center justify-center gap-2 mx-auto"
+                                onClick={handleUpload}
+                            >
+                                <Upload className="h-5 w-5" />
+                                Upload DXF File
                             </Button>
                         </div>
                     )}
                 </div>
 
+                {/* Bottom toolbar */}
                 {modelLoaded && (
-                    <div className="p-4 bg-white border-t border-gray-200 flex justify-center space-x-12">
-                        {categories.map((category) => (
-                            <button
-                                key={category.id}
-                                className="flex flex-col items-center text-gray-700 hover:text-blue-600"
-                                onClick={() => handleCategoryClick(category)}
-                            >
-                                <span className="text-2xl mb-1">{category.name}</span>
-                            </button>
-                        ))}
+                    <div className="bg-white border-t border-gray-200 shadow-lg py-4 px-6">
+                        <div className="flex justify-center items-center space-x-8">
+                            {categories.map((category) => (
+                                <button
+                                    key={category.id}
+                                    className={`flex flex-col items-center py-2 px-4 rounded-lg transition-colors ${
+                                        activeCategory === category.name
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : 'text-gray-700 hover:bg-gray-100'
+                                    }`}
+                                    onClick={() => handleCategoryClick(category)}
+                                >
+                                    <span className="text-lg font-medium">{category.name}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
-
                 )}
-                {
-                    selectedFile &&
-                <button
-                    className="absolute bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                    onClick={handleSaveModel}
-                >
-                    <span className="text-2xl mb-1">Save</span>
-                </button>
 
-                }
+                {/* Save button */}
+                {selectedFile && (
+                    <Button
+                        className="absolute bottom-20 right-8 bg-blue-600 text-white hover:bg-blue-700 shadow-lg px-6 py-3 rounded-lg flex items-center gap-2"
+                        onClick={handleSaveModel}
+                    >
+                        <Save className="h-5 w-5" />
+                        {isExistingModel ? 'Update Model' : 'Save Model'}
+                    </Button>
+                )}
             </div>
 
-
+            {/* Modals */}
             {showModal && activeCategory && (
                 <ComponentModal
                     title={categories.find((c) => c.name === activeCategory)?.type || activeCategory}
@@ -349,6 +467,7 @@ function Viewer3D() {
                     onClose={handleCloseModal}
                 />
             )}
+
             {fileUploadVisible && (
                 <FileUploadModal
                     onClose={handleCloseModal}

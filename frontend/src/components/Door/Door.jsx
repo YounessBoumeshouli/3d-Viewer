@@ -6,7 +6,14 @@ const Door = ({ wallStart, wallEnd, path }) => {
     const [texture, setTexture] = useState(null);
     const [textureLoaded, setTextureLoaded] = useState(false);
     const { scene } = useGLTF("/door.glb");
-
+    useEffect(() => {
+        console.log(path)
+        if (path) {
+            localStorage.setItem("door", path);
+        } else if (localStorage.getItem("door") !== null) {
+            localStorage.setItem("door", null);
+        }
+    }, [path]);
     useEffect(() => {
         const loadTexture = async () => {
             if (!path) {
@@ -18,23 +25,28 @@ const Door = ({ wallStart, wallEnd, path }) => {
             try {
                 const parts = path.split("/");
                 const localPath = `/textures/door/${parts[2]}`;
-                const backendUrl = `http://127.0.0.1:8000/api/image/door/${parts[2]}`;
+                console.log(parts[2]);
+                const backendUrl = `http://127.0.0.1:8000/api/storage-proxy/components/door/${parts[2]}`;
 
                 try {
                     const tex = await new THREE.TextureLoader().loadAsync(localPath);
                     tex.encoding = THREE.sRGBEncoding;
                     setTexture(tex);
                     setTextureLoaded(true);
+                    return;
                 } catch (localError) {
                     console.log("Local load failed, trying backend");
                     const response = await fetch(backendUrl);
-                    if (!response.ok) throw new Error("Backend load failed");
+                    if (!response.ok) {
+                        throw new Error("Backend load failed");
+                    }
                     const blob = await response.blob();
                     const objectUrl = URL.createObjectURL(blob);
                     const tex = await new THREE.TextureLoader().loadAsync(objectUrl);
                     tex.encoding = THREE.sRGBEncoding;
                     setTexture(tex);
                     setTextureLoaded(true);
+                    return;
                 }
             } catch (error) {
                 console.error("Texture loading failed:", error);
@@ -42,18 +54,16 @@ const Door = ({ wallStart, wallEnd, path }) => {
                 setTextureLoaded(false);
             }
         };
-
+            console.log(path)
         loadTexture();
     }, [path]);
 
-    // Create optimized scene clone with proper materials
     const sceneClone = useMemo(() => {
         if (!scene) return null;
 
         const clone = scene.clone();
         clone.traverse((child) => {
             if (child.isMesh) {
-                // Always create a NEW material instance
                 child.material = new THREE.MeshStandardMaterial({
                     map: texture || null,
                     color: texture ? 0xffffff : 0xaaaaaa,
@@ -61,7 +71,6 @@ const Door = ({ wallStart, wallEnd, path }) => {
                     metalness: 0.1
                 });
 
-                // Force updates
                 child.material.needsUpdate = true;
                 if (texture) texture.needsUpdate = true;
 
@@ -70,11 +79,10 @@ const Door = ({ wallStart, wallEnd, path }) => {
             }
         });
         return clone;
-    }, [scene, texture]); // Recreate when texture changes
+    }, [scene, texture]);
 
     if (!wallStart || !wallEnd) return null;
 
-    // Position calculations (unchanged)
     const [startX, startY, startZ] = wallStart;
     const [endX, endY, endZ] = wallEnd;
     const centerX = (startX + endX) / 2;

@@ -13,7 +13,7 @@ class FileUploadController extends Controller
     {
 
         $request->validate([
-            'file' => 'required|file|mimetypes:model/gltf-binary,application/octet-stream,image/jpeg,image/png,application/pdf,application/dxf,text/plain|max:5120',
+            'file' => 'required|file|mimetypes:model/gltf-binary,application/octet-stream,image/jpeg,image/png,application/pdf,application/dxf,text/plain',
             'type'=>'required|integer',
             'dimensions'=>'string',
             'price'=>'integer',

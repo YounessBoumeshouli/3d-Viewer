@@ -18,10 +18,9 @@ const Floor = () => {
         aoMap: '/textures/floor/wooden_floor_ambient_occlusion.jpg',
     });
 
-    // Apply texture repetition
     Object.values(floorTextures).forEach(texture => {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(10, 10); // Repeat the texture
+        texture.repeat.set(10, 10);
     });
 
     return (
@@ -36,7 +35,6 @@ const Floor = () => {
     );
 };
 
-// Custom camera controls with keyboard movement and mouse rotation
 const CameraController = () => {
     const { camera, gl } = useThree();
     const keys = useRef({});
@@ -54,29 +52,24 @@ const CameraController = () => {
         };
 
         const handleMouseMove = (e) => {
-            // Only rotate if right mouse button is pressed
             if (e.buttons === 2) {
                 camera.rotation.y -= e.movementX * lookSpeed;
                 camera.rotation.x -= e.movementY * lookSpeed;
 
-                // Limit vertical rotation to avoid flipping
                 camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
             }
         };
 
-        // Prevent context menu on right-click
         const handleContextMenu = (e) => {
             e.preventDefault();
         };
 
-        // Add event listeners
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
         gl.domElement.addEventListener('mousemove', handleMouseMove);
         gl.domElement.addEventListener('contextmenu', handleContextMenu);
 
         return () => {
-            // Clean up event listeners
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
             gl.domElement.removeEventListener('mousemove', handleMouseMove);
@@ -85,11 +78,9 @@ const CameraController = () => {
     }, [camera, gl]);
 
     useFrame(() => {
-        // Create movement vectors
         const forward = new Vector3(0, 0, -1).applyQuaternion(camera.quaternion).multiplyScalar(moveSpeed);
         const right = new Vector3(1, 0, 0).applyQuaternion(camera.quaternion).multiplyScalar(moveSpeed);
 
-        // Apply movement based on keys pressed
         if (keys.current['KeyW']) camera.position.add(forward);
         if (keys.current['KeyS']) camera.position.sub(forward);
         if (keys.current['KeyA']) camera.position.sub(right);
@@ -104,7 +95,6 @@ const CameraController = () => {
 function House({file,components ,height}) {
     const [selectedComponent,setSelectedComponent] = useState([])
     useEffect(() => {
-
         if (Array.isArray(components) && components.length > 0){
                 const data =   components.map((component)=>(
                     {
@@ -117,10 +107,7 @@ function House({file,components ,height}) {
 
         }
     }, [components]);
-    useEffect(() => {
-        console.log(selectedComponent)
 
-    }, [selectedComponent]);
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];
         return [screenScale, [0, 0, 0]];
