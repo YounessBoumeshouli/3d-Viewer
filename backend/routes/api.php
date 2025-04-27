@@ -12,6 +12,7 @@ use App\Http\Controllers\HouseController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\JWTAuthController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OfferController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 
 Route::get('image/{directory}/{filename}', [ImageController::class, 'getImage']);
+Route::get('/offersEnum', [OfferController::class, 'offersEnum']);
 
 Route::get('/storage-proxy/components/window/{path}', function ($path) {
     while (ob_get_level()) ob_end_clean();
@@ -53,12 +55,10 @@ Route::get('/storage-proxy/components/door/{path}', function ($path) {
         exit;
     }
 
-    // Set headers with no whitespace or extra characters
     header('Content-Type: image/jpeg');
     header('Content-Length: ' . filesize($filePath));
     header('Access-Control-Allow-Origin: *');
 
-    // Serve the file directly
     $fp = fopen($filePath, 'rb');
     fpassthru($fp);
     fclose($fp);
