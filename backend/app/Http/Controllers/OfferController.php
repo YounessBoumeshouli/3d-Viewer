@@ -27,6 +27,8 @@ class OfferController extends Controller
             'type'=>['required',new Enum(offers::class)],
             'price'=>'numeric'
         ]);
+        Offer::create(['title'=>$validatedData['title'],'descriotion'=>$validatedData['description'],'type'=>$validatedData['type'],'price'=>$validatedData['price']]);
+        return response()->json('plan added successfully', 201);
 
     }
 
