@@ -20,6 +20,8 @@ import {
     Settings,
     Home
 } from "lucide-react"
+import { setItem, getItem } from '../services/localstorage.js';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
 import ComponentModal from "../components/Maker/ComponentModel.jsx"
 import House from "../pages/house.jsx"
@@ -59,28 +61,39 @@ function Viewer3D() {
         setSelectedModel(id)
     }
 
+
+
     const handleSaveModel = async () => {
-        const components = categories.map((category) => ({
+        const components = categories.filter(category=>localStorage.getItem(category.name) != null).map((category) => ({
             path: localStorage.getItem(category.name)
         }))
 
         if (isExistingModel) {
+
             try {
                 const response = await api.put(`houses/${selectedModel}`, {
-                    "dxf_file_id": selectedFile.id,
                     "components": components,
                     "stage": height
                 })
+                console.log(response.data)
             } catch (e) {
                 console.error(e)
             }
         } else {
             try {
+                const dataToSend = components.length > 0 ? components : null;
+
                 const response = await api.post('houses', {
                     "dxf_file_id": selectedFile.id,
-                    "components": components,
+                    "components": dataToSend,
                     "stage": height
                 })
+                if (response) {
+                    console.log(response.data);
+                } else {
+                    console.error('No response received');
+                }
+                handleSelectedModel(()=>response.data.house_id)
             } catch (e) {
                 console.error(e)
             }
@@ -97,6 +110,7 @@ function Viewer3D() {
             try {
                 const response = await api.get('creator/models')
                 setModels(response.data.houses)
+                console.log(response.data.houses)
             } catch (e) {
                 console.error(e)
             }
@@ -144,6 +158,8 @@ function Viewer3D() {
                     setModelLoaded(true)
                     setHeight(response.data.stage)
                     uploadFile(response.data.dxf_file)
+                    console.log(response.data)
+
                 } catch (e) {
                     console.error(e)
                 }
@@ -426,7 +442,6 @@ function Viewer3D() {
                     )}
                 </div>
 
-                {/* Bottom toolbar */}
                 {modelLoaded && (
                     <div className="bg-white border-t border-gray-200 shadow-lg py-4 px-6">
                         <div className="flex justify-center items-center space-x-8">
@@ -447,7 +462,6 @@ function Viewer3D() {
                     </div>
                 )}
 
-                {/* Save button */}
                 {selectedFile && (
                     <Button
                         className="absolute bottom-20 right-8 bg-blue-600 text-white hover:bg-blue-700 shadow-lg px-6 py-3 rounded-lg flex items-center gap-2"
@@ -459,7 +473,6 @@ function Viewer3D() {
                 )}
             </div>
 
-            {/* Modals */}
             {showModal && activeCategory && (
                 <ComponentModal
                     title={categories.find((c) => c.name === activeCategory)?.type || activeCategory}

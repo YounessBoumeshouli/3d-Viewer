@@ -5,7 +5,6 @@ const Footer = () => {
     const location = useLocation();
     const path = location.pathname;
 
-    // Determine which footer to show based on current path
     const isHomePage = path === '/';
     const isModelPage = path.includes('/models');
     const isDesignerPage = path.includes('/designer');
@@ -40,7 +39,7 @@ const Footer = () => {
                         </div>
                     </div>
                     <div className="border-t border-gray-800 mt-8 pt-6 text-sm text-gray-500">
-                        © 2025 DesignLab. All rights reserved.
+                        © 2025 3D house App. All rights reserved.
                     </div>
                 </div>
             </footer>
@@ -103,7 +102,7 @@ const Footer = () => {
                         </div>
                     </div>
                     <div className="mt-8 pt-6 text-sm text-gray-600 text-center">
-                        © 2025 3D Models. All rights reserved.
+                        © 2025 3D house App. All rights reserved.
                     </div>
                 </div>
             </footer>
@@ -151,18 +150,17 @@ const Footer = () => {
                         </div>
                     </div>
                     <div className="border-t border-gray-800 mt-6 pt-4 text-sm text-gray-500 text-center">
-                        © 2025 DesignFolio. All rights reserved.
+                        © 2025 3D house App. All rights reserved.
                     </div>
                 </div>
             </footer>
         );
     }
 
-    // Default footer for other pages
     return (
         <footer className="bg-gray-100 py-4 mt-10">
             <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
-                © 2025 Design App. All rights reserved.
+                © 2025 3D house App. All rights reserved.
             </div>
         </footer>
     );

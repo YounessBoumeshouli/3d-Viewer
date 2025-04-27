@@ -22,7 +22,7 @@ class FileUploadController extends Controller
 
 
         $file = $request->file('file');
-
+        $size = $request->file('file')->getSize() / (1024* 1024) ;
         $type = $request->input('type');
         $dimensions = $request->input('dimensions');
         $price = $request->input('price');
@@ -30,14 +30,14 @@ class FileUploadController extends Controller
         $category = Category::find($type);
         if (!$category){
         $path = $file->store('dxf-files', 'public');
-            DxfFile::create(['designer_id'=>auth()->id(),'path'=>$path]);
+            DxfFile::create(['designer_id'=>auth()->id(),'path'=>$path,"size"=>$size]);
         return response()->json([
             'message' => 'DXF file uploaded successfully',
             'path' => asset("storage/$path"),
         ], 201);
         } else{
             $path = $file->store('components/'.$category->name, 'public');
-            component::create(["path"=>$path,"category_id"=>$type,"dimensions"=>$dimensions,"price"=>$price,"name"=>$name]);
+            component::create(["path"=>$path,"category_id"=>$type,"dimensions"=>$dimensions,"price"=>$price,"name"=>$name,"size"=>$size]);
             return response()->json([
                 'message' => 'component file uploaded successfully',
                 'path' => asset("storage/$path"),

@@ -2,12 +2,13 @@
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {useEffect,useState} from "react";
+import { setItem, getItem } from '../../services/localstorage.js';
 
 
 function handleSelect(item,title) {
-
-    localStorage.setItem(title,item.path);
+    setItem(title,item.path);
     const storedDoor = localStorage.getItem("door");
+    console.log("salam",item,storedDoor);
 
 }
 

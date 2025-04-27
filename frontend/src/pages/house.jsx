@@ -93,6 +93,7 @@ const CameraController = () => {
 };
 
 function House({file,components ,height}) {
+    console.log(height)
     const [selectedComponent,setSelectedComponent] = useState([])
     useEffect(() => {
         if (Array.isArray(components) && components.length > 0){
@@ -131,21 +132,22 @@ function House({file,components ,height}) {
                 className="w-full h-screen bg-transparent"
                 camera={{ position: [10, 5, 10], fov: 75, near: 0.1, far: 1000 }}
                 shadows
+
             >
                 <primitive object={new AxesHelper(100)} />
                 <primitive object={new GridHelper(100, 100)} />
 
                 <CameraController />
+                    <Sky />
+                    <Floor />
 
-                <Suspense fallback={null}>
+                <Suspense fallback={null} >
                     <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
                         <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
                     </directionalLight>
                     <ambientLight intensity={0.4} />
                     <hemisphereLight intensity={0.3} groundColor="#080820" />
 
-                    <Sky />
-                    <Floor />
 
                     <group rotation={[-Math.PI / 2, 0, 0]}>
                         <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} wallH={height}  />

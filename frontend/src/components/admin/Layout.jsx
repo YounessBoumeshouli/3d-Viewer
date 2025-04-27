@@ -14,7 +14,6 @@ function Layout({ children }) {
 
     return (
         <div className="flex h-screen bg-[#1f2124] text-white overflow-hidden">
-            {/* Left sidebar */}
             <div className="w-[80px] bg-[#242634] flex flex-col items-center border-r border-[#3e435d]/20">
                 <div className="p-4 mb-6">
                     <div className="w-12 h-12 bg-[#0e5ca7] rounded-lg flex items-center justify-center font-bold text-lg">
@@ -42,7 +41,7 @@ function Layout({ children }) {
                         <Users className="h-6 w-6" />
                     </Link>
                     <Link
-                        to="/calendar"
+                        to="/offers"
                         className={`p-3 rounded-lg ${pathname === "/calendar" ? "bg-[#3e435d]/30 text-[#4353ff]" : "text-gray-400"}`}
                     >
                         <Calendar className="h-6 w-6" />

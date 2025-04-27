@@ -11,6 +11,7 @@ use App\Models\House;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class HouseController extends Controller
 {
@@ -28,46 +29,88 @@ class HouseController extends Controller
     public function update(Request $request, House $house)
     {
         $validated = $request->validate([
-            "dxf_file_id" => 'required|integer',
-            'components' => 'required|array|min:1',
-            'components.*.path' => 'required|string|min:1',
-            'stage'=>'required|integer'
-
+            'components' => 'array|min:1',
+            'components.*.path' => 'string|min:1',
+            'stage' => 'required|integer'
         ]);
 
-        $house->update(['dxf_file_id' => $validated['dxf_file_id'] ,'stage'=>$validated['stage']]);
+        $house->update([
+            'stage' => $validated['stage']
+        ]);
 
-        $house->components()->delete();
 
-        foreach ($validated['components'] as $componentData) {
-            $component = Component::where('path', $componentData['path'])->first();
-            if ($component) {
-                $house->components()->create([
-                    'component_id' => $component->id,
-                ]);
+
+
+        if ($validated['components']){
+            $size = 0;
+            $currentComponents = $house->components()->pluck('component_id')->toArray();
+
+            $newComponentIds = [];
+            foreach ($validated['components'] as $componentData) {
+                $component = Component::where('path', $componentData['path'])->first();
+                if ($component) {
+                    $newComponentIds[] = $component->id;
+                    if (!in_array($component->id, $currentComponents)) {
+                        $house->components()->create([
+                            'component_id' => $component->id,
+                        ]);
+                        $size += $component->size;
+                    }
+                }
+            }
+            $toDelete = array_diff($currentComponents, $newComponentIds);
+
+            if (!empty($toDelete)) {
+                foreach ($toDelete as $componentId) {
+                    $houseComponent = component::where('id', $componentId)->first();
+
+                    if ($houseComponent) {
+                        $house->components()->where('component_id', $houseComponent->id)->delete();
+                        $size -= $houseComponent->size;
+                    }
+                }
             }
         }
 
+
+        $house->load('designer');
+        $house->designer->increment("storage_size", $size);
         return response()->json('House updated successfully.');
     }
     public function store(Request $request)
     {
        $validated =  $request->validate([
             "dxf_file_id"=>'required|integer',
-            'components' => 'required|array|min:1',
-            'components.*.path' => 'string|min:1|nullable',
+            'components' => 'array|nullable',
+            'components.*.path' => 'string|nullable',
             'stage'=>'required|integer'
         ]);
+       $dxfFile = DxfFile::where(['id'=>$validated['dxf_file_id']])->first();
+       $size = $dxfFile->size;
         $dxfFileid = $request->input('dxf_file_id');
         $stage = $request->input('stage');
         if ($validated){
-        $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage]);
-            foreach ($validated['components'] as $component){
-                $id = Component::where('path', $component['path'])->first();
-                $house->components()->create(['component_id'=>$id->id]);
+
+        $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>auth()->id()]);
+            if ($validated['components']){
+                foreach ($validated['components'] as $component){
+                    $component = Component::where('path', $component['path'])->first();
+                    if ($component){
+                        $house->components()->create(['component_id'=>$component->id]);
+                        $size += $component->size;
+
+                    }
+                }
             }
         }
-        return response()->json('house saved successfully', 201);
+        $user = auth()->user();
+        $user->designer->increment("storage_size", $size);
+        $house->increment("size", $size);
+
+        return response()->json([
+            "status"=>'house saved successfully',
+            "house_id"=>$house->id
+        ], 201);
 
 
     }

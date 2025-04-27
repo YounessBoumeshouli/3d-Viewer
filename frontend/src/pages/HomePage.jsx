@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/user/Layout';
 import DesignerCard from '../components/user/DesignerCard';
 import ModelCard from '../components/user/ModelCard';
-import ProjectCard from '../components/user/ProjectCard';
+import OfferCard from '../components/user/ProjectCard';
 import { Button } from "@/components/ui/button.jsx";
 import LoginModel from "../components/User/LoginModel.jsx";
 import api from "../services/api.js";
@@ -49,7 +49,7 @@ const HomePage = () => {
         return () => clearTimeout(refreshAOS);
     }, []);
 
-    const portfolioProjects = [
+    const offers = [
         {
             id: 1,
             image: '/path/to/project1.jpg',
@@ -174,18 +174,18 @@ const HomePage = () => {
             <section className="py-20 px-4 md:px-8 lg:px-16 bg-gray-50">
                 <div className="text-center mb-16" data-aos="fade-up">
                     <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-4">Showcase</span>
-                    <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Our <span className="text-purple-600">Portfolio</span></h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-800">Our <span className="text-purple-600">Plan</span></h2>
                     <div className="w-24 h-1 bg-purple-600 mx-auto mt-4"></div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
-                    {portfolioProjects.map((project, index) => (
+                    {offers.map((offer, index) => (
                         <div
-                            key={project.id}
+                            key={offer.id}
                             data-aos="fade-up"
                             data-aos-delay={index * 100}
                             className="transform hover:scale-105 transition duration-300"
                         >
-                            <ProjectCard project={project} />
+                            <OfferCard project={offer} />
                         </div>
                     ))}
                 </div>

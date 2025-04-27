@@ -1,32 +1,36 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const ProjectCard = ({ id, title, image, likes }) => {
+const OfferCard = ({ id, title, image, likes }) => {
     return (
-        <div className="bg-white rounded-lg overflow-hidden shadow-md">
-            <Link to={`/project/${id}`}>
-                <div className="relative">
-                    <img
-                        src={image}
-                        alt={title}
-                        className="w-full h-48 object-cover"
-                    />
-                    <div className="absolute bottom-3 left-3 flex items-center bg-black/70 text-white px-2 py-1 rounded-md text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                        </svg>
-                        {likes}
+        <div className="flex flex-col bg-black rounded-3xl">
+            <div className="px-6 py-8 sm:p-10 sm:pb-6">
+                <div className="grid items-center justify-center w-full grid-cols-1 text-left">
+                    <div>
+                        <h2 className="text-lg font-medium tracking-tighter text-white lg:text-3xl">
+                            Corporate
+                        </h2>
+                        <p className="mt-2 text-sm text-gray-100">Grow steadily and pizza.</p>
+                    </div>
+                    <div className="mt-6">
+                        <p>
+                              <span className="text-5xl font-light tracking-tight text-white">
+                                $35
+                              </span>
+                            <span className="text-base font-medium text-white"> /mo </span>
+                        </p>
                     </div>
                 </div>
-            </Link>
-
-            <div className="p-3">
-                <Link to={`/project/${id}`}>
-                    <h3 className="font-medium text-gray-900">{title}</h3>
-                </Link>
+            </div>
+            <div className="flex px-6 pb-8 sm:px-8">
+                <a aria-describedby="tier-starter"
+                   className="items-center justify-center w-full px-6 py-2.5 text-center text-black duration-200 bg-white border-2 border-white rounded-full nline-flex hover:bg-transparent hover:border-white hover:text-white focus:outline-none focus-visible:outline-white text-sm focus-visible:ring-white"
+                   href="#">
+                    Get started
+                </a>
             </div>
         </div>
     );
 };
 
-export default ProjectCard;
+export default OfferCard;

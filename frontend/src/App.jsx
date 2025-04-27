@@ -22,7 +22,7 @@ import CreatorModelsPage from "./pages/Creator/CreatorModelsPage.jsx";
 import OverviewPage from "./pages/Creator/OverviewPage.jsx";
 import SettingsPage from "./pages/Creator/SettingsPage.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
-
+import Offers from "./pages/Offers.jsx"
 
 function App() {
 
@@ -46,6 +46,10 @@ function App() {
                   <Route path="/components" element={
                       <PrivateRoute allowedRoles={['admin', 'creator']}>
                           <Components/>
+                      </PrivateRoute>
+                  } /> <Route path="/offers" element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <Offers/>
                       </PrivateRoute>
                   } />
                   <Route path="/dashboard" element={

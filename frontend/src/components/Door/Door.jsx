@@ -9,55 +9,83 @@ const Door = ({ wallStart, wallEnd, path }) => {
     useEffect(() => {
         console.log(path)
         if (path) {
+            console.log(path)
             localStorage.setItem("door", path);
         } else if (localStorage.getItem("door") !== null) {
             localStorage.setItem("door", null);
         }
     }, [path]);
     useEffect(() => {
-        const loadTexture = async () => {
-            if (!path) {
-                setTexture(null);
-                setTextureLoaded(false);
-                return;
-            }
+        const onLocalStorageChange = (e) => {
+            console.log(e)
+            loadTexture()
+        };
+
+        window.addEventListener('local-storage', onLocalStorageChange);
+
+        return () => {
+            window.removeEventListener('local-storage', onLocalStorageChange);
+        };
+    }, []);
+    const loadTexture = async () => {
+        const storedDoor = localStorage.getItem("door");
+        console.log('salam')
+        if (storedDoor === null) {
+            setTexture(null);
+            setTextureLoaded(false);
+            return;
+        }
+        console.log(storedDoor)
+
+        try {
+            const parts = storedDoor.split("/");
+            const localPath = `/textures/door/${parts[2]}`;
+            console.log(parts[2]);
+            const backendUrl = `http://127.0.0.1:8000/api/storage-proxy/components/door/${parts[2]}`;
 
             try {
-                const parts = path.split("/");
-                const localPath = `/textures/door/${parts[2]}`;
-                console.log(parts[2]);
-                const backendUrl = `http://127.0.0.1:8000/api/storage-proxy/components/door/${parts[2]}`;
-
-                try {
-                    const tex = await new THREE.TextureLoader().loadAsync(localPath);
-                    tex.encoding = THREE.sRGBEncoding;
-                    setTexture(tex);
-                    setTextureLoaded(true);
-                    return;
-                } catch (localError) {
-                    console.log("Local load failed, trying backend");
-                    const response = await fetch(backendUrl);
-                    if (!response.ok) {
-                        throw new Error("Backend load failed");
-                    }
-                    const blob = await response.blob();
-                    const objectUrl = URL.createObjectURL(blob);
-                    const tex = await new THREE.TextureLoader().loadAsync(objectUrl);
-                    tex.encoding = THREE.sRGBEncoding;
-                    setTexture(tex);
-                    setTextureLoaded(true);
-                    return;
+                const tex = await new THREE.TextureLoader().loadAsync(localPath);
+                tex.encoding = THREE.sRGBEncoding;
+                setTexture(tex);
+                setTextureLoaded(true);
+                return;
+            } catch (localError) {
+                console.log("Local load failed, trying backend");
+                const response = await fetch(backendUrl);
+                if (!response.ok) {
+                    throw new Error("Backend load failed");
                 }
-            } catch (error) {
-                console.error("Texture loading failed:", error);
-                setTexture(null);
-                setTextureLoaded(false);
+                const blob = await response.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                const tex = await new THREE.TextureLoader().loadAsync(objectUrl);
+                tex.encoding = THREE.sRGBEncoding;
+                setTexture(tex);
+                setTextureLoaded(true);
+                return;
             }
-        };
+        } catch (error) {
+            console.error("Texture loading failed:", error);
+            setTexture(null);
+            setTextureLoaded(false);
+        }
+    };
+
+    useEffect(() => {
             console.log(path)
         loadTexture();
     }, [path]);
 
+    useEffect(() => {
+        const handleStorage = () => {
+            console.log('salam');
+        };
+
+        window.addEventListener('storage', handleStorage);
+
+        return () => {
+            window.removeEventListener('storage', handleStorage);
+        };
+    });
     const sceneClone = useMemo(() => {
         if (!scene) return null;
 
@@ -85,8 +113,8 @@ const Door = ({ wallStart, wallEnd, path }) => {
 
     const [startX, startY, startZ] = wallStart;
     const [endX, endY, endZ] = wallEnd;
-    const centerX = (startX + endX) / 2;
-    const centerY = (startY + endY) / 2;
+    const centerX = (startX + endX) / 2.5;
+    const centerY = (startY + endY) / 3.1;
     const angle = Math.atan2(endY - startY, endX - startX);
 
     return (

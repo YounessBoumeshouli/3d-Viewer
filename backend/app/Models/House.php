@@ -11,6 +11,10 @@ class House extends Model
     {
       return $this->belongsTo(DxfFile::class);
     }
+    public function designer()
+    {
+      return $this->belongsTo(Designer::class);
+    }
     public function components()
     {
       return $this->hasMany(HouseComponent::class);
