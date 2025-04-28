@@ -19,8 +19,8 @@ class DesignerController extends Controller
     }
     public function profile()
     {
-        return Designer::with('user')->where('user_id',auth()->id())->first();
-
+        $designer = auth()->user()->designer;
+        return $designer->load(['offer','user']);
     }
     public function show($id)
     {

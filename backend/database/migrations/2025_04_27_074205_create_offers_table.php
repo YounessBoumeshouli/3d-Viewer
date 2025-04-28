@@ -17,6 +17,8 @@ return new class extends Migration
             $table->text('description');
             $table->enum('type',["OneYear","ThreeMonths","SixMonths","None"])->default('None');
             $table->float('price')->nullable();
+            $table->integer('storage')->default(100);
+            $table->integer('models')->default(3);
             $table->timestamps();
         });
         Schema::create('user_offers', function (Blueprint $table) {

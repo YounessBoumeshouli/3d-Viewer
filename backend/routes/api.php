@@ -23,7 +23,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 Route::get('image/{directory}/{filename}', [ImageController::class, 'getImage']);
 Route::get('/offersEnum', [OfferController::class, 'offersEnum']);
-
+Route::get('/offers', [OfferController::class, 'index']);
+Route::get('/offers/{offer}', [OfferController::class, 'show']);
 Route::get('/storage-proxy/components/window/{path}', function ($path) {
     while (ob_get_level()) ob_end_clean();
 
@@ -64,6 +65,8 @@ Route::get('/storage-proxy/components/door/{path}', function ($path) {
     fclose($fp);
     exit;
 })->where('path', '.*');
+Route::get('houses', [HouseController::class,'index']);
+
 Route::get('/test-fixed-image', function () {
     $filePath = "C:\\Users\\youco\\Desktop\\FilRouge\\FillRouge\\backend\\storage\\app\\public\\components\\door\\door2.jpg";
 
@@ -106,16 +109,22 @@ Route::get('followers',[FollowerController::class,'followers']);
 Route::get('following',[FollowerController::class,'following']);
 Route::get('friends',[FollowerController::class,'friends']);
 Route::get('notifications',[NotificationController::class,'index']);
-    Route::get('MyProfile',[DesignerController::class,'profile']);
-    Route::get('myfiles',[FileController::class,'index']);
-    Route::post('categories',[ComponentController::class,'store']);
-    Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
-    Route::apiResource('houses', HouseController::class);
-    Route::apiResource('house.comments',CommentController::class);
-    Route::apiResource('comments.replies',CommentReplyController::class);
-    Route::get('user', [JWTAuthController::class, 'getUser']);
+Route::get('MyProfile',[DesignerController::class,'profile']);
+Route::get('myfiles',[FileController::class,'index']);
+Route::post('categories',[ComponentController::class,'store']);
+Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
+Route::post('houses', [HouseController::class,'store']);
+Route::put('houses/{house}', [HouseController::class,'update']);
+Route::get('houses/{house}', [HouseController::class,'show']);
+Route::apiResource('house.comments',CommentController::class);
+Route::apiResource('comments.replies',CommentReplyController::class);
+Route::get('user', [JWTAuthController::class, 'getUser']);
 Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);
 Route::get('/house/{id}', [FileController::class, 'show']);
+Route::post('/offers', [OfferController::class, 'store']);
+
 Route::get('files/{path}', [FileController::class, 'serve'])->where('path', '.*');
+
+
 });

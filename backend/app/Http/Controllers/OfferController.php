@@ -19,16 +19,35 @@ class OfferController extends Controller
       return $options;
 
     }
+    public function index()
+    {
+
+        return Offer::all();
+
+    }
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'title'=>'required|string|min:5',
-            'description'=>'string|min:5',
-            'type'=>['required',new Enum(offers::class)],
-            'price'=>'numeric'
+            'title' => 'required|string|min:5',
+            'description' => 'string|min:5',
+            'type' => ['required'],
+            'price' => 'numeric|nullable'
         ]);
-        Offer::create(['title'=>$validatedData['title'],'descriotion'=>$validatedData['description'],'type'=>$validatedData['type'],'price'=>$validatedData['price']]);
-        return response()->json('plan added successfully', 201);
+
+        $Offer = new Offer();
+
+        $Offer->title = $validatedData['title'];
+        $Offer->description = $validatedData['description'] ?? null;
+        $Offer->price = $validatedData['price'] ?? null;
+
+        $Offer->type = $validatedData['type'];
+        $Offer->save();
+
+        return response()->json('Plan added successfully', 201);
+    }
+    public function show($offer)
+    {
+        return    Offer::where('type',$offer)->first();
 
     }
 
