@@ -13,6 +13,7 @@ use App\Http\Controllers\ImageController;
 use App\Http\Controllers\JWTAuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\PaypalController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
@@ -66,7 +67,11 @@ Route::get('/storage-proxy/components/door/{path}', function ($path) {
     exit;
 })->where('path', '.*');
 Route::get('houses', [HouseController::class,'index']);
+Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);
 
+Route::post('/payment/success', [PaypalController::class, 'success']);
+
+Route::post('/payment/cancel', [PaypalController::class, 'cancel']);
 Route::get('/test-fixed-image', function () {
     $filePath = "C:\\Users\\youco\\Desktop\\FilRouge\\FillRouge\\backend\\storage\\app\\public\\components\\door\\door2.jpg";
 

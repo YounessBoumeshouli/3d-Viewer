@@ -31,7 +31,11 @@ function App() {
 
           <Router>
               <Routes>
-                  <Route path="/" element={<Navigate to="/home" replace />} />
+                  <Route path="/payment/success" element={
+                      <PrivateRoute allowedRoles={['admin', 'creator']}>
+                          <Analytics/>
+                      </PrivateRoute>
+                  }/>
                   <Route path="/analytics"
                          element={
                       <PrivateRoute allowedRoles={['admin', 'creator']}>

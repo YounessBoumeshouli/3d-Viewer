@@ -8,60 +8,39 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus } from "lucide-react"
 import api from "../services/api.js";
 import CategoryModel from "../components/admin/CategoryModel.jsx";
-import ItemModel from "../components/admin/ItemModel.jsx";
+import OfferModel from "../components/admin/OfferModel.jsx";
 
 function Offers() {
-    const [items,setItems] = useState([])
-    const [category,setCategory] = useState({});
-    const [categoryList,setCataegoryList] = useState([]);
-    const  [categoryModel , setCategoryModel] = useState(false);
-    const  [itemModel , setItemModel] = useState(false);
-    const  [isSubmited , setIsSubmited] = useState(false);
-    console.log(category)
-    const closeCategoryModel = () => {
-        setCategoryModel(false)
-    }
-    const handleCategoryModelSubmit = () =>{
-        setIsSubmited(true);
-    }
-    const closeItemModel = () => {
-        setItemModel(false)
-    }
+
+    const  [OffersCategories , setOffersCategories] = useState({});
+    const  [offerModel , setOfferModel] = useState({string : '',integer:null});
+
+    const handleClick = (numberDuration, stringDuration) => {
+        setOfferModel({
+            integer: numberDuration,
+            string: stringDuration
+        });
+    };
+        const fetchOffers = async () => {
+            console.log('is fetching')
+            const response = await api.get('offersEnum');
+            console.log(response.data)
+            setOffersCategories(response.data);
+        };
     useEffect(() => {
-        const fetchCategoryList = async ()=>{
-            try {
-                const response = await api.get('categories');
-                setCataegoryList(response.data);
-                setCataegoryList(response.data);
-            }catch (e) {
-                console.error(e)
-            }
-        }
+        fetchOffers();
 
 
-        if (!isSubmited) {
-            fetchCategoryList();
-        }
-    }, [isSubmited]);
-
+    }, []);
     useEffect(() => {
-        if (Object.keys(category).length === 0) return;
+if (OffersCategories){
+    console.log(OffersCategories)
 
-        const Items = async () => {
-            console.log(category.id)
-            try {
-                const response = await api.get(`components/${category.id}`, {
-                    responseType: "json"
-                });
-                setItems(response.data)
-
-            } catch (error) {
-                console.error(error)
-            }
-            console.log(items)
-        }
-        Items();
-    }, [category]);
+}
+    }, [OffersCategories]);
+    const closeOfferModel = () =>{
+        setOfferModel(false);
+    }
 
     const [showDialog, setShowDialog] = useState(false)
     return (
@@ -74,7 +53,7 @@ function Offers() {
                             Create new project and customize it with your priority base UI kit element.
                         </p>
                         <Button className="bg-transparent hover:bg-[#3e435d]/20 border border-[#3e435d] rounded-full"
-                                onClick={() => setCategoryModel(true)}>
+                                onClick={() => setOfferModel(true)}>
                             <Plus className="h-5 w-5 mr-2" />
                             add New Offer
                         </Button>
@@ -82,15 +61,15 @@ function Offers() {
                 </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-                    {categoryList.map((component, i) => (
-                        <div className="flex flex-col bg-black rounded-3xl">
+                    { Object.entries(OffersCategories).map(([numberDuration, StringDuration]) => (
+                        <div className="flex flex-col bg-black rounded-3xl" key={numberDuration}>
                             <div className="px-6 py-8 sm:p-10 sm:pb-6">
                                 <div className="grid items-center justify-center w-full grid-cols-1 text-left">
                                     <div>
                                         <h2 className="text-lg font-medium tracking-tighter text-white lg:text-3xl">
-                                            Corporate
+                                            {StringDuration}
                                         </h2>
-                                        <p className="mt-2 text-sm text-gray-100">Grow steadily and pizza.</p>
+                                        <p className="mt-2 text-sm text-gray-100">  Description</p>
                                     </div>
                                     <div className="mt-6">
                                         <p>
@@ -103,26 +82,26 @@ function Offers() {
                                 </div>
                             </div>
                             <div className="flex px-6 pb-8 sm:px-8">
-                                <a aria-describedby="tier-starter"
+                                <button aria-describedby="tier-starter"
                                    className="items-center justify-center w-full px-6 py-2.5 text-center text-black duration-200 bg-white border-2 border-white rounded-full nline-flex hover:bg-transparent hover:border-white hover:text-white focus:outline-none focus-visible:outline-white text-sm focus-visible:ring-white"
-                                   href="#">
-                                    Get started
-                                </a>
+                                        onClick={() => handleClick(numberDuration,StringDuration)}>
+
+                                    Edite Plan
+                                </button>
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
 
-            {itemModel && category && (
-                <ItemModel
+            {offerModel && (
+                <OfferModel
                     onClose={
                         () => {
-                            closeItemModel();
-                            setCategory({});
+                            closeOfferModel();
                         }
                     }
-                    category={category}
+                    offer ={offerModel}
                 />
             )}
         </Layout>

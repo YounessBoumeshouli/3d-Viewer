@@ -28,7 +28,7 @@ import House from "../pages/house.jsx"
 import { DxfParser } from "dxf-parser"
 import api from "../services/api.js"
 import FileUploadModal from "../components/Maker/FileUploadModal.jsx"
-
+import Loader from '../components/Maker/Loader.jsx'
 function Viewer3D() {
     const [height, setHeight] = useState(1)
     const [rotation, setRotation] = useState(0)
@@ -45,6 +45,7 @@ function Viewer3D() {
     const [isExistingModel, setIsExistingModel] = useState(false)
     const [selectedModel, setSelectedModel] = useState(null)
     const [savedComponent, setSavedComponents] = useState([])
+    const [planInfos, setPlanInfos] = useState({})
 
     const handleCategoryClick = async (category) => {
         setActiveCategory(category.name)
@@ -60,7 +61,10 @@ function Viewer3D() {
     const handleSelectedModel = (id) => {
         setSelectedModel(id)
     }
-
+    const fetchCreatorInfo = async () =>{
+        const response = await api.get('MyProfile');
+        setPlanInfos(response.data.offer);
+    }
 
 
     const handleSaveModel = async () => {
@@ -116,6 +120,7 @@ function Viewer3D() {
             }
         }
         fetchCreatorModels()
+        fetchCreatorInfo();
     }, [])
 
     useEffect(() => {
@@ -184,15 +189,12 @@ function Viewer3D() {
 
     return (
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-            {/* Left sidebar */}
             <div className="w-80 bg-white shadow-lg p-6 space-y-8 overflow-y-auto">
-                {/* Logo and title */}
                 <div className="flex items-center gap-3 mb-6">
                     <Home className="h-6 w-6 text-blue-600" />
                     <h1 className="text-xl font-bold text-gray-800">3D House Maker</h1>
                 </div>
 
-                {/* Controls section */}
                 <div className="mb-8">
                     <div className="flex items-center mb-4">
                         <Settings className="h-5 w-5 text-blue-600 mr-2" />
@@ -286,43 +288,9 @@ function Viewer3D() {
                 <div className="mb-8">
                     <div className="flex items-center mb-4">
                         <Layers className="h-5 w-5 text-blue-600 mr-2" />
-                        <h2 className="text-lg font-semibold text-gray-800">Layers</h2>
+                        <h2 className="text-lg font-semibold text-gray-800">Storage</h2>
                     </div>
-                    <div className="space-y-3 pl-2">
-                        <div className="flex items-center bg-gray-50 p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
-                            <div className="w-6 h-6 bg-blue-600 flex items-center justify-center rounded-md mr-3">
-                                <Square className="h-4 w-4 text-white" />
-                            </div>
-                            <span className="text-gray-700">Lines</span>
-                            <div className="ml-auto">
-                                <div className="w-4 h-4 rounded border border-blue-600 bg-white flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center bg-gray-50 p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
-                            <div className="w-6 h-6 bg-blue-600 flex items-center justify-center rounded-md mr-3">
-                                <Circle className="h-4 w-4 text-white" />
-                            </div>
-                            <span className="text-gray-700">Circles</span>
-                            <div className="ml-auto">
-                                <div className="w-4 h-4 rounded border border-blue-600 bg-white flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center bg-gray-50 p-2 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
-                            <div className="w-6 h-6 bg-blue-600 flex items-center justify-center rounded-md mr-3">
-                                <Dot className="h-4 w-4 text-white" />
-                            </div>
-                            <span className="text-gray-700">Points</span>
-                            <div className="ml-auto">
-                                <div className="w-4 h-4 rounded border border-blue-600 bg-white flex items-center justify-center">
-                                    <div className="w-2 h-2 bg-blue-600 rounded-sm"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <Loader/>
                 </div>
 
                 {models.length > 0 && (
@@ -333,7 +301,7 @@ function Viewer3D() {
                                 <h2 className="text-lg font-semibold text-gray-800">My Models</h2>
                             </div>
                             <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                                {models.length}
+                                {models.length}/3
                             </span>
                         </div>
                         <div className="space-y-2 pl-2 max-h-64 overflow-y-auto pr-2">

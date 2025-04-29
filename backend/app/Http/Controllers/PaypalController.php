@@ -11,10 +11,9 @@ use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaypalController extends Controller
 {
-    public function paypal(Request $request, $id): JsonResponse
+    public function paypal(Request $request, $id)
     {
         $offer = Offer::find($id);
-
         if (!$offer) {
             return response()->json(['message' => 'Order not found'], 404);
         }
@@ -26,16 +25,16 @@ class PaypalController extends Controller
         $response = $provider->createOrder([
             "intent" => "CAPTURE",
             "application_context" => [
-                "return_url" => config('app.frontend_url') . "/payment/success?order_id=" . $offer->id,
+                "return_url" => config('app.frontend_url') . "/payment/success?order_id=" .$offer->id,
                 "cancel_url" => config('app.frontend_url') . "/payment/cancel?order_id=" . $offer->id
             ],
             "purchase_units" => [
                 [
                     "reference_id" => $offer->id,
-                    "description" => $offer->service->title . " - " . $offer->package->name,
+                    "description" => $offer->title,
                     "amount" => [
                         "currency_code" => "USD",
-                        "value" => $offer->amount
+                        "value" => $offer->price
                     ]
                 ]
             ]
@@ -68,8 +67,7 @@ class PaypalController extends Controller
             'token' => 'required|string',
         ]);
 
-        $offer_id = $request->offer_id;
-        $offer = Offer::find($offer_id);
+        $offer = Offer::find($request->offer_id);
 
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));

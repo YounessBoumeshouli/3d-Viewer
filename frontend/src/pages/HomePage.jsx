@@ -14,34 +14,36 @@ const HomePage = () => {
     const [loginModel, setLoginModel] = useState(false);
     const [designers, setDesigners] = useState([]);
     const [models, setModels] = useState([]);
-
+    const [offersCategories, setOffersCategories] = useState([]);
     const closeLoginModel = () => {
         setLoginModel(false);
     };
-
     const fetchDesigners = async () => {
         const response = await api.get('designers');
         setDesigners(response.data);
+    };
+    const fetchOffers = async () => {
+        console.log('is fetching')
+        const response = await api.get('offers');
+        console.log(response.data)
+        setOffersCategories(response.data);
     };
 
     const fetchModels = async () => {
         const response = await api.get('houses');
         setModels(response.data);
     };
-
     useEffect(() => {
-        // Initialize AOS library for scroll animations
         AOS.init({
             duration: 800,
             easing: 'ease-in-out',
             once: false,
             mirror: false
         });
-
         fetchDesigners();
         fetchModels();
+        fetchOffers();
 
-        // Refresh AOS when content loads
         const refreshAOS = setTimeout(() => {
             AOS.refresh();
         }, 500);
@@ -70,9 +72,7 @@ const HomePage = () => {
 
     return (
         <Layout>
-            {/* Hero Section with Gradient Background */}
             <section className="relative bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white py-24 px-4 md:px-8 lg:px-16 overflow-hidden">
-                {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4zIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] bg-repeat"></div>
                 </div>
@@ -103,7 +103,6 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Designer Section */}
             <section className="py-20 px-4 md:px-8 lg:px-16 bg-gray-50">
                 <div className="text-center mb-16" data-aos="fade-up">
                     <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-4">Our Talent</span>
@@ -124,7 +123,6 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* 3D Models Section */}
             <section className="py-20 px-4 md:px-8 lg:px-16 bg-white">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex justify-between items-center mb-16">
@@ -170,7 +168,6 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* Portfolio Section */}
             <section className="py-20 px-4 md:px-8 lg:px-16 bg-gray-50">
                 <div className="text-center mb-16" data-aos="fade-up">
                     <span className="inline-block px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium mb-4">Showcase</span>
@@ -178,22 +175,19 @@ const HomePage = () => {
                     <div className="w-24 h-1 bg-purple-600 mx-auto mt-4"></div>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
-                    {offers.map((offer, index) => (
+                    { offersCategories.map((offer) => (
                         <div
                             key={offer.id}
                             data-aos="fade-up"
-                            data-aos-delay={index * 100}
                             className="transform hover:scale-105 transition duration-300"
                         >
-                            <OfferCard project={offer} />
+                            <OfferCard offer={offer} />
                         </div>
                     ))}
                 </div>
             </section>
 
-            {/* Contact Section */}
             <section className="py-20 px-4 md:px-8 lg:px-16 bg-white relative overflow-hidden">
-                {/* Background Decoration */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full -mt-16 -mr-16"></div>
                 <div className="absolute bottom-0 left-0 w-80 h-80 bg-indigo-50 rounded-full -mb-40 -ml-16"></div>
 
