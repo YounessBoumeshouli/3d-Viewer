@@ -35,7 +35,6 @@ class MessageNotification extends Notification
      */
     public function toDatabase(object $notifiable)
     {
-        Log::info('to database'.$this->message->conversation_id);
         return [
             'sender_id' => $this->message->user_id,
             'conversation_id' => $this->message->conversation_id,

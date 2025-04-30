@@ -51,25 +51,6 @@ const HomePage = () => {
         return () => clearTimeout(refreshAOS);
     }, []);
 
-    const offers = [
-        {
-            id: 1,
-            image: '/path/to/project1.jpg',
-        },
-        {
-            id: 2,
-            image: '/path/to/project2.jpg',
-        },
-        {
-            id: 3,
-            image: '/path/to/project3.jpg',
-        },
-        {
-            id: 4,
-            image: '/path/to/project4.jpg',
-        }
-    ];
-
     return (
         <Layout>
             <section className="relative bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white py-24 px-4 md:px-8 lg:px-16 overflow-hidden">

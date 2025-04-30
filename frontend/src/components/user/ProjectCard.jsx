@@ -14,17 +14,7 @@ const OfferCard = ({offer}) => {
         }
     }
 
-    const handleSuccess = async ()=>{
-        const response = await api.post('/payment/success');
 
-        if (response.data && response.data.status === 'success') {
-            setTimeout(() => {
-                navigate('/client/orders?payment=success&order_id=' + orderId);
-            }, 3000);
-        } else {
-            throw new Error('Payment verification failed');
-        }
-    }
     return (
         <div className="flex flex-col bg-black rounded-3xl group relative overflow-hidden">
             <div className="px-6 py-8 sm:p-10 sm:pb-6">

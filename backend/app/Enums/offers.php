@@ -2,10 +2,20 @@
 
 namespace App\Enums;
 
-enum offers : int
+enum offers: string
 {
-    case None = 0;
-    case ThreeMonths = 90;
-    case SixMonths = 180;
-    case OneYear = 365;
+    case None = 'None';
+    case ThreeMonths = 'ThreeMonths';
+    case SixMonths = 'SixMonths';
+    case OneYear = 'OneYear';
+
+    public function days(): int
+    {
+        return match($this) {
+            self::None => 0,
+            self::ThreeMonths => 90,
+            self::SixMonths => 180,
+            self::OneYear => 365,
+        };
+    }
 }

@@ -134,6 +134,7 @@
       <path value="$PROJECT_DIR$/backend/vendor/nette/utils" />
       <path value="$PROJECT_DIR$/backend/vendor/monolog/monolog" />
       <path value="$PROJECT_DIR$/backend/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/backend/vendor/srmklive/paypal" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />

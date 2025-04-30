@@ -23,6 +23,7 @@ import OverviewPage from "./pages/Creator/OverviewPage.jsx";
 import SettingsPage from "./pages/Creator/SettingsPage.jsx";
 import PrivateRoute from "./routes/PrivateRoute.jsx";
 import Offers from "./pages/Offers.jsx"
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 
 function App() {
 
@@ -32,9 +33,7 @@ function App() {
           <Router>
               <Routes>
                   <Route path="/payment/success" element={
-                      <PrivateRoute allowedRoles={['admin', 'creator']}>
-                          <Analytics/>
-                      </PrivateRoute>
+                          <PaymentSuccess/>
                   }/>
                   <Route path="/analytics"
                          element={

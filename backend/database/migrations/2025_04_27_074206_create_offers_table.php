@@ -25,8 +25,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('offer_id');
             $table->foreignId('designer_id');
-            $table->time('start_date');
-            $table->time('end_date');
+            $table->timestamp('start_date');
+            $table->timestamp('end_date');
             $table->enum('paymentStatus',['none','paid'])->default('none');
             $table->timestamps();
         });

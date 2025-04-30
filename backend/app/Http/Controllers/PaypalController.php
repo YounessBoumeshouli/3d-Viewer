@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\offers;
 use App\Models\Offer;
 use App\Models\Payment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PaypalController extends Controller
@@ -60,44 +62,65 @@ class PaypalController extends Controller
         ], 500);
     }
 
-    public function success(Request $request): JsonResponse
+    public function success(Request $request)
     {
         $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'token' => 'required|string',
+            'order_id' => 'required',
+            'token' => 'required|string'
         ]);
 
-        $offer = Offer::find($request->offer_id);
+        $offer = Offer::find($request->order_id);
+        $offerEnum = $offer->type;
 
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $paypalToken = $provider->getAccessToken();
-
+        if (Payment::where('payment_id', $request->token)->exists()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Payment already processed.',
+            ]);
+        }
         $response = $provider->capturePaymentOrder($request->token);
+        Log::info('PayPal response:', $response);
 
-        if (isset($response['status']) && $response['status'] == 'COMPLETED') {
+        if (isset($response['status']) && $response['status'] === 'COMPLETED') {
+            $endDate = now()->addDays($offerEnum->days());
+            $designer = auth()->user()->designer;
+            if (!$designer) {
+                $designer = auth()->user()->designer()->create([
+                    'user_id' => auth()->id(),
+                    'bio' => 'new Designer'
+                ]);
+            }
 
-            $offer->payment_status = 'paid';
-            $offer->save();
+            $userOffer = $designer->offer()->create([
+                'offer_id' => $request->order_id,
+                'start_date' => now()->format('Y-m-d'),
+                'end_date' => $endDate->format('Y-m-d')
+            ]);
+
+            $userOffer->paymentStatus = 'paid';
+            $userOffer->save();
 
             $payment = new Payment([
                 'payment_id' => $response['id'],
-                'service_title' => $offer->service->title,
+                'service_title' => $offer->title,
                 'quantity' => 1,
+                'designer_id'=>$designer->id,
                 'amount' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'],
                 'currency' => $response['purchase_units'][0]['payments']['captures'][0]['amount']['currency_code'],
                 'payer_name' => $response['payer']['name']['given_name'] . ' ' . $response['payer']['name']['surname'],
                 'payer_email' => $response['payer']['email_address'],
                 'payment_status' => $response['status'],
                 'payment_method' => 'PayPal',
-                'offer_id' => $offer->id
+                'offer_id' => $userOffer->id
             ]);
             $payment->save();
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'Payment successful',
-                'order_id' => $offer->id
+                'order_id' => $userOffer->id
             ]);
         }
 

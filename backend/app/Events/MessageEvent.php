@@ -39,11 +39,6 @@ class MessageEvent implements ShouldBroadcast
 
     public function broadcastWith(): array
     {
-        Log::info('Preparing broadcast data', [
-            'conversation_id' => $this->message->conversation_id,
-            'sender' => $this->message->user_id
-        ]);
-
         return [
             'message' => $this->message,
 

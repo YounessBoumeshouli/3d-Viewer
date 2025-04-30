@@ -6,7 +6,6 @@ import { Link, useLocation } from "react-router-dom"
 import { connectToReverb, disconnectFromReverb } from '../../services/socket.js'
 import pusher from "../../services/pusher.js";
 const Layout = ({ children }) => {
-    const [activePage, setActivePage] = useState('overview');
     const pathname = location.pathname
     useEffect(() => {
 

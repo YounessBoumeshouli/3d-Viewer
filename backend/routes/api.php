@@ -67,11 +67,7 @@ Route::get('/storage-proxy/components/door/{path}', function ($path) {
     exit;
 })->where('path', '.*');
 Route::get('houses', [HouseController::class,'index']);
-Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);
 
-Route::post('/payment/success', [PaypalController::class, 'success']);
-
-Route::post('/payment/cancel', [PaypalController::class, 'cancel']);
 Route::get('/test-fixed-image', function () {
     $filePath = "C:\\Users\\youco\\Desktop\\FilRouge\\FillRouge\\backend\\storage\\app\\public\\components\\door\\door2.jpg";
 
@@ -102,7 +98,11 @@ Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCre
         }
     });
 Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);
 
+    Route::post('/payment/success', [PaypalController::class, 'success']);
+
+    Route::post('/payment/cancel', [PaypalController::class, 'cancel']);
 
 Route::post('follow/{user}',[FollowerController::class,'follow']);
 Route::get('conversations',[ConversationController::class,'index']);

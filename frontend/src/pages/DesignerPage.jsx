@@ -128,7 +128,30 @@ const DesignerPage = () => {
 
                 <div className="mt-20 flex flex-col md:flex-row justify-between items-start md:items-center">
                     <div data-aos="fade-right" data-aos-delay="300">
-                        <h1 className="text-3xl font-bold text-gray-800">{designer.name}</h1>
+                        <div className='flex'>
+
+                            <h1 className="text-3xl font-bold text-gray-800">{designer.name}</h1>
+                            <div className="ml-auto w-[50%] mt-2 ml-3">
+                                <div
+                                    className="flex items-center gap-1 rounded-full bg-indigo-500/10 px-3 py-1"
+                                >
+                                    <svg
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        className="h-4 w-4 text-indigo-500"
+                                    >
+                                        <path
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            stroke-width="2"
+                                            stroke-linejoin="round"
+                                            stroke-linecap="round"
+                                        ></path>
+                                    </svg>
+                                    <span className="text-xs font-medium text-indigo-500">Verified</span>
+                                </div>
+                            </div>
+                        </div>
                         <p className="text-gray-600 mt-1">Architectural Designer</p>
                         <div className="mt-2 flex items-center">
                             <div className="flex">

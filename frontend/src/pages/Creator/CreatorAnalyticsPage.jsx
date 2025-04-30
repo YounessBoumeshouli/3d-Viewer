@@ -2,6 +2,9 @@ import React from 'react';
 import Layout from "../../components/Maker/Layout.jsx";
 
 const CreatorAnalyticsPage = () => {
+    const fetchInfos = async ()=>{
+        const response = await  api.get('MyProfile')
+    }
     return (
         <Layout>
         <div className="bg-white rounded-lg shadow-sm p-6">

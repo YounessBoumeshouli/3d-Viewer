@@ -3,7 +3,7 @@ import Sidebar from '../components/Messages/Sidebar.jsx';
 import ChatArea from '../components/Messages/ChatArea';
 import {X} from "lucide-react";
 import api from '../services/api.js'
-import pusher from "../services/pusher.js";
+    import pusher from "../services/pusher.js";
 
 function Messages({onClose}) {
     const [selectedConversation, setSelectedConversation] = useState({});

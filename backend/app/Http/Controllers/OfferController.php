@@ -14,10 +14,9 @@ class OfferController extends Controller
         $options = [];
 
         foreach (offers::cases() as $offer) {
-            $options[$offer->value] = $offer->name;
+            $options[$offer->value] = $offer->days();
         }
       return $options;
-
     }
     public function index()
     {
