@@ -3,7 +3,6 @@ import { Bell } from 'lucide-react';
 import NavItem from './NavItem';
 import Header from './Header';
 import { Link, useLocation } from "react-router-dom"
-import { connectToReverb, disconnectFromReverb } from '../../services/socket.js'
 import pusher from "../../services/pusher.js";
 const Layout = ({ children }) => {
     const pathname = location.pathname

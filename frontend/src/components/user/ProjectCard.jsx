@@ -1,17 +1,22 @@
 import React from 'react';
-import {Link, Navigate} from 'react-router-dom';
 import api from '../../services/api.js'
+
 import {useNavigate,useLocation} from "react-router-dom";
 const OfferCard = ({offer}) => {
+    const Navigate = useNavigate();
+
     const handlePayment =async (id) =>{
         sessionStorage.setItem('offer_id', id);
-
-        const response = await api.post(`/offers/${id}/paypal`);
+if (id !== 1){
+    const response = await api.post(`/offers/${id}/paypal`);
         if (response.data && response.data.status === 'success') {
             window.location.href = response.data.redirect_url;
         } else {
             throw new Error('Failed to initialize payment');
         }
+}else{
+    Navigate('/payment/success');
+}
     }
 
 

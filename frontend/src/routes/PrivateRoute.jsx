@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import {applyNextWorkerFixture} from "next/dist/experimental/testmode/playwright/next-worker-fixture.js";
 
 const PrivateRoute = ({ children, allowedRoles }) => {
     const token = localStorage.getItem("token");

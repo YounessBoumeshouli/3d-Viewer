@@ -99,6 +99,8 @@ Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCre
     });
 Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);
+    Route::post('/designers', [DesignerController::class, 'store']);
+
 
     Route::post('/payment/success', [PaypalController::class, 'success']);
 

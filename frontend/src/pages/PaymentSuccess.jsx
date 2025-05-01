@@ -14,10 +14,18 @@ const order_id = searchParam.get('order_id');
     const handleSuccess = async ()=>{
         if (processing) return;
         setProcessing(true);
-        const response = await api.post('/payment/success',{
+        let response ;
+        if (!token){
+            console.log('there is no token ');
+         response = await api.post('/designers');
+        }else {
+            console.log('there is a token ');
+
+            response = await api.post('/payment/success',{
             order_id:parseInt(order_id),
             token:token
         });
+        }
         console.log(response.data)
         if (response.data.status === 'success') {
 

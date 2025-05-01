@@ -23,7 +23,6 @@ class PaypalController extends Controller
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $paypalToken = $provider->getAccessToken();
-
         $response = $provider->createOrder([
             "intent" => "CAPTURE",
             "application_context" => [
@@ -41,7 +40,6 @@ class PaypalController extends Controller
                 ]
             ]
         ]);
-
         if (isset($response['id']) && $response['id'] != null) {
 
             session(['offer_id' => $offer->id]);
