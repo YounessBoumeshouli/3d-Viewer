@@ -90,9 +90,11 @@ class PaypalController extends Controller
                     'user_id' => auth()->id(),
                     'bio' => 'new Designer'
                 ]);
+                auth()->user()->role('creator');
+                auth()->user()->save();
             }
 
-            $userOffer = $designer->offer()->create([
+            $userOffer = $designer->useroffer()->create([
                 'offer_id' => $request->order_id,
                 'start_date' => now()->format('Y-m-d'),
                 'end_date' => $endDate->format('Y-m-d')

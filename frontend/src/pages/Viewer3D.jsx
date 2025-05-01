@@ -136,8 +136,7 @@ function Viewer3D() {
     }, [selectedModel])
 
     const handleUpload = async () => {
-        if (models.length <= planInfos.models){
-
+        if (models.length >= planInfos.models){
         }else {
 
         try {

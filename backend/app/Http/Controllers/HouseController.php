@@ -87,12 +87,23 @@ class HouseController extends Controller
             'components.*.path' => 'string|nullable',
             'stage'=>'required|integer'
         ]);
+
+
        $dxfFile = DxfFile::where(['id'=>$validated['dxf_file_id']])->first();
        $size = $dxfFile->size;
+       // check if the size is ok
+        $designer = auth()->designer;
+        $max_size = $designer->useroffer->offer->storage;
+        if ($designer->storage_size + $size > $max_size){
+             return response()->json([
+                "status"=>" house can't be saved you have to Upgrade your plan or delete your previous models",
+                "house_id"=>$house->id
+            ], 201);
+        }
         $dxfFileid = $request->input('dxf_file_id');
         $stage = $request->input('stage');
         if ($validated){
-        $designer_id = auth()->user()->designer->id;
+        $designer_id = $designer->id;
         $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>$designer_id]);
             if ($validated['components']){
                 foreach ($validated['components'] as $component){
