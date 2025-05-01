@@ -38,7 +38,7 @@ class DesignerController extends Controller
     public function profile()
     {
         $designer = auth()->user()->designer;
-        return $designer->load(['offer','user']);
+        return $designer->load(['useroffer.offer','user']);
     }
     public function show($id)
     {

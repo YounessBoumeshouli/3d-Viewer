@@ -31,6 +31,7 @@ const HomePage = () => {
 
     const fetchModels = async () => {
         const response = await api.get('houses');
+        console.log(response.data)
         setModels(response.data);
     };
     useEffect(() => {
@@ -131,7 +132,7 @@ const HomePage = () => {
                                 data-aos-delay={index * 100}
                                 className="transform hover:-translate-y-2 transition duration-300"
                             >
-                                <ModelCard model={model} creator={model.dxf_file.designer} />
+                                <ModelCard model={model} creator={model.designer} />
                             </div>
                         ))}
                     </div>

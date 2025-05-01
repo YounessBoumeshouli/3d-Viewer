@@ -15,7 +15,7 @@ class Designer extends Model
     {
         return $this->hasMany(House::class);
     }
-    public function offer()
+    public function useroffer()
     {
         return $this->hasOne(UserOffer::class);
     }

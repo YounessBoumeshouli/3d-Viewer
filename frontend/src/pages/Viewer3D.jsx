@@ -46,6 +46,7 @@ function Viewer3D() {
     const [selectedModel, setSelectedModel] = useState(null)
     const [savedComponent, setSavedComponents] = useState([])
     const [planInfos, setPlanInfos] = useState({})
+    const [userInfos, setUserInfos] = useState({})
 
     const handleCategoryClick = async (category) => {
         setActiveCategory(category.name)
@@ -63,7 +64,9 @@ function Viewer3D() {
     }
     const fetchCreatorInfo = async () =>{
         const response = await api.get('MyProfile');
-        setPlanInfos(response.data.offer);
+        setPlanInfos(response.data.useroffer.offer);
+        setUserInfos(response.data)
+        console.log(response.data);
     }
 
 
@@ -98,10 +101,13 @@ function Viewer3D() {
                     console.error('No response received');
                 }
                 handleSelectedModel(()=>response.data.house_id)
+                fetchCreatorModels();
+                fetchCreatorInfo();
             } catch (e) {
                 console.error(e)
             }
         }
+
     }
 
     const handleCloseModal = () => {
@@ -109,7 +115,6 @@ function Viewer3D() {
         setFileUploadVisible(false)
     }
 
-    useEffect(() => {
         const fetchCreatorModels = async () => {
             try {
                 const response = await api.get('creator/models')
@@ -119,6 +124,7 @@ function Viewer3D() {
                 console.error(e)
             }
         }
+    useEffect(() => {
         fetchCreatorModels()
         fetchCreatorInfo();
     }, [])
@@ -130,15 +136,19 @@ function Viewer3D() {
     }, [selectedModel])
 
     const handleUpload = async () => {
+        if (models.length <= planInfos.models){
+
+        }else {
+
         try {
-            const response = await api.get('myfiles', {
-                responseType: "json"
-            })
+            const response = await api.get('myfiles')
             setDxfFiles(response.data)
+            console.log(response.data)
             setFileListVisible(true)
             setModelLoaded(true)
         } catch (error) {
             console.error("Error fetching DXF file:", error)
+        }
         }
     }
 
@@ -288,9 +298,10 @@ function Viewer3D() {
                 <div className="mb-8">
                     <div className="flex items-center mb-4">
                         <Layers className="h-5 w-5 text-blue-600 mr-2" />
-                        <h2 className="text-lg font-semibold text-gray-800">Storage</h2>
+                        <h2 className="text-lg font-semibold text-gray-800">Storage : {planInfos.storage} MB available</h2>
                     </div>
-                        <Loader/>
+
+                        <Loader used = {userInfos.storage_size} max = {planInfos.storage} />
                 </div>
 
                 {models.length > 0 && (
@@ -301,7 +312,7 @@ function Viewer3D() {
                                 <h2 className="text-lg font-semibold text-gray-800">My Models</h2>
                             </div>
                             <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-                                {models.length}/3
+                                {models.length}/{planInfos.models}
                             </span>
                         </div>
                         <div className="space-y-2 pl-2 max-h-64 overflow-y-auto pr-2">
@@ -346,7 +357,7 @@ function Viewer3D() {
                                     </div>
 
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto flex-1">
-                                        {dxfFiles.map((dxfFile) => (
+                                        { dxfFiles.map((dxfFile) => (
                                             <div
                                                 key={dxfFile.id}
                                                 className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer border border-gray-200 hover:border-blue-400"

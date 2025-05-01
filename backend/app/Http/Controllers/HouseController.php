@@ -18,7 +18,7 @@ class HouseController extends Controller
     public function index()
     {
         $houses = House::all();
-      return $houses->load(['dxfFile.designer']);
+      return $houses->load(['dxfFile','designer']);
     }
     public function ModelsByCreator(){
        return Designer::with('user','houses')->where('user_id',auth()->id())->first();
@@ -73,8 +73,10 @@ class HouseController extends Controller
         }
 
 
-        $house->load('designer');
-        $house->designer->increment("storage_size", $size);
+        $user = auth()->user();
+        $user->designer->increment("storage_size", $size);
+        $house->increment("size", $size);
+
         return response()->json('House updated successfully.');
     }
     public function store(Request $request)
@@ -90,8 +92,8 @@ class HouseController extends Controller
         $dxfFileid = $request->input('dxf_file_id');
         $stage = $request->input('stage');
         if ($validated){
-
-        $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>auth()->id()]);
+        $designer_id = auth()->user()->designer->id;
+        $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>$designer_id]);
             if ($validated['components']){
                 foreach ($validated['components'] as $component){
                     $component = Component::where('path', $component['path'])->first();

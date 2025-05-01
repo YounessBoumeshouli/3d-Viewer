@@ -1,25 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Loader = () => {
-    return (
-        <StyledWrapper>
-            <div className="progress-container">
-                <div className="progress-bar" />
-                <div className="progress-text">40%</div>
-                <div className="particles">
-                    <div className="particle" />
-                    <div className="particle" />
-                    <div className="particle" />
-                    <div className="particle" />
-                    <div className="particle" />
-                </div>
-            </div>
-        </StyledWrapper>
-    );
-}
-
-const StyledWrapper = styled.div`
+const Loader = ({used,max}) => {
+    const percentage = used * 100 / max ;
+    const StyledWrapper = styled.div`
   .progress-container {
     position: relative;
     width: 60%;
@@ -95,7 +79,7 @@ const StyledWrapper = styled.div`
       width: 0;
     }
     100% {
-      width: 40%;
+      width: ${percentage}%;
     }
   }
 
@@ -146,5 +130,23 @@ const StyledWrapper = styled.div`
     left: 60%;
     animation-delay: 2.5s;
   }`;
+
+    return (
+        <StyledWrapper >
+            <div className="progress-container">
+                <div className="progress-bar" />
+                <div className="progress-text">{percentage}%</div>
+                <div className="particles">
+                    <div className="particle" />
+                    <div className="particle" />
+                    <div className="particle" />
+                    <div className="particle" />
+                    <div className="particle" />
+                </div>
+            </div>
+        </StyledWrapper>
+    );
+}
+
 
 export default Loader;

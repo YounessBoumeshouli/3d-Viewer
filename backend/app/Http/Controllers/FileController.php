@@ -17,8 +17,7 @@ class FileController extends Controller
     }
     public function index()
     {
-        Log::info("Before event dispatch");
-        return DxfFile::all()->where("designer_id",\auth()->id());
+        return DxfFile::where("designer_id",auth()->id())->get();
     }
     public function serve(Request $request, $path = null) {
         \Log::info('File requested: ' . $path);
