@@ -93,32 +93,36 @@ const ModelPage = () => {
     useEffect(() => {
         fetchModel();
     }, []);
-
+    const handleHover = (star)=> {
+        for (let i = star ; i >= 1 ; i --){
+            document.getElementById(`star-${i}`).classList.toggle('text-yellow-400');
+        }
+    }
     return (
         <Layout>
             <div className="bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     {/* Main content area */}
                     <div className="flex flex-col lg:flex-row gap-8">
+
                         {/* Left side - viewer */}
                         <div className="w-full lg:w-2/3">
                             {model && (
                                 <div className="bg-gray-800 rounded-xl shadow-2xl border border-gray-700 relative h-[600px] overflow-hidden">
                                     <House file={model.dxf_file.path} components={model.components} height={model.stage} />
 
-                                    {/* Viewer controls */}
-                                    <div className="absolute top-4 right-4 flex gap-2">
-                                        <button className="bg-gray-900/80 hover:bg-gray-700 transition-colors text-white p-2.5 rounded-full shadow-lg backdrop-blur-sm">
+                                    <div className="absolute top-4  right-4 flex gap-2">
+                                        <button className=" bg-gray-900/80 hover:bg-white transition-colors text-white hover:text-red-900 p-2.5 rounded-full shadow-lg backdrop-blur-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                            </svg>
+                                        </button>
+                                        <button className="bg-gray-900/80 hover:bg-white transition-colors text-white hover:text-black p-2.5 rounded-full shadow-lg backdrop-blur-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
                                             </svg>
                                         </button>
-                                        <button className="bg-gray-900/80 hover:bg-gray-700 transition-colors text-white p-2.5 rounded-full shadow-lg backdrop-blur-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-14-14z" clipRule="evenodd" />
-                                                <path fillRule="evenodd" d="M16.293 2.293a1 1 0 011.414 1.414l-14 14a1 1 0 01-1.414-1.414l14-14z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
+
                                     </div>
 
                                     {/* Bottom controls */}
@@ -146,9 +150,7 @@ const ModelPage = () => {
                             )}
                         </div>
 
-                        {/* Right side - information */}
                         <div className="w-full lg:w-1/3 space-y-6">
-                            {/* Model info panel (conditionally rendered) */}
                             {model && (
                                 <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-lg">
                                     <h2 className="text-2xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
@@ -178,9 +180,12 @@ const ModelPage = () => {
                                         <div className="flex items-center">
                                             <div className="flex">
                                                 {[1, 2, 3, 4, 5].map((star) => (
-                                                    <svg key={star} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                    </svg>
+                                                    <button id={`star-${star}`} onMouseEnter={()=>handleHover(star)} onMouseLeave={()=>handleHover(star)} onClick={()=>handleRating(star)}>
+
+                                                        <svg key={star} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 " viewBox="0 0 20 20" fill="currentColor">
+                                                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                        </svg>
+                                                    </button>
                                                 ))}
                                             </div>
                                             <span className="ml-2 text-gray-300">4.3/5 (120 ratings)</span>
@@ -189,6 +194,7 @@ const ModelPage = () => {
                                         <button className="text-xs bg-blue-600 hover:bg-blue-700 transition-colors py-1 px-3 rounded-full">
                                             Download
                                         </button>
+
                                     </div>
                                 </div>
                             )}
@@ -198,11 +204,7 @@ const ModelPage = () => {
                             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-lg">
                                 <h3 className="text-lg font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Share</h3>
                                 <div className="grid grid-cols-4 gap-2">
-                                    <button className="bg-blue-500 hover:bg-blue-600 transition-colors p-2.5 rounded-lg flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-                                        </svg>
-                                    </button>
+
                                     <button className="bg-blue-600 hover:bg-blue-700 transition-colors p-2.5 rounded-lg flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z" />
@@ -218,6 +220,22 @@ const ModelPage = () => {
                                             <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
                                         </svg>
                                     </button>
+                                    <button
+                                        className="group relative flex items-center font-inherit text-xl bg-blue-600 text-white py-3 px-4 pl-2 border-none rounded-2xl overflow-hidden transition-all duration-200 ease-in-out cursor-pointer hover:scale-100 active:scale-95">
+                                        <div className="group-hover:animate-fly">
+                                            <div className="svg-wrapper">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24"
+                                                     height="24"
+                                                     className="transform transition-transform duration-300 ease-in-out origin-center group-hover:translate-x-5 group-hover:rotate-45 group-hover:scale-110">
+                                                    <path fill="none" d="M0 0h24v24H0z"></path>
+                                                    <path fill="currentColor"
+                                                          d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <span
+                                            className="block ml-1 transition-transform duration-300 ease-in-out text-sm group-hover:translate-x-20">Send</span>
+                                    </button>
                                 </div>
                                 <div className="mt-4 relative">
                                     <input
@@ -226,23 +244,30 @@ const ModelPage = () => {
                                         readOnly
                                         className="bg-gray-700 text-gray-300 rounded-lg px-4 py-2 w-full pr-12 border border-gray-600 focus:border-blue-500 focus:outline-none"
                                     />
-                                    <button className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-300 transition-colors">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                    <button
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-400 hover:text-blue-300 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                                                  d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
                                         </svg>
                                     </button>
+
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Comments section */}
-                    <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-lg mt-8">
+                    <div
+                        className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-lg mt-8">
                         <div className="flex items-center justify-between mb-6">
                             <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Comments</h3>
-                            <div className="bg-gray-700 text-white rounded-lg px-4 py-1.5 flex items-center gap-2 cursor-pointer hover:bg-gray-600 transition-colors">
+                            <div
+                                className="bg-gray-700 text-white rounded-lg px-4 py-1.5 flex items-center gap-2 cursor-pointer hover:bg-gray-600 transition-colors">
                                 <span>Newest First</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
