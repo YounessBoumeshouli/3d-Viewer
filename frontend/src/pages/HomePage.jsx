@@ -9,7 +9,6 @@ import LoginModel from "../components/User/LoginModel.jsx";
 import api from "../services/api.js";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-
 const HomePage = () => {
     const [loginModel, setLoginModel] = useState(false);
     const [designers, setDesigners] = useState([]);
