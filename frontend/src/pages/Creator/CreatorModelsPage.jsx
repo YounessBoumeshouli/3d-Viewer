@@ -11,6 +11,10 @@ const CreatorModelsPage = () => {
         setModels(response.data.houses)
         console.log(response.data)
     }
+    const handleDelete = async (id) =>{
+       const response = await api.delete(`houses/${id}`);
+      await fetchData();
+    }
     useEffect(() => {
         fetchData();
     }, []);
@@ -87,7 +91,7 @@ const CreatorModelsPage = () => {
                 </thead>
                 <tbody>
                 {models.map(model => (
-                    <ModelListItem key={model.id} model={model} />
+                    <ModelListItem key={model.id} model={model} handleDelete = {handleDelete} />
                 ))}
                 </tbody>
             </table>
