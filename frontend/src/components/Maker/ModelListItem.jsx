@@ -1,7 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 
-const ModelListItem = ({ model }) => {
+const ModelListItem = ({ model,handleDelete }) => {
     return (
         <tr className="border-b border-gray-100">
             <td className="py-4">
@@ -31,7 +31,7 @@ const ModelListItem = ({ model }) => {
                 <div className="flex space-x-2">
                     <button className="text-blue-600 hover:text-blue-800">View</button>
                     <button className="text-blue-600 hover:text-blue-800">Edit</button>
-                    <button className="text-red-600 hover:text-red-800">Delete</button>
+                    <button onClick={()=>{handleDelete(model.id)}} className="text-red-600 hover:text-red-800">Delete</button>
                 </div>
             </td>
         </tr>
