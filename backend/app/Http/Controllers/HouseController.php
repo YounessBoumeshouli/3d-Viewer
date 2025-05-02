@@ -29,9 +29,9 @@ class HouseController extends Controller
     public function update(Request $request, House $house)
     {
         $validated = $request->validate([
-            'components' => 'array|min:1',
-            'components.*.path' => 'string|min:1',
-            'stage' => 'required|integer'
+            'components' => 'array|nullable',
+            'components.*.path' => 'string|nullable',
+            'stage'=>'required|integer'
         ]);
 
         $house->update([
@@ -39,7 +39,9 @@ class HouseController extends Controller
         ]);
 
 
-
+// check if the size is ok
+        $designer = auth()->user()->designer;
+        $max_size = $designer->useroffer->offer->storage;
 
         if ($validated['components']){
             $size = 0;
@@ -51,10 +53,16 @@ class HouseController extends Controller
                 if ($component) {
                     $newComponentIds[] = $component->id;
                     if (!in_array($component->id, $currentComponents)) {
+                        $size += $component->size;
+                        if ($designer->storage_size + $size > $max_size){
+                            return response()->json([
+                                "status"=>" Some components can't be saved you have to Upgrade your plan or delete your previous models",
+                            ], 201);
+                        }
                         $house->components()->create([
                             'component_id' => $component->id,
                         ]);
-                        $size += $component->size;
+
                     }
                 }
             }
@@ -92,12 +100,11 @@ class HouseController extends Controller
        $dxfFile = DxfFile::where(['id'=>$validated['dxf_file_id']])->first();
        $size = $dxfFile->size;
        // check if the size is ok
-        $designer = auth()->designer;
+        $designer = auth()->user()->designer;
         $max_size = $designer->useroffer->offer->storage;
         if ($designer->storage_size + $size > $max_size){
              return response()->json([
                 "status"=>" house can't be saved you have to Upgrade your plan or delete your previous models",
-                "house_id"=>$house->id
             ], 201);
         }
         $dxfFileid = $request->input('dxf_file_id');
@@ -109,8 +116,13 @@ class HouseController extends Controller
                 foreach ($validated['components'] as $component){
                     $component = Component::where('path', $component['path'])->first();
                     if ($component){
-                        $house->components()->create(['component_id'=>$component->id]);
                         $size += $component->size;
+                        if ($designer->storage_size + $size > $max_size){
+                            return response()->json([
+                                "status"=>" some components can't be saved you have to Upgrade your plan or delete your previous models",
+                            ], 201);
+                        }
+                        $house->components()->create(['component_id'=>$component->id]);
 
                     }
                 }
