@@ -61,7 +61,7 @@ function Viewer3D() {
     }
     useEffect(() => {
         if (alert != null){
-        setTimeout(()=>setAlert(null),3000)
+        setTimeout(()=>setAlert(null),10000)
         }
     }, [alert]);
     const handleSelectedModel = (id) => {
@@ -91,6 +91,8 @@ function Viewer3D() {
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
                 console.log(response.data)
+                setAlert(response.data.status);
+
             } catch (e) {
                 console.error(e)
             }
