@@ -26,6 +26,11 @@ class HouseController extends Controller
     public function show(House $house){
         return $house->load(['dxfFile.designer','components.component.category']);
     }
+    public function delete(House $house){
+        if ($house && $house->designer->user->id == auth()->user()->id || auth()->user()->role == "admin"){
+            $house->delete();
+        }
+    }
     public function update(Request $request, House $house)
     {
         $validated = $request->validate([

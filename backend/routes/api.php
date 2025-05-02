@@ -123,6 +123,7 @@ Route::get('creator/models',[HouseController::class,'ModelsByCreator']);
 Route::post('houses', [HouseController::class,'store']);
 Route::put('houses/{house}', [HouseController::class,'update']);
 Route::get('houses/{house}', [HouseController::class,'show']);
+Route::delete('houses/{house}', [HouseController::class,'delete']);
 Route::apiResource('house.comments',CommentController::class);
 Route::apiResource('comments.replies',CommentReplyController::class);
 Route::get('user', [JWTAuthController::class, 'getUser']);
