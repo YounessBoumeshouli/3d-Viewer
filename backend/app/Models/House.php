@@ -19,6 +19,14 @@ class House extends Model
     {
       return $this->hasMany(HouseComponent::class);
     }
+    public function ratings()
+    {
+      return $this->hasMany(Rating::class);
+    }
+    public function likes()
+    {
+      return $this->hasMany(Like::class);
+    }
     public function comments()
     {
       return $this->hasMany(Comment::class);

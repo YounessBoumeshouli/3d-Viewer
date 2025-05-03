@@ -14,6 +14,7 @@ use App\Http\Controllers\JWTAuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PaypalController;
+use App\Http\Controllers\RatingController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
@@ -98,6 +99,12 @@ Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCre
         }
     });
 Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::put('models/{house}/rating',[RatingController::class,'store']);
+    Route::get('models/{house}/rating',[RatingController::class,'index']);
+    Route::get('models/{house}/myRate',[RatingController::class,'show']);
+    Route::put('models/{house}/likes',[RatingController::class,'store']);
+    Route::get('models/{house}/likes',[RatingController::class,'index']);
+    Route::get('models/{house}/myReaction',[RatingController::class,'show']);
     Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);
     Route::post('/designers', [DesignerController::class, 'store']);
 
@@ -131,8 +138,5 @@ Route::post('logout', [JWTAuthController::class, 'logout']);
 Route::post('/upload', [FileUploadController::class, 'upload']);
 Route::get('/house/{id}', [FileController::class, 'show']);
 Route::post('/offers', [OfferController::class, 'store']);
-
 Route::get('files/{path}', [FileController::class, 'serve'])->where('path', '.*');
-
-
 });
