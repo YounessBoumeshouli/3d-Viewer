@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect,useRef, useState } from 'react';
 import Layout from '../components/user/Layout';
 import { useParams } from "react-router-dom";
 import api from "../services/api.js";
@@ -9,7 +9,7 @@ const ModelPage = () => {
     const [stars, setStars] = useState(null);
     const [rating, setRating] = useState(null);
     const [likes, setLikes] = useState(null);
-    const [myreaction, setMyReaction] = useState(null);
+    const [myreaction, setMyReaction] = useState(false);
     const [ratingCount, setRatingCount] = useState(null);
     const [replyForm, setReplyForm] = useState(null);
     const [replyFormdata, setReplyFormData] = useState({
@@ -22,6 +22,7 @@ const ModelPage = () => {
         comment: '',
         house_id: id
     });
+    const LikeButton = useRef(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -53,13 +54,23 @@ const ModelPage = () => {
         console.log(response.data)
         setLikes(response.data)
     }
+    const  fetchIsLiked = async ()=>{
+
+        const response = await  api.get(`models/${id}/myReaction`);
+        console.log(response.data)
+        setMyReaction(response.data)
+        await fetchLikes();
+    }
+    useEffect(() => {
+        fetchIsLiked();
+        fetchLikes();
+    }, []);
     const  handlePressLike = async ()=>{
 
         const response = await  api.put(`models/${id}/likes`);
         console.log(response.data)
-        if (response.data.status ==='liked'){
-        setMyReaction(true)
-        }
+        response.data.status ==='liked' ? setMyReaction(true) : setMyReaction(false);
+       await fetchLikes()
     }
     const clearStars =()=>{
         for (let i = 5 ; i >= 1 ; i --){
@@ -137,7 +148,7 @@ const ModelPage = () => {
             console.error("Error fetching comments:", error);
         }
     };
-
+    let likeClassName = " bg-gray-900/80 hover:bg-white transition-colors text-white hover:text-red-900 p-2.5 rounded-full shadow-lg backdrop-blur-sm";
     useEffect(() => {
         fetchComments();
         console.log(comments)
@@ -146,6 +157,20 @@ const ModelPage = () => {
     useEffect(() => {
         fetchModel();
     }, []);
+
+    useEffect(() => {
+            if (LikeButton.current){
+                if (myreaction){
+                    console.log("like");
+                    likeClassName  =  " hover:bg-gray-900/80 bg-white transition-colors hover:text-white text-red-900 p-2.5 rounded-full shadow-lg backdrop-blur-sm";
+                }else {
+                    console.log('none');
+                    likeClassName = "bg-gray-900/80 hover:bg-white transition-colors text-white hover:text-red-900 p-2.5 rounded-full shadow-lg backdrop-blur-sm";
+                }
+                LikeButton.current.className = likeClassName;
+            }
+        }, [myreaction]);
+
     const handleHover = (star)=> {
         for (let i = star ; i >= 1 ; i --){
             document.getElementById(`star-${i}`).classList.toggle('text-yellow-400');
@@ -172,7 +197,10 @@ const ModelPage = () => {
                                     <House file={model.dxf_file.path} components={model.components} height={model.stage} />
 
                                     <div className="absolute top-4  right-4 flex gap-2">
-                                        <button className=" bg-gray-900/80 hover:bg-white transition-colors text-white hover:text-red-900 p-2.5 rounded-full shadow-lg backdrop-blur-sm">
+                                        <button ref={LikeButton}
+                                                className={likeClassName}
+                                                onClick={()=>handlePressLike()}
+                                        >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                             </svg>
@@ -185,7 +213,6 @@ const ModelPage = () => {
 
                                     </div>
 
-                                    {/* Bottom controls */}
                                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 to-transparent p-4 flex justify-center">
                                         <div className="flex space-x-4">
                                             <button className="bg-blue-600 hover:bg-blue-700 transition-colors rounded-full p-3 shadow-lg">
@@ -235,6 +262,8 @@ const ModelPage = () => {
                                     <p className="text-gray-300 mb-4">
                                         A modern house design featuring minimalist architecture with open spaces and natural light integration.
                                     </p>
+                                    <p className="">{likes} Likes</p>
+
 
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center">
@@ -255,7 +284,7 @@ const ModelPage = () => {
                                                 ))}
                                             </div>
                                             {ratingCount !== 0 ? (<span
-                                                className="ml-2 text-gray-300">{rating}/5 ({ratingCount} ratings)</span>):(
+                                                className="ml-2 text-gray-300">{rating/ratingCount}/5 ({ratingCount} ratings)</span>):(
                                                 <span
                                                     className="ml-2 text-gray-300"> (there in no rating yet)</span>
                                             )}

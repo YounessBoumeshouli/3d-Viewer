@@ -10,7 +10,7 @@ class LikeController extends Controller
     public function store( House $house)
     {
 
-        $like =  $house->ratings()->where('user_id',auth()->id())->first();
+        $like =  $house->likes()->where('user_id',auth()->id())->first();
         if (!$like){
             $house->likes()->create([
                 'user_id'=>auth()->id(),
@@ -18,15 +18,20 @@ class LikeController extends Controller
             return response()->json(['status'=>'liked']);
         }
         $like->delete();
-
-        $like->save();
         return response()->json(['status'=>'the user remove the like ']);
 
 
     }
     public function show(House $house)
     {
-        return  $house->ratings()->where('user_id',auth()->id())->first();
+
+        $reaction =  $house->likes()->where('user_id',auth()->id())->first();
+        if ($reaction){
+            return response()->json(['status'=>true]);
+        }else {
+            return response()->json(['status'=>false]);
+        }
+
 
     }
     public function index(House $house)

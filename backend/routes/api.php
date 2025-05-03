@@ -11,6 +11,7 @@ use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\HouseController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\JWTAuthController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PaypalController;
@@ -102,9 +103,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::put('models/{house}/rating',[RatingController::class,'store']);
     Route::get('models/{house}/rating',[RatingController::class,'index']);
     Route::get('models/{house}/myRate',[RatingController::class,'show']);
-    Route::put('models/{house}/likes',[RatingController::class,'store']);
-    Route::get('models/{house}/likes',[RatingController::class,'index']);
-    Route::get('models/{house}/myReaction',[RatingController::class,'show']);
+    Route::put('models/{house}/likes',[LikeController::class,'store']);
+    Route::get('models/{house}/likes',[LikeController::class,'index']);
+    Route::get('models/{house}/myReaction',[LikeController::class,'show']);
     Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);
     Route::post('/designers', [DesignerController::class, 'store']);
 
