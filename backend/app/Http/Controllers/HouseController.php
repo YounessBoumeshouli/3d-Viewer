@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class HouseController extends Controller
@@ -102,7 +103,7 @@ class HouseController extends Controller
     }
     public function store(Request $request)
     {
-       $validated =  $request->validate([
+        $validated = $request->validate([
             "dxf_file_id"=>'required|integer',
             'components' => 'array|nullable',
             'components.*.path' => 'string|nullable',
@@ -110,27 +111,42 @@ class HouseController extends Controller
         ]);
 
 
-       $dxfFile = DxfFile::where(['id'=>$validated['dxf_file_id']])->first();
-       $size = $dxfFile->size;
-       // check if the size is ok
+        $dxfFile = DxfFile::where(['id'=>$validated['dxf_file_id']])->first();
+        $size = $dxfFile->size;
         $designer = auth()->user()->designer;
+        $thumbnail = $request->input('thumbnail');
+        $thumbnail = str_replace('data:image/png;base64,', '', $thumbnail);
+        $thumbnail = base64_decode($thumbnail);
+        $filename = 'thumbnails/screenshot_' . time() . '.png';
+
+        Storage::disk('public')->put($filename, $thumbnail);
+
+
         $max_size = $designer->useroffer->offer->storage;
         if ($designer->storage_size + $size > $max_size){
-             return response()->json([
+            return response()->json([
                 "status"=>" house can't be saved you have to Upgrade your plan or delete your previous models",
             ], 201);
         }
         $dxfFileid = $request->input('dxf_file_id');
         $stage = $request->input('stage');
         if ($validated){
-        $designer_id = $designer->id;
-        $tokens  = DB::table('houses')->select('token');
+            $designer_id = $designer->id;
+            $tokens = DB::table('houses')->select('token');
 
-        $token  = $this->createToken($tokens);
-            $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>$designer_id,"token"=>$token]);
+            $token = $this->createToken($tokens);
+
+            $house = new House();
+            $house->dxf_file_id = $dxfFileid;
+            $house->stage = $stage;
+            $house->designer_id = $designer_id;
+            $house->token = $token;
+            $house->thumbnail = $filename;
+            $house->save();
+            $house->load('components');
             if ($validated['components']){
-                foreach ($validated['components'] as $component){
-                    $component = Component::where('path', $component['path'])->first();
+                foreach ($validated['components'] as $componentData){
+                    $component = Component::where('path', $componentData['path'])->first();
                     if ($component){
                         $size += $component->size;
                         if ($designer->storage_size + $size > $max_size){
@@ -139,7 +155,6 @@ class HouseController extends Controller
                             ], 201);
                         }
                         $house->components()->create(['component_id'=>$component->id]);
-
                     }
                 }
             }
@@ -150,12 +165,10 @@ class HouseController extends Controller
 
         return response()->json([
             "status"=>'house saved successfully',
-            "house_id"=>$house->id
+            "house_id"=>$house->id,
+            "house"=>$house->load('components')
         ], 201);
-
-
     }
-
 
     public function createToken($tokens){
             $token =  Str::random(32);
