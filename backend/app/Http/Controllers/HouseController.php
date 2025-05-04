@@ -11,7 +11,9 @@ use App\Models\House;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class HouseController extends Controller
 {
@@ -19,6 +21,12 @@ class HouseController extends Controller
     {
         $houses = House::all();
       return $houses->load(['dxfFile','designer']);
+    }
+    public function houseId($house)
+    {
+        $house =  House::where('token',$house)->first();
+        return $house->id;
+
     }
     public function ModelsByCreator(){
        return Designer::with('user','houses')->where('user_id',auth()->id())->first();
@@ -116,7 +124,10 @@ class HouseController extends Controller
         $stage = $request->input('stage');
         if ($validated){
         $designer_id = $designer->id;
-        $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>$designer_id]);
+        $tokens  = DB::table('houses')->select('token');
+
+        $token  = $this->createToken($tokens);
+            $house = House::create(["dxf_file_id"=>$dxfFileid,'stage'=>$stage,"designer_id"=>$designer_id,"token"=>$token]);
             if ($validated['components']){
                 foreach ($validated['components'] as $component){
                     $component = Component::where('path', $component['path'])->first();
@@ -146,4 +157,11 @@ class HouseController extends Controller
     }
 
 
+    public function createToken($tokens){
+            $token =  Str::random(32);
+            if (in_array($token, (array)$tokens)){
+            return $this->createToken($tokens);
+            }
+            return $token;
+}
 }

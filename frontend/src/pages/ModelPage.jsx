@@ -6,6 +6,7 @@ import House from "../pages/house.jsx";
 
 const ModelPage = () => {
     const [model, setModel] = useState(null);
+    const [modelId, setModelId] = useState(null);
     const [stars, setStars] = useState(null);
     const [rating, setRating] = useState(null);
     const [likes, setLikes] = useState(null);
@@ -20,9 +21,24 @@ const ModelPage = () => {
     const { id } = useParams();
     const [formData, setFromData] = useState({
         comment: '',
-        house_id: id
+        house_id: ''
     });
     const LikeButton = useRef(null);
+    const fetchHouseId =  async () =>{
+        const response = await  api.get(`models/${id}/houseId`);
+        console.log(id)
+        console.log(response.data)
+        setModelId(response.data);
+        setFromData(prev=>({
+            ...prev,
+            house_id: modelId
+        }));
+
+    }
+    useEffect(() => {
+        console.log("sa");
+        fetchHouseId();
+    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -33,15 +49,16 @@ const ModelPage = () => {
     };
     const  fetchUserRating = async ()=>{
 
-        const response = await  api.get(`models/${id}/myRate`);
+        const response = await  api.get(`models/${modelId}/myRate`);
         console.log(response.data)
         setStars(response.data.stars)
         fillStars(stars);
     }
 
     const  fetchRating = async ()=>{
+        console.log("response.data")
 
-        const response = await  api.get(`models/${id}/rating`);
+        const response = await  api.get(`models/${modelId}/rating`);
         console.log(response.data)
         setRating(response.data.sum)
         setRatingCount(response.data.count)
@@ -50,24 +67,26 @@ const ModelPage = () => {
     }
     const  fetchLikes = async ()=>{
 
-        const response = await  api.get(`models/${id}/likes`);
+        const response = await  api.get(`models/${modelId}/likes`);
         console.log(response.data)
         setLikes(response.data)
     }
     const  fetchIsLiked = async ()=>{
 
-        const response = await  api.get(`models/${id}/myReaction`);
+        const response = await  api.get(`models/${modelId}/myReaction`);
         console.log(response.data)
         setMyReaction(response.data)
-        await fetchLikes();
+        await fetchLikes;
     }
     useEffect(() => {
-        fetchIsLiked();
-        fetchLikes();
-    }, []);
+        if (modelId){
+            fetchIsLiked;
+            fetchLikes;
+        }
+    }, [modelId]);
     const  handlePressLike = async ()=>{
 
-        const response = await  api.put(`models/${id}/likes`);
+        const response = await  api.put(`models/${modelId}/likes`);
         console.log(response.data)
         response.data.status ==='liked' ? setMyReaction(true) : setMyReaction(false);
        await fetchLikes()
@@ -85,11 +104,14 @@ const ModelPage = () => {
         }
     }
     useEffect(() => {
-        fetchRating();
-        fetchUserRating();
+        if (modelId){
+            console.log('fetch rating')
+            fetchRating();
+            fetchUserRating();
+        }
         console.log(ratingCount)
 
-    }, [stars]);
+    }, [stars,modelId]);
     const handleReplyChange = (e) => {
         const { name, value } = e.target;
         setReplyFormData(prev => ({
@@ -104,13 +126,14 @@ const ModelPage = () => {
             console.error('you should fill the comment field');
         } else {
             try {
-                const response = await api.post(`house/${id}/comments`, formData, {
+                const response = await api.post(`house/${modelId}/comments`, formData, {
                     headers: { "Content-Type": "multipart/form-data" }
                 });
                 setComment(response.data);
             } catch (e) {
                 console.error("error while posting data", e);
             }
+            await fetchComments();
         }
     };
 
@@ -127,12 +150,13 @@ const ModelPage = () => {
             } catch (e) {
                 console.error("error while posting data", e);
             }
+            await fetchComments();
         }
     };
 
     const fetchModel = async () => {
         try {
-            const response = await api.get(`houses/${id}`);
+            const response = await api.get(`houses/${modelId}`);
             setModel(response.data);
         } catch(error) {
             console.error("Error fetching model:", error);
@@ -141,7 +165,7 @@ const ModelPage = () => {
 
     const fetchComments = async () => {
         try {
-            const response = await api.get(`house/${id}/comments`);
+            const response = await api.get(`house/${modelId}/comments`);
             setComments(response.data.comments);
             console.log(response.data.comments)
         } catch(error) {
@@ -150,13 +174,17 @@ const ModelPage = () => {
     };
     let likeClassName = " bg-gray-900/80 hover:bg-white transition-colors text-white hover:text-red-900 p-2.5 rounded-full shadow-lg backdrop-blur-sm";
     useEffect(() => {
-        fetchComments();
+        if (modelId){
+            fetchComments()
+        }
         console.log(comments)
-    }, [comment]);
+    }, [comment,modelId]);
 
     useEffect(() => {
-        fetchModel();
-    }, []);
+        if (modelId){
+            fetchModel();
+        }
+    }, [modelId]);
 
     useEffect(() => {
             if (LikeButton.current){
@@ -177,7 +205,7 @@ const ModelPage = () => {
         }
     }
     const handleRating = async (star)=> {
-       const response = await  api.put(`models/${id}/rating`,{
+       const response = await  api.put(`models/${modelId}/rating`,{
             stars : star
         })
         fetchUserRating();

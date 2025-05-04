@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const ModelCard = (props) => {
     console.log(props)
-    const id = props.model.id
+    const id = props.model.token
     const title = props.title
     const image = props.image
     const creator = props.creator

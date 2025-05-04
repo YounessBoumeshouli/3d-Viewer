@@ -104,6 +104,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::get('models/{house}/rating',[RatingController::class,'index']);
     Route::get('models/{house}/myRate',[RatingController::class,'show']);
     Route::put('models/{house}/likes',[LikeController::class,'store']);
+    Route::get('models/{house}/houseId',[HouseController::class,'houseId']);
     Route::get('models/{house}/likes',[LikeController::class,'index']);
     Route::get('models/{house}/myReaction',[LikeController::class,'show']);
     Route::post('/offers/{id}/paypal', [PaypalController::class, 'paypal']);

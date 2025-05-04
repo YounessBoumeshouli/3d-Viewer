@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class House extends Model
 {
     protected $guarded = [];
+    public $incrementing = false;
+    protected $keyType = 'string';
     public function dxfFile()
     {
       return $this->belongsTo(DxfFile::class);
@@ -17,7 +19,7 @@ class House extends Model
     }
     public function components()
     {
-      return $this->hasMany(HouseComponent::class);
+      return $this->hasMany(HouseComponent::class,'house_id');
     }
     public function ratings()
     {

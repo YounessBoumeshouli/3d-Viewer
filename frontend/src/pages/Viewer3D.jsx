@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState,useRef } from "react"
 import {
     Upload,
     Search,
@@ -20,6 +20,8 @@ import {
     Settings,
     Home
 } from "lucide-react"
+import html2canvas from 'html2canvas';
+
 import { setItem, getItem } from '../services/localstorage.js';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
@@ -64,6 +66,15 @@ function Viewer3D() {
         setTimeout(()=>setAlert(null),10000)
         }
     }, [alert]);
+    const ScreenshotComponent = () => {
+        const componentRef = useRef();
+
+        const takeScreenshot = () => {
+            html2canvas(componentRef.current).then((canvas) => {
+                const imgData = canvas.toDataURL('image/png');
+                console.log(imgData);
+            });
+        };
     const handleSelectedModel = (id) => {
         setSelectedModel(id)
     }
@@ -91,7 +102,7 @@ function Viewer3D() {
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
                 console.log(response.data)
-                setAlert(response.data.status);
+                setAlert(response.data.status.message);
 
             } catch (e) {
                 console.error(e)
@@ -116,6 +127,7 @@ function Viewer3D() {
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
             } catch (e) {
+                console.error(e.response.data)
             }
         }
 
