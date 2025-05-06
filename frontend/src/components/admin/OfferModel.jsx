@@ -10,7 +10,7 @@ import api from "./../../services/api.js";
 
 function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
     const [imagePreview, setImagePreview] = useState(null);
-    const [offerData, setOfferData] = useState({title : '', description :'',price : null});
+    const [offerData, setOfferData] = useState({type : '',title : '', description :'',price : null});
     const [formData,setFormData] = useState(new FormData());
    const fetchOfferDetails = async ()=>{
        console.log("fetchOfferDetails is working ")
@@ -24,10 +24,11 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
             title: data.title,
             description: data.description,
             price: data.price,
+            type: offer.string,
         })
     }
     useEffect(() => {
-        console.log(offer.string)
+        console.log(offer)
         fetchOfferDetails()
     }, [offer]);
     const handleSubmit = async (e) => {
@@ -48,7 +49,7 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
         newFormData.append('description',formData.description);
         try {
 
-            const request = await api.post('offers',newFormData,{
+            const request = await api.post('offers',offerData,{
             })
             console.log(request.data);
         }catch (e) {
@@ -79,13 +80,14 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
                 [name]: value
             }));
         }
+        console.log(formData);
+        console.log(offerData)
     }
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
                 <div className="p-6">
-                    {/* Header */}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold flex items-center">
                             {title}

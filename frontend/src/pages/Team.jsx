@@ -4,8 +4,23 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input.jsx"
 import { ChevronRight, Search } from "lucide-react"
+import {useEffect, useState} from "react";
+import api from "../services/api.js";
 
 function Team() {
+    const [creators,setCreators] = useState([]);
+    const [topCreators, setTopcreators] = useState([]);
+    const TopCreators = (creators)=>{
+
+    }
+    const fetchCreators =async ()=>{
+            const response = await api.get('designers');
+            setCreators(response.data)
+        console.log(response.data)
+    }
+    useEffect(() => {
+        fetchCreators();
+    }, []);
     return (
         <Layout>
             <div className="grid grid-cols-1 gap-6">
@@ -16,12 +31,7 @@ function Team() {
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            {[
-                                { name: "Leo Resin", role: "Team Leader", avatar: "LR" },
-                                { name: "Tarik Hamid", role: "UX/UI Designer", avatar: "TH" },
-                                { name: "Aliza Birdie", role: "Developer", avatar: "AB" },
-                                { name: "Mehrin Saberim", role: "QA Engineer", avatar: "MS" },
-                            ].map((creator, i) => (
+                            {creators && creators.map((creator, i) => (
                                 <div key={i} className="flex flex-col items-center text-center">
                                     <Avatar className="h-20 w-20 mb-3 border-2 border-white">
                                         <AvatarFallback className="bg-[#3e435d] text-lg">{creator.avatar}</AvatarFallback>
@@ -47,47 +57,16 @@ function Team() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
-                            {[
-                                {
-                                    name: "Tanjimul Alam",
-                                    action: "Completed Task: Update of Project Alfa",
-                                    time: "11 min ago",
-                                    avatar: "TA",
-                                },
-                                {
-                                    name: "Sarah Rahman",
-                                    action: "Updated PR for Support: Update of Project X",
-                                    time: "53 min ago",
-                                    avatar: "SR",
-                                },
-                                {
-                                    name: "Anika Tabassum",
-                                    action: "Completed Task: Update of Project Remax",
-                                    time: "1 hours ago",
-                                    avatar: "AT",
-                                },
-                                {
-                                    name: "Raiyan Khan",
-                                    action: "QA Test Done: Update of Project Sonic",
-                                    time: "2 min ago",
-                                    avatar: "RK",
-                                },
-                                {
-                                    name: "Salma Hayek",
-                                    action: "Request for System Support: Update of Project Alfa",
-                                    time: "11 min ago",
-                                    avatar: "SH",
-                                },
-                            ].map((member, i) => (
+                            { creators && creators.map((member, i) => (
                                 <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-[#1f2124]">
                                     <div className="flex items-center gap-3">
                                         <Avatar>
                                             <AvatarFallback className="bg-[#3e435d]">{member.avatar}</AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <p className="font-medium">{member.name}</p>
-                                            <p className="text-sm text-gray-400">{member.action}</p>
-                                            <p className="text-xs text-gray-500">{member.time}</p>
+                                            <p className="font-medium">{member.user.name}</p>
+                                            <p className="text-sm text-gray-400">{member.user.created_at}</p>
+                                            <p className="text-xs text-gray-500">{member.user.updated_at}</p>
                                         </div>
                                     </div>
                                     <ChevronRight className="h-5 w-5 text-gray-400" />

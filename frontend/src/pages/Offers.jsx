@@ -15,7 +15,7 @@ function Offers() {
     const  [OffersCategories , setOffersCategories] = useState({});
     const  [offerModel , setOfferModel] = useState({string : '',integer:null});
 
-    const handleClick = (numberDuration, stringDuration) => {
+    const handleClick = (stringDuration,numberDuration) => {
         setOfferModel({
             integer: numberDuration,
             string: stringDuration

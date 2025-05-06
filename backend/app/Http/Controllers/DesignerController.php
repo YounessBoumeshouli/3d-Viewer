@@ -6,6 +6,7 @@ use App\Enums\offers;
 use App\Models\Designer;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DesignerController extends Controller
 {
@@ -28,7 +29,13 @@ class DesignerController extends Controller
     }
     public function index()
     {
-        return Designer::with('socialLinks','user')->get();
+        return Designer::with(['socialLinks', 'user', 'houses.ratings'])
+            ->leftJoin('houses', 'houses.designer_id', '=', 'designers.id')
+            ->leftJoin('ratings', 'ratings.house_id', '=', 'houses.id')
+            ->select('designers.*', DB::raw('AVG(ratings.stars) as avg_rating'))
+            ->groupBy('designers.id')
+            ->orderByDesc('avg_rating')
+            ->get();
 
     }
     public function modelsByCreator(Designer $designer)
