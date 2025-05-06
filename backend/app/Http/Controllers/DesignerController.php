@@ -29,12 +29,13 @@ class DesignerController extends Controller
     }
     public function index()
     {
-        return Designer::with(['socialLinks', 'user', 'houses.ratings'])
+        return Designer::with(['socialLinks', 'user', 'houses.ratings','useroffer.offer'])
+            ->leftJoin('user_offers', 'user_offers.designer_id', '=', 'designers.id')
             ->leftJoin('houses', 'houses.designer_id', '=', 'designers.id')
             ->leftJoin('ratings', 'ratings.house_id', '=', 'houses.id')
             ->select('designers.*', DB::raw('AVG(ratings.stars) as avg_rating'))
             ->groupBy('designers.id')
-            ->orderByDesc('avg_rating')
+            ->orderBy('avg_rating')
             ->get();
 
     }
