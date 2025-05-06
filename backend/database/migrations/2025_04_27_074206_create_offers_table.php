@@ -23,8 +23,8 @@ return new class extends Migration
         });
         Schema::create('user_offers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('offer_id');
-            $table->foreignId('designer_id');
+            $table->foreignId('offer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('designer_id')->constrained()->onDelete('cascade');
             $table->timestamp('start_date');
             $table->timestamp('end_date');
             $table->enum('paymentStatus',['none','paid'])->default('none');

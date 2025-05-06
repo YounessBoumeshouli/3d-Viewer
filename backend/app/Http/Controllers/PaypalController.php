@@ -85,6 +85,8 @@ class PaypalController extends Controller
         if (isset($response['status']) && $response['status'] === 'COMPLETED') {
             $endDate = now()->addDays($offerEnum->days());
             $designer = auth()->user()->designer;
+            auth()->user()->role = "creator";
+            auth()->user()->save();
             if (!$designer) {
                 $designer = auth()->user()->designer()->create([
                     'user_id' => auth()->id(),

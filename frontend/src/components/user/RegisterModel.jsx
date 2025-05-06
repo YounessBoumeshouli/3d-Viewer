@@ -3,27 +3,25 @@ import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {useEffect,useState} from "react";
 import api from "./../../services/api.js";
-import RegisterModel from "../user/RegisterModel.jsx";
+import LoginModel from "../user/LoginModel.jsx";
 
 
 
-function LoginModel({ title = 'hello', onClose }) {
+function RegisterModel({ title = 'Register', onClose }) {
     const [formData,setFormData] = useState({
+        name:'',
         email:'',
         password:''
     })
-    const closeRegisterModel = () => {
-        setShowRegisterModel(false);
-
-    };
-    const [showRegisterModel,setShowRegisterModel] = useState(false);
+    const [loginModel,setLoginModel] = useState(false)
     const handleSubmit = async (e) =>{
         e.preventDefault();
         if (!formData){
             console.error("You should fill are the fields");
         }
         try {
-            const response =  await  api.post('login',formData,{
+            console.log(formData)
+            const response =  await  api.post('register',formData,{
                 headers : {"Content-Type": "multipart/form-data" }
             })
             console.log( response.data)
@@ -42,8 +40,8 @@ function LoginModel({ title = 'hello', onClose }) {
         }))
         console.log(formData);
     }
-    if (showRegisterModel){
-        return <RegisterModel onClose={closeRegisterModel}/>
+    if (loginModel){
+        return <LoginModel/>
     }
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -59,16 +57,28 @@ function LoginModel({ title = 'hello', onClose }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
-                        {/* Left Side (Image or Illustration) */}
                         <div className="hidden md:flex items-center justify-center bg-gray-100 rounded-lg">
-                            <img src="/login-illustration.svg" alt="Login" className="w-3/4 h-auto" />
+                            <img src="/register-illustration.svg" alt="Register" className="w-3/4 h-auto" />
                         </div>
 
-                        {/* Right Side (Login Form) */}
                         <div className="flex flex-col justify-center">
                             <form className="space-y-4"
                                   onSubmit={handleSubmit}
                             >
+                                <div>
+                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                                        Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name='name'
+                                        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
+                                        placeholder="You name here"
+                                        onChange={handleChange}
+
+                                    />
+                                </div>
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                                         Email
@@ -104,7 +114,7 @@ function LoginModel({ title = 'hello', onClose }) {
                                         <span>Remember me</span>
                                     </label>
                                     <label className="flex items-center space-x-2 text-sm text-gray-600">
-                                        <span className="text-sm text-blue-600 hover:underline" onClick={()=>setShowRegisterModel(true)}>I don't have an account</span>
+                                        <span className="text-sm text-blue-600 hover:underline" onClick={()=>setLoginModel(true)}>I already have an account</span>
 
                                     </label>
                                     <a href="#" className="text-sm text-blue-600 hover:underline">
@@ -129,5 +139,5 @@ function LoginModel({ title = 'hello', onClose }) {
     )
 }
 
-export default LoginModel
+export default RegisterModel
 

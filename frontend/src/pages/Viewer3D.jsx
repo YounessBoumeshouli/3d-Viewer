@@ -1,36 +1,30 @@
 "use client"
 
-import { useEffect, useState,useRef } from "react"
+import {useEffect, useRef, useState} from "react"
 import {
-    Upload,
-    Search,
-    RotateCw,
-    RotateCcw,
-    Move,
-    Square,
-    Circle,
-    Dot,
-    Plus,
-    Minus,
-    FileIcon,
     ChevronLeft,
     ChevronRight,
-    Save,
+    FileIcon,
+    Home,
     Layers,
+    Minus,
+    Move,
+    Plus,
+    RotateCcw,
+    RotateCw,
+    Save,
+    Search,
     Settings,
-    Home
+    Upload
 } from "lucide-react"
-import html2canvas from 'html2canvas';
-
-import { setItem, getItem } from '../services/localstorage.js';
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button"
+import {Button} from "@/components/ui/button"
 import ComponentModal from "../components/Maker/ComponentModel.jsx"
 import House from "../pages/house.jsx"
-import { DxfParser } from "dxf-parser"
 import api from "../services/api.js"
 import FileUploadModal from "../components/Maker/FileUploadModal.jsx"
 import Loader from '../components/Maker/Loader.jsx'
+import LoadingIndicator from "../components/LoadingIndicator.jsx";
+
 function Viewer3D() {
     const [height, setHeight] = useState(1)
     const [rotation, setRotation] = useState(0)
@@ -50,6 +44,14 @@ function Viewer3D() {
     const [planInfos, setPlanInfos] = useState({})
     const [userInfos, setUserInfos] = useState({})
     const [alert, setAlert] = useState(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [screenshotDescription, setScreenshotDescription] = useState("")
+    const [canvasReady, setCanvasReady] = useState(false)
+    const [isRendererReady, setIsRendererReady] = useState(false)
+
+    const componentRef = useRef();
+    const sceneRef = useRef(null);
+    const houseRef = useRef();
 
     const handleCategoryClick = async (category) => {
         setActiveCategory(category.name)
@@ -61,92 +63,162 @@ function Viewer3D() {
             console.error("Error selecting item:", error)
         }
     }
+
     useEffect(() => {
         if (alert != null){
-        setTimeout(()=>setAlert(null),10000)
+            setTimeout(() => setAlert(null), 10000)
         }
     }, [alert]);
-    const ScreenshotComponent = () => {
-        const componentRef = useRef();
 
-        const takeScreenshot = () => {
-            html2canvas(componentRef.current).then((canvas) => {
-                const imgData = canvas.toDataURL('image/png');
-                console.log(imgData);
-            });
-        };
+
     const handleSelectedModel = (id) => {
         setSelectedModel(id)
     }
-    const fetchCreatorInfo = async () =>{
+
+    const fetchCreatorInfo = async () => {
         const response = await api.get('MyProfile');
         setPlanInfos(response.data.useroffer.offer);
         setUserInfos(response.data)
         console.log(response.data);
     }
 
+    useEffect(() => {
+        if (selectedFile && sceneRef.current) {
+            const updateScene = () => {
+                if (sceneRef.current.updateScene) {
+                    sceneRef.current.updateScene();
+                }
+            };
+            updateScene();
+        }
+    }, [selectedFile, height, savedComponent]);
+
+    const handleCanvasReady = () => {
+        setCanvasReady(true);
+        setModelLoaded(true);
+        setIsRendererReady(true);
+    };
+    const getCanvas = () => {
+        if (!componentRef.current) return null;
+
+        return componentRef.current.querySelector('.threejs-canvas') ||
+            componentRef.current.querySelector('canvas');
+    };
+
+    const takeScreenshot = async () => {
+        try {
+            const renderer = houseRef.current?.getRenderer();
+            const scene = houseRef.current?.getScene();
+            const camera = houseRef.current?.getCamera();
+
+            if (!renderer || !scene || !camera) {
+                console.error("Renderer, scene, or camera not available");
+                return null;
+            }
+
+            renderer.render(scene, camera);
+
+            const canvas = renderer.domElement;
+            if (!canvas || typeof canvas.toDataURL !== 'function') {
+                console.error("Invalid canvas element");
+                return null;
+            }
+
+            return canvas.toDataURL('image/png');
+        } catch (error) {
+            console.error("Screenshot error:", error);
+            return null;
+        }
+    };
+    useEffect(() => {
+        if (houseRef.current) {
+            houseRef.current.getCanvas = getCanvas;
+        }
+    }, [houseRef.current, canvasReady]);
 
     const handleSaveModel = async () => {
-        const components = categories.filter(category=>localStorage.getItem(category.name) != null).map((category) => ({
-            path: localStorage.getItem(category.name)
-        }))
+        if (!houseRef.current || !isRendererReady) {
+            setAlert("Please wait while the model loads completely");
+            return;
+        }
 
-        if (isExistingModel) {
+        setIsLoading(true);
+        let imgData = null;
 
-            try {
-                console.log(components)
+        try {
+            // Attempt to take screenshot with retries
+            let retries = 0;
+            while (retries < 3 && !imgData) {
+                imgData = await takeScreenshot();
+                if (!imgData) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    retries++;
+                }
+            }
+
+            if (!imgData) {
+                setAlert("Proceeding without preview image");
+            }
+
+            const components = categories
+                .filter(category => localStorage.getItem(category.name) != null)
+                .map((category) => ({
+                    path: localStorage.getItem(category.name)
+                }));
+
+            if (isExistingModel) {
+                setScreenshotDescription("Updating existing model...");
                 const response = await api.put(`houses/${selectedModel}`, {
                     "components": components,
-                    "stage": height
-                })
+                    "stage": height,
+                    "thumbnail": imgData
+                });
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
-                console.log(response.data)
                 setAlert(response.data.status.message);
-
-            } catch (e) {
-                console.error(e)
-            }
-        } else {
-            try {
+            } else {
+                setScreenshotDescription("Saving new model...");
                 const dataToSend = components.length > 0 ? components : null;
 
                 const response = await api.post('houses', {
                     "dxf_file_id": selectedFile.id,
                     "components": dataToSend,
-                    "stage": height
-                })
-                if (response) {
-                    console.log(response.data);
-                    setAlert(response.data.status);
+                    "stage": height,
+                    "thumbnail": imgData
+                });
 
+                if (response) {
+                    setAlert(response.data.status);
+                    handleSelectedModel(response.data.house_id);
                 } else {
-                    console.error('No response received');
+                    setAlert("Error: No response received from server");
                 }
-                handleSelectedModel(()=>response.data.house_id)
+
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
-            } catch (e) {
-                console.error(e.response.data)
             }
+        } catch (e) {
+            setAlert("Error saving model: ");
+        } finally {
+            setIsLoading(false);
         }
-
-    }
+    };
 
     const handleCloseModal = () => {
         setShowModal(false)
         setFileUploadVisible(false)
     }
 
-        const fetchCreatorModels = async () => {
-            try {
-                const response = await api.get('creator/models')
-                setModels(response.data.houses)
-                console.log(response.data.houses)
-            } catch (e) {
-                console.error(e)
-            }
+    const fetchCreatorModels = async () => {
+        try {
+            const response = await api.get('creator/models')
+            setModels(response.data.houses)
+            console.log(response.data.houses)
+        } catch (e) {
+            console.error(e)
         }
+    }
+
     useEffect(() => {
         fetchCreatorModels()
         fetchCreatorInfo();
@@ -159,18 +231,19 @@ function Viewer3D() {
     }, [selectedModel])
 
     const handleUpload = async () => {
-        if (models.length >= planInfos.models){
-        }else {
-
-        try {
-            const response = await api.get('myfiles')
-            setDxfFiles(response.data)
-            console.log(response.data)
-            setFileListVisible(true)
-            setModelLoaded(true)
-        } catch (error) {
-            console.error("Error fetching DXF file:", error)
-        }
+        if (models.length >= planInfos.models) {
+            setAlert("You have reached your model limit. Please upgrade your plan or delete existing models.");
+        } else {
+            try {
+                const response = await api.get('myfiles')
+                setDxfFiles(response.data)
+                console.log(response.data)
+                setFileListVisible(true)
+                setModelLoaded(true)
+            } catch (error) {
+                console.error("Error fetching DXF file:", error)
+                setAlert("Error fetching your files: " + (error.response?.data?.message || error.message));
+            }
         }
     }
 
@@ -183,6 +256,7 @@ function Viewer3D() {
             setFileListVisible(false)
         } catch (error) {
             console.error("Error fetching DXF file:", error)
+            setAlert("Error loading file: " + (error.response?.data?.message || error.message));
         }
     }
 
@@ -196,9 +270,9 @@ function Viewer3D() {
                     setHeight(response.data.stage)
                     uploadFile(response.data.dxf_file)
                     console.log(response.data)
-
                 } catch (e) {
                     console.error(e)
+                    setAlert("Error loading model: " + (e.response?.data?.message || e.message));
                 }
             }
         }
@@ -214,11 +288,17 @@ function Viewer3D() {
                 setCategories(response.data)
             } catch (error) {
                 console.error("Error fetching categories:", error)
+                setAlert("Error loading categories: " + (error.response?.data?.message || error.message));
             }
         }
         fetchCategories()
     }, [])
 
+    if (isLoading) {
+        return (
+            <LoadingIndicator message="Please wait" description={screenshotDescription} />
+        )
+    }
     return (
         <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             <div className="w-80 bg-white shadow-lg p-6 space-y-8 overflow-y-auto">
@@ -323,7 +403,7 @@ function Viewer3D() {
                         <h2 className="text-lg font-semibold text-gray-800">Storage : {planInfos.storage} MB available</h2>
                     </div>
 
-                        <Loader used = {userInfos.storage_size} max = {planInfos.storage} />
+                    <Loader used = {userInfos.storage_size} max = {planInfos.storage} />
                 </div>
 
                 {models.length > 0 && (
@@ -398,8 +478,14 @@ function Viewer3D() {
                                 </div>
                             ) : (
                                 selectedFile && savedComponent ? (
-                                    <div className="relative w-full h-full" style={{ overflow: 'hidden' }}>
-                                        <House file={selectedFile.path} components={savedComponent} height={height} />
+                                    <div className="relative w-full h-full" ref={componentRef} style={{
+                                        overflow: 'hidden',
+                                        '--background': '240, 10%, 96%',
+                                        '--foreground': '0, 0%, 0%',
+                                        backgroundColor: 'hsl(var(--background))',
+                                        color: 'hsl(var(--foreground))',
+                                    }}>
+                                        <House file={selectedFile.path} components={savedComponent} height={height} ref={houseRef} onCanvasReady={handleCanvasReady} />
                                         <div className="absolute top-4 right-4 flex gap-2">
                                             <Button
                                                 className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg flex items-center gap-2"
@@ -489,7 +575,7 @@ function Viewer3D() {
             )}
             {
                 alert &&
-                <div className=" fixed inset-80 z-50  flex flex-col gap-2 w-100 sm:w-72 text-[10px] sm:text-xs z-50">
+                <div className="fixed inset-80 z-50 flex flex-col gap-2 w-100 sm:w-72 text-[10px] sm:text-xs z-50">
                     <div
                         className="error-alert cursor-default flex items-center justify-between w-full h-12 sm:h-14 rounded-lg bg-[#232531] px-[10px]"
                     >
@@ -499,13 +585,13 @@ function Viewer3D() {
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
                                     viewBox="0 0 24 24"
-                                    stroke-width="1.5"
+                                    strokeWidth="1.5"
                                     stroke="currentColor"
                                     className="w-6 h-6"
                                 >
                                     <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
                                         d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
                                     ></path>
                                 </svg>
@@ -517,25 +603,25 @@ function Viewer3D() {
                         </div>
                         <button
                             className="text-gray-600 hover:bg-white/10 p-1 rounded-md transition-colors ease-linear"
+                            onClick={() => setAlert(null)}
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
                                 viewBox="0 0 24 24"
-                                stroke-width="1.5"
+                                strokeWidth="1.5"
                                 stroke="currentColor"
                                 className="w-6 h-6"
                             >
                                 <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                     d="M6 18 18 6M6 6l12 12"
                                 ></path>
                             </svg>
                         </button>
                     </div>
                 </div>
-
             }
         </div>
     )

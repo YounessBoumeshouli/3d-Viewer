@@ -5,7 +5,7 @@ const ModelCard = (props) => {
     console.log(props)
     const id = props.model.token
     const title = props.title
-    const image = props.image
+    const image = props.model.thumbnail
     const creator = props.creator
     const downloads = props.downloads
     const comments = props.comments
@@ -16,7 +16,7 @@ const ModelCard = (props) => {
             <Link to={`/model/${id}`}>
                 <div className="relative">
                     <img
-                        src={image}
+                        src={`http://127.0.0.1:8000/storage/${image}`}
                         alt={title}
                         className="w-full h-48 object-cover"
                     />

@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('houses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dxf_file_id');
-            $table->foreignId('designer_id');
+            $table->foreignId('dxf_file_id')->constrained()->onDelete('cascade');
+            $table->foreignId('designer_id')->constrained()->onDelete('cascade');
             $table->integer('stage');
             $table->double('size')->default(0);
             $table->string('token')->unique();
-            $table->string('thumbnail');
+            $table->string('thumbnail')->default("thumbnails/default");
             $table->timestamps();
         });
         Schema::create('house_components', function (Blueprint $table) {

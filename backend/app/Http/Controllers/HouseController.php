@@ -47,13 +47,17 @@ class HouseController extends Controller
             'components.*.path' => 'string|nullable',
             'stage'=>'required|integer'
         ]);
+        $thumbnail = $request->input('thumbnail');
+        $thumbnail = str_replace('data:image/png;base64,', '', $thumbnail);
+        $thumbnail = base64_decode($thumbnail);
+        $filename = $house->thumbnail;
 
+        Storage::disk('public')->put($filename, $thumbnail);
         $house->update([
             'stage' => $validated['stage']
         ]);
 
 
-// check if the size is ok
         $designer = auth()->user()->designer;
         $max_size = $designer->useroffer->offer->storage;
 

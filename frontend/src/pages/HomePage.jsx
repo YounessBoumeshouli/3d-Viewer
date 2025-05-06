@@ -16,6 +16,7 @@ const HomePage = () => {
     const [offersCategories, setOffersCategories] = useState([]);
     const closeLoginModel = () => {
         setLoginModel(false);
+
     };
     const fetchDesigners = async () => {
         const response = await api.get('designers');

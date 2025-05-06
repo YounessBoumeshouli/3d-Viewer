@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState, useRef } from 'react';
+import React, { Suspense, useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { AxesHelper, GridHelper, Vector3 } from 'three';
 import Sky from "../models/Sky.jsx";
@@ -8,7 +8,6 @@ import Door from '../components/Door/Door.jsx';
 import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
-
 
 const Floor = () => {
     const floorTextures = useTexture({
@@ -55,7 +54,6 @@ const CameraController = () => {
             if (e.buttons === 2) {
                 camera.rotation.y -= e.movementX * lookSpeed;
                 camera.rotation.x -= e.movementY * lookSpeed;
-
                 camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
             }
         };
@@ -92,20 +90,22 @@ const CameraController = () => {
     return null;
 };
 
-function House({file,components ,height}) {
-    console.log(height)
-    const [selectedComponent,setSelectedComponent] = useState([])
+const House = forwardRef(({ file, components, height, onCanvasReady }, ref) => {
+    const [longestWall, setLongestWall] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [renderer, setRenderer] = useState(null);
+    const [scene, setScene] = useState(null);
+    const [camera, setCamera] = useState(null);
+
+    const [selectedComponent, setSelectedComponent] = useState([]);
+
     useEffect(() => {
-        if (Array.isArray(components) && components.length > 0){
-                const data =   components.map((component)=>(
-                    {
-                        category:component.component.category.name,
-                        path:component.component.path
-                    }
-
-                ));
-            setSelectedComponent(data)
-
+        if (Array.isArray(components) && components.length > 0) {
+            const data = components.map((component) => ({
+                category: component.component?.category?.name || component.category,
+                path: component.component?.path || component.path
+            }));
+            setSelectedComponent(data);
         }
     }, [components]);
 
@@ -115,88 +115,105 @@ function House({file,components ,height}) {
     };
 
     const [islandScale, islandPosition] = adjustIslandForScreenSize();
-    const [longestWall, setLongestWall] = useState(null);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (longestWall) {
-
             setLoading(false);
         }
     }, [longestWall]);
 
+    const onCreated = ({ gl, scene: threeScene, camera: threeCamera }) => {
+        setRenderer(gl);
+        setScene(threeScene);
+        setCamera(threeCamera);
+        if (onCanvasReady) {
+            setTimeout(() => onCanvasReady(), 100);
+        }
+    };
+
+    useImperativeHandle(ref, () => ({
+        getRenderer: () => renderer,
+        getScene: () => scene,
+        getCamera: () => camera,
+        updateScene: () => {
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        },
+        getCanvas: () => renderer?.domElement || null
+    }));
+
     return (
         <>
             {loading && <Loader />}
-            <Canvas
-                className="w-full h-screen bg-transparent"
-                camera={{ position: [10, 5, 10], fov: 75, near: 0.1, far: 1000 }}
-                shadows
+            <div className="w-full h-screen">
+                <Canvas
+                    className="w-full h-screen bg-transparent threejs-canvas"
+                    camera={{ position: [10, 5, 10], fov: 75, near: 0.1, far: 1000 }}
+                    shadows
+                    onCreated={onCreated}
+                >
+                    <primitive object={new AxesHelper(100)} />
+                    <primitive object={new GridHelper(100, 100)} />
 
-            >
-                <primitive object={new AxesHelper(100)} />
-                <primitive object={new GridHelper(100, 100)} />
-
-                <CameraController />
+                    <CameraController />
                     <Sky />
                     <Floor />
 
-                <Suspense fallback={null} >
-                    <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
-                        <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
-                    </directionalLight>
-                    <ambientLight intensity={0.4} />
-                    <hemisphereLight intensity={0.3} groundColor="#080820" />
+                    <Suspense fallback={null}>
+                        <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
+                            <orthographicCamera attach="shadow-camera" args={[-20, 20, 20, -20]} />
+                        </directionalLight>
+                        <ambientLight intensity={0.4} />
+                        <hemisphereLight intensity={0.3} groundColor="#080820" />
 
+                        <group rotation={[-Math.PI / 2, 0, 0]}>
+                            <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} wallH={height} />
+                        </group>
 
-                    <group rotation={[-Math.PI / 2, 0, 0]}>
-                        <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} wallH={height}  />
-                    </group>
+                        {longestWall && (
+                            <>
+                                <Door
+                                    wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                    wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                    path={selectedComponent.find(item => item.category === "door")?.path}
+                                />
+                                <Table
+                                    wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                    wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                />
+                            </>
+                        )}
 
-                        {longestWall &&(
-                        <>
-                            <Door
-                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                path={        selectedComponent.find(item => item.category === "door")?.path
-                                }
-                            />
-                            <Table
-                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                            />
-                        </>
-
-                    )}
-                    {longestWall && height && (
-                        <>
-                            {Array.from({ length: height }, (_, i) => (
-                                <React.Fragment key={i}>
-                                    <Window
-                                        wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                        wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                        position="left"
-                                        key={`left-window-${i}`}
-                                        stage ={i}
-                                        path={selectedComponent.find(item => item.category === "window")?.path}
-                                    />
-
-                                    <Window
-                                        wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                        wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                        position="right"
-                                        key={`right-window-${i}`}
-                                        path={selectedComponent.find(item => item.category === "window")?.path}
-                                        stage ={i}
-                                    />
-                                </React.Fragment>
-                            ))}
-                        </>
-                    )}
-
-                </Suspense>
-            </Canvas>
+                        {longestWall && height && (
+                            <>
+                                {Array.from({ length: height }, (_, i) => (
+                                    <React.Fragment key={i}>
+                                        <Window
+                                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                            position="left"
+                                            key={`left-window-${i}`}
+                                            stage={i}
+                                            path={selectedComponent.find(item => item.category === "window")?.path}
+                                        />
+                                        <Window
+                                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                            position="right"
+                                            key={`right-window-${i}`}
+                                            path={selectedComponent.find(item => item.category === "window")?.path}
+                                            stage={i}
+                                        />
+                                    </React.Fragment>
+                                ))}
+                            </>
+                        )}
+                    </Suspense>
+                </Canvas>
+            </div>
         </>
     );
-}
+});
+
 export default House;

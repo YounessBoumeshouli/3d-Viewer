@@ -38,7 +38,6 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
             return
         }
         const newFormData = new FormData();
-        console.log(offer)
         newFormData.append('type',offer.string);
         newFormData.append('title',formData.title);
         if (!offer.integer){
@@ -47,12 +46,11 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
             newFormData.append('price',+0);
         }
         newFormData.append('description',formData.description);
-
         try {
 
             const request = await api.post('offers',newFormData,{
             })
-            console.log(request);
+            console.log(request.data);
         }catch (e) {
             console.error('Validation errors:', e.response?.data?.errors);
         }
