@@ -16,6 +16,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PaypalController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\StatsController;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Http\Request;
@@ -100,6 +101,8 @@ Route::get('designers/{designer}/models',[DesignerController::class,'modelsByCre
         }
     });
 Route::middleware([JwtMiddleware::class])->group(function () {
+
+    Route::get('stats',[StatsController::class,'index']);
     Route::put('models/{house}/rating',[RatingController::class,'store']);
     Route::get('models/{house}/rating',[RatingController::class,'index']);
     Route::get('models/{house}/myRate',[RatingController::class,'show']);

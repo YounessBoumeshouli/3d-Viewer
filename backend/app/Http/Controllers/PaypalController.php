@@ -92,8 +92,7 @@ class PaypalController extends Controller
                     'user_id' => auth()->id(),
                     'bio' => 'new Designer'
                 ]);
-                auth()->user()->role('creator');
-                auth()->user()->save();
+
             }
 
             $userOffer = $designer->useroffer()->create([
