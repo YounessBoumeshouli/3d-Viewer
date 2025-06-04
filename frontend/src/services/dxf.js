@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:8000/api/';  // Replace with your API URL
+const API_URL = 'https://api.buildin3d.store/api/';
 
 const dxf = axios.create({
     baseURL: API_URL,

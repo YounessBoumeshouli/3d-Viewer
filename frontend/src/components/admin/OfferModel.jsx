@@ -10,7 +10,7 @@ import api from "./../../services/api.js";
 
 function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
     const [imagePreview, setImagePreview] = useState(null);
-    const [offerData, setOfferData] = useState({type : '',title : '', description :'',price : null});
+    const [offerData, setOfferData] = useState({type : '',title : '', description :'',price : null,storage:'',models:''});
     const [formData,setFormData] = useState(new FormData());
    const fetchOfferDetails = async ()=>{
        console.log("fetchOfferDetails is working ")
@@ -24,6 +24,8 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
             title: data.title,
             description: data.description,
             price: data.price,
+            storage: data.storage,
+            models:data.models,
             type: offer.string,
         })
     }
@@ -133,6 +135,30 @@ function OfferModel({ title = 'Edite Plane', onClose ,offer }) {
                                            placeholder="Enter item dimenions 18x8"
                                            value={offerData.title}
                                            name='title'
+                                           onChange={handleChange}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Storage
+                                    </label>
+                                    <input type='number'
+                                           className="mt-1 block w-full text-black px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
+                                           placeholder="Enter item dimenions 18x8"
+                                           value={offerData.storage}
+                                           name='storage'
+                                           onChange={handleChange}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        Models
+                                    </label>
+                                    <input type='number'
+                                           className="mt-1 block w-full text-black px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 focus:outline-none"
+                                           placeholder="Enter item dimenions 18x8"
+                                           value={offerData.models}
+                                           name='models'
                                            onChange={handleChange}
                                     />
                                 </div>

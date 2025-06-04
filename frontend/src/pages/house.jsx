@@ -83,7 +83,7 @@ const CameraController = () => {
         if (keys.current['KeyS']) camera.position.sub(forward);
         if (keys.current['KeyA']) camera.position.sub(right);
         if (keys.current['KeyD']) camera.position.add(right);
-        if (keys.current['Space']) camera.position.y += moveSpeed;
+        if (keys.current['KeyE']) camera.position.y += moveSpeed;
         if (keys.current['ShiftLeft']) camera.position.y -= moveSpeed;
     });
 

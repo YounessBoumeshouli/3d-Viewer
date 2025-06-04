@@ -7,9 +7,12 @@ import OfferCard from '../components/user/ProjectCard';
 import { Button } from "@/components/ui/button.jsx";
 import LoginModel from "../components/User/LoginModel.jsx";
 import api from "../services/api.js";
+import { jwtDecode } from "jwt-decode";
+
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 const HomePage = () => {
+    const token = localStorage.getItem("token");
     const [loginModel, setLoginModel] = useState(false);
     const [designers, setDesigners] = useState([]);
     const [models, setModels] = useState([]);
@@ -63,23 +66,21 @@ const HomePage = () => {
                     <div className="w-full md:w-1/2 mb-10 md:mb-0" data-aos="fade-right">
                         <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">Creative <span className="text-blue-300">Design</span> Solutions</h1>
                         <p className="text-lg md:text-xl mb-8 text-blue-100 max-w-lg">Bringing your ideas to life through innovative design and cutting-edge 3D modeling.</p>
-                        <div className="flex space-x-4">
-                            <Button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1" onClick={() => setLoginModel(true)}>
-                                Get Started
-                            </Button>
-                            <Button className="bg-transparent border-2 border-blue-300 text-blue-100 font-medium px-6 py-3 rounded-lg hover:bg-blue-800 transition duration-300">
-                                Learn More
-                            </Button>
-                        </div>
+                        { token === null &&
+                            <div className="flex space-x-4">
+                                <Button className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition duration-300 transform hover:-translate-y-1" onClick={() => setLoginModel(true)}>
+                                    Get Started
+                                </Button>
+                                <Button className="bg-transparent border-2 border-blue-300 text-blue-100 font-medium px-6 py-3 rounded-lg hover:bg-blue-800 transition duration-300">
+                                    Learn More
+                                </Button>
+                            </div>
+                        }
                     </div>
                     <div className="w-full md:w-1/2" data-aos="fade-left" data-aos-delay="200">
                         <div className="relative">
                             <div className="absolute -inset-4 bg-blue-500/20 rounded-full blur-xl"></div>
-                            <img
-                                src="/path/to/designer-image.jpg"
-                                alt="Designer working on 3D model"
-                                className="rounded-2xl shadow-2xl w-full relative z-10 transform hover:scale-105 transition duration-500"
-                            />
+
                         </div>
                     </div>
                 </div>

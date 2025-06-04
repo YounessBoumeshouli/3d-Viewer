@@ -7,6 +7,7 @@ import { ChevronRight, Search } from "lucide-react"
 import {useEffect, useState} from "react";
 import api from "../services/api.js";
 import { format } from 'date-fns';
+import UserModel from "../components/admin/UserModel.jsx";
 
 
 function Team() {
@@ -16,6 +17,9 @@ function Team() {
     const TopCreators = (creators)=>{
             setTopCreators(creators.slice(0,4));
             console.log(creators.slice(0,4))
+    }
+    const handleClose  = ()=>{
+        setSelectedUser(null);
     }
     const fetchCreators =async ()=>{
             const response = await api.get('designers');
@@ -120,7 +124,6 @@ function Team() {
                                               </div>
                                           </div>
                                           <ChevronRight className="h-5 w-5 text-gray-400 " onClick={()=>{
-                                              document.getElementById(`creator_infos_${member.id}`).classList.toggle('hidden');
                                               setSelectedUser(member);
                                           }} />
 
@@ -145,6 +148,9 @@ function Team() {
                               <Button variant="outline" className="w-full mt-4 bg-[#1f2124] border-[#3e435d]/20 text-white">
                                   See More
                               </Button>
+                              {
+                                  selectedUser && <UserModel onClose = {handleClose} creator = {selectedUser}/>
+                              }
                           </div>
                       </CardContent>
                   </Card>

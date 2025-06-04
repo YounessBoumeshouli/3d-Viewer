@@ -5,7 +5,6 @@ const Header = () => {
     const location = useLocation();
     const path = location.pathname;
 
-    // Determine which header to show based on current path
     const isHomePage = path === '/';
     const isModelPage = path.includes('/models') && !path.includes('/model/');
     const isViewerPage = path.includes('/viewer');
@@ -15,7 +14,7 @@ const Header = () => {
         return (
             <header className="bg-white shadow-sm">
                 <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                    <Link to="/" className="font-bold text-lg">Design <span className="text-indigo-600">Lab</span></Link>
+                    <Link to="/" className="font-bold text-lg">BuildIN <span className="text-indigo-600">3D</span></Link>
                     <nav className="hidden md:flex space-x-8">
                         <Link to="/profile" className="text-gray-600 hover:text-gray-900">Profile</Link>
                         <Link to="/models" className="text-gray-600 hover:text-gray-900">Models</Link>
@@ -91,7 +90,7 @@ const Header = () => {
     return (
         <header className="bg-white shadow-sm">
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                <Link to="/" className="font-bold text-lg">Design App</Link>
+                <Link to="/" className="font-bold text-lg">BuildIn 3D</Link>
                 <nav className="hidden md:flex space-x-6">
                     <Link to="/" className="text-gray-600 hover:text-gray-900">Home</Link>
                     <Link to="/models" className="text-gray-600 hover:text-gray-900">Models</Link>

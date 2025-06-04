@@ -154,7 +154,6 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
     return (
         <Suspense fallback={<Loader />}>
             <group position={position} scale={scale} rotation={[0, 0, 0]}>
-                {/* Render all walls */}
                 {processedEntities.map((wall, index) => (
                     <Entity key={index} wall={wall} />
                 ))}

@@ -1,16 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import {useEffect, useState} from "react"
 import Layout from "../components/admin/Layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import api from "../services/api.js";
+import { format } from 'date-fns';
 
 function Analytics() {
     const [activeTab, setActiveTab] = useState("monthly")
+    const [monthlyStats, setMonthlyStats] = useState([])
+    const fetchStats = async ()=>{
+        const response = await  api.get("stats");
+        console.log(response.data)
+        setMonthlyStats(response.data.monthly_stats)
+    }
+    let height = []
 
-    return (
+    useEffect(() => {
+        fetchStats();
+    }, []);
+    return  (
         <Layout>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Monthly Stats Chart */}
                 <Card className="bg-[#242634] border-[#3e435d]/20 text-white">
                     <CardHeader className="flex flex-col space-y-1.5">
                         <CardTitle className="text-sm font-medium text-gray-400">Monthly Stats</CardTitle>
@@ -46,24 +57,31 @@ function Analytics() {
                                 </button>
                             </div>
                         </div>
+                        {monthlyStats && monthlyStats.length>0 &&
                         <div className="h-[300px] w-full flex items-end justify-between px-6 pb-6 gap-1">
-                            {[7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22].map((day, i) => {
-                                // Determine if the bar should be blue (days 11-17)
-                                const isBlue = day >= 11 && day <= 17
-                                const height = [40, 65, 80, 90, 70, 85, 60, 50, 40, 70, 90, 60, 75, 65, 80, 70][i]
+                            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((month, i) => {
+                                const isBlue = month >= format(new Date(), 'MM')
+                                    height[i] = 0
+                                    monthlyStats.forEach((month) => {
+                                            console.log(month.month)
+                                        if (month.month == i) {
+                                            height[i] = month.total;
+                                        }
+                                    })
 
                                 return (
                                     <div key={i} className="flex flex-col items-center">
                                         <div
                                             className={`w-5 rounded-t-md ${isBlue ? "bg-[#4353ff]" : "bg-gray-300"}`}
-                                            style={{ height: `${height * 2}px` }}
+                                            style={{height: `${height[i] * 20}px`}}
                                         />
-                                        <div className="text-xs text-gray-400 mt-2">{day}</div>
+                                        <div className="text-xs text-gray-400 mt-2">{month}</div>
                                     </div>
                                 )
                             })}
                         </div>
-                    </CardContent>
+
+                        }</CardContent>
                 </Card>
 
                 {/* Feature Effort Estimation */}
