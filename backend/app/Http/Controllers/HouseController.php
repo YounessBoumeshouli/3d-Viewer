@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\CommentEvent;
 use App\Http\Middleware\JwtMiddleware;
-use App\Models\component;
+use App\Models\Component;
 use App\Models\Designer;
 use App\Models\DxfFile;
 use App\Models\House;

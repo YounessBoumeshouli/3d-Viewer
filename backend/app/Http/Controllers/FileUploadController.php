@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\component;
+use App\Models\Component;
 use App\Models\DxfFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

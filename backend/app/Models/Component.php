@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class component extends Model
+class Component extends Model
 {
     protected $guarded = [];
     public function category()

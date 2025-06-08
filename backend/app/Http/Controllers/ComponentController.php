@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\CommentEvent;
 use App\Events\createCategoryEvent;
 use App\Models\Category;
-use App\Models\component;
+use App\Models\Component;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
