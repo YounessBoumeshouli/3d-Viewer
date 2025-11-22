@@ -19,9 +19,7 @@ class FileUploadController extends Controller
             'price'=>'integer',
             'name'=>'string'
         ]);
-        return response()->json([
-            'message' => 'file uploaded successfully',
-        ], 200);
+
 
         $file = $request->file('file');
         $size = $request->file('file')->getSize() / (1024* 1024) ;
