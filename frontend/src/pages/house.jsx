@@ -5,10 +5,10 @@ import Sky from "../models/Sky.jsx";
 import { Loader, useTexture } from "@react-three/drei";
 import DXFModel from '../models/DFXModel.jsx';
 import Door from '../components/Door/Door.jsx';
-import Room from '../components/Room/Room.jsx';
 import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
+import Room from "../components/Room/Room.jsx"; // Make sure to import Room
 
 const Floor = () => {
     const floorTextures = useTexture({
@@ -91,7 +91,9 @@ const CameraController = () => {
     return null;
 };
 
-const House = forwardRef(({ file, components, height, onCanvasReady, userDesign }, ref) => {    const [longestWall, setLongestWall] = useState(null);
+// ADDED: userDesign to props
+const House = forwardRef(({ file, components, height, onCanvasReady, userDesign }, ref) => {
+    const [longestWall, setLongestWall] = useState(null);
     const [loading, setLoading] = useState(true);
     const [renderer, setRenderer] = useState(null);
     const [scene, setScene] = useState(null);
@@ -169,32 +171,47 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign 
 
                         <group rotation={[-Math.PI / 2, 0, 0]}>
                             <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} wallH={height} />
-                        </group>
 
-                        {longestWall && (
+
+                        {/* --- RENDER USER DESIGNED ELEMENTS --- */}
+
+                        {/* 1. User Designed Doors */}
+                        {userDesign?.doors?.map((door) => (
+                            <Door
+                                key={door.id}
+                                // UPDATED: Use door.x and door.y directly
+                                // We offset x by 0.5 to create a small width for the door opening simulation if needed
+                                wallStart={[door.x - 0.5, door.y, 0]}
+                                wallEnd={[door.x + 0.5, door.y, 0]}
+                                path={selectedComponent.find(item => item.category === "door")?.path}
+                            />
+                        ))}
+
+                        {/* 2. User Designed Rooms */}
+                        {userDesign?.rooms?.map((room) => (
+                            <Room
+                                key={room.id}
+                                // UPDATED: Pass the room object directly (it contains x and y)
+                                position={room}
+                            />
+                        ))}
+
+                        {/* -------------------------------------- */}
+
+                        {/* Keep existing logic for automatic placement if longestWall is found (optional) */}
+                        {longestWall && !userDesign?.doors?.length && (
                             <>
-                                {userDesign?.doors?.map(door => (
-                                    <Door
-                                        key={door.id}
-                                        // You need to determine wallStart/End based on door position
-                                        // or update Door.jsx to accept a simple position
-                                        wallStart={[door.position.x - 0.5, door.position.y, 0]}
-                                        wallEnd={[door.position.x + 0.5, door.position.y, 0]}
-                                    />
-                                ))}
-                                {userDesign?.rooms?.map(room => (
-                                    <Room
-                                        key={room.id}
-                                        position={room.position}
-                                    />
-                                ))}
+                                <Door
+                                    wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                    wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                    path={selectedComponent.find(item => item.category === "door")?.path}
+                                />
                                 <Table
                                     wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
                                     wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
                                 />
                             </>
                         )}
-
                         {longestWall && height && (
                             <>
                                 {Array.from({ length: height }, (_, i) => (
@@ -219,6 +236,8 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign 
                                 ))}
                             </>
                         )}
+                        </group>
+
                     </Suspense>
                 </Canvas>
             </div>

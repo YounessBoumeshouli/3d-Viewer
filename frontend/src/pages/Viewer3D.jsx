@@ -494,11 +494,23 @@ function Viewer3D() {
                                     }}>
                                         {/* CONDITIONAL RENDERING START */}
                                         {viewMode === '2d' ? (
-                                            <TwoDViewer
-                                                walls={extractedWalls}  // <--- Pass the extracted walls here
-                                                onUpdateDesign={(doors, rooms) => setUserDesign({ doors, rooms })}
-                                            />
-                                        ) :(
+                                            <div className="w-full h-full bg-white relative">
+                                                <TwoDViewer
+                                                    walls={extractedWalls}
+                                                    onUpdateDesign={(doors, rooms) => setUserDesign({ doors, rooms })}
+                                                />
+
+                                                {/* --- ADDED BUTTON HERE --- */}
+                                                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+                                                    <Button
+                                                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg shadow-xl rounded-full transition-all hover:scale-105"
+                                                        onClick={() => setViewMode('3d')}
+                                                    >
+                                                        Build 3D House
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
                                             <>
                                                 <House
                                                     file={selectedFile.path}
@@ -506,13 +518,10 @@ function Viewer3D() {
                                                     height={height}
                                                     ref={houseRef}
                                                     onCanvasReady={handleCanvasReady}
-                                                    // Pass the design data to the 3D House
                                                     userDesign={userDesign}
-                                                    // Pass the extracted walls to DXFModel to avoid re-parsing if possible
                                                     preParsedWalls={extractedWalls}
                                                 />
 
-                                                {/* Button to go back to 2D */}
                                                 <div className="absolute top-4 left-4 z-10">
                                                     <Button
                                                         variant="outline"

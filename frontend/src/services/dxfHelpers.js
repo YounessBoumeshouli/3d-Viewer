@@ -18,9 +18,10 @@ export const fetchAndParseWalls = async (filePath) => {
         const parser = new DxfParser();
         const parsedDxf = parser.parseSync(processedData);
 
-        // 4. Extract Walls (Polylines)
+        // 4. Extract Walls (Polylines AND Lines)
         const walls = [];
         parsedDxf.entities.forEach((entity) => {
+            // Handle LWPOLYLINE and POLYLINE (Connected segments)
             if ((entity.type === 'POLYLINE' || entity.type === 'LWPOLYLINE') &&
                 entity.vertices && entity.vertices.length >= 2) {
 
@@ -30,6 +31,14 @@ export const fetchAndParseWalls = async (filePath) => {
                         end: { x: entity.vertices[i + 1].x, y: entity.vertices[i + 1].y }
                     });
                 }
+            }
+
+            // Handle LINE (Single segments) - ADDED THIS BLOCK
+            if (entity.type === 'LINE' && entity.vertices && entity.vertices.length === 2) {
+                walls.push({
+                    start: { x: entity.vertices[0].x, y: entity.vertices[0].y },
+                    end: { x: entity.vertices[1].x, y: entity.vertices[1].y }
+                });
             }
         });
 

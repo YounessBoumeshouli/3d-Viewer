@@ -20,14 +20,20 @@ const Room = ({ position, width = 5, length = 5 }) => {
     }, [floorTextures, width, length]);
 
     return (
-        <group position={[position.x, 0.02, position.y]}>
-            {/* Render a floor plane for the room */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        // FIX: Position uses (x, y, z). Z is height.
+        // Since we are inside the rotated group, Z is 'up' relative to the floorplan.
+        <group position={[position.x, position.y, 0.05]}>
+
+            {/* FIX: Remove rotation={[-Math.PI/2, 0, 0]} because the parent group is already rotated */}
+            <mesh receiveShadow>
                 <planeGeometry args={[width, length]} />
-                <meshStandardMaterial {...floorTextures} />
+                <meshStandardMaterial {...floorTextures} side={THREE.DoubleSide} />
             </mesh>
 
-            {/* Optional: Add a label or 3D text hovering above */}
+            {/* Optional: Label */}
+            <mesh position={[0, 0, 2]}>
+                {/* Floating text marker if needed */}
+            </mesh>
         </group>
     );
 };

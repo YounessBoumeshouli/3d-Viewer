@@ -105,15 +105,23 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
 
     }, [walls, transform, designElements]);
 
-    // 3. INTERACTION: Handle Clicks
+    // 3. INTERACTION: Handle Clicks (CORRECTED)
     const handleCanvasClick = (e) => {
-        const rect = canvasRef.current.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+
+        // --- FIX: Account for CSS scaling ---
+        // The canvas might be displayed at a different size than its internal resolution (800x600)
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
+        // Get mouse position relative to the canvas internal coordinates
+        const clickX = (e.clientX - rect.left) * scaleX;
+        const clickY = (e.clientY - rect.top) * scaleY;
 
         // Convert Screen click back to World coordinates
         const worldX = (clickX - transform.offsetX) / transform.scale;
-        const worldY = ((canvasRef.current.height - clickY) - transform.offsetY) / transform.scale;
+        const worldY = ((canvas.height - clickY) - transform.offsetY) / transform.scale;
 
         if (mode === 'door') {
             const newDoors = [...designElements.doors, { x: worldX, y: worldY, id: Date.now() }];
