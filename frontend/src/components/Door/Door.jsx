@@ -113,8 +113,8 @@ const Door = ({ wallStart, wallEnd, path }) => {
 
     const [startX, startY, startZ] = wallStart;
     const [endX, endY, endZ] = wallEnd;
-    const centerX = (startX + endX) / 2.5;
-    const centerY = (startY + endY) / 3.1;
+    const centerX = (startX + endX) / 2;
+    const centerY = (startY + endY) / 2 ;
     const angle = Math.atan2(endY - startY, endX - startX);
 
     return (
