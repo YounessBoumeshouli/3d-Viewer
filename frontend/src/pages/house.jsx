@@ -5,6 +5,7 @@ import Sky from "../models/Sky.jsx";
 import { Loader, useTexture } from "@react-three/drei";
 import DXFModel from '../models/DFXModel.jsx';
 import Door from '../components/Door/Door.jsx';
+import Room from '../components/Room/Room.jsx';
 import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
@@ -90,8 +91,7 @@ const CameraController = () => {
     return null;
 };
 
-const House = forwardRef(({ file, components, height, onCanvasReady }, ref) => {
-    const [longestWall, setLongestWall] = useState(null);
+const House = forwardRef(({ file, components, height, onCanvasReady, userDesign }, ref) => {    const [longestWall, setLongestWall] = useState(null);
     const [loading, setLoading] = useState(true);
     const [renderer, setRenderer] = useState(null);
     const [scene, setScene] = useState(null);
@@ -173,11 +173,21 @@ const House = forwardRef(({ file, components, height, onCanvasReady }, ref) => {
 
                         {longestWall && (
                             <>
-                                <Door
-                                    wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                    wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                    path={selectedComponent.find(item => item.category === "door")?.path}
-                                />
+                                {userDesign?.doors?.map(door => (
+                                    <Door
+                                        key={door.id}
+                                        // You need to determine wallStart/End based on door position
+                                        // or update Door.jsx to accept a simple position
+                                        wallStart={[door.position.x - 0.5, door.position.y, 0]}
+                                        wallEnd={[door.position.x + 0.5, door.position.y, 0]}
+                                    />
+                                ))}
+                                {userDesign?.rooms?.map(room => (
+                                    <Room
+                                        key={room.id}
+                                        position={room.position}
+                                    />
+                                ))}
                                 <Table
                                     wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
                                     wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}

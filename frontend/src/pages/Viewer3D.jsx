@@ -1,5 +1,5 @@
 "use client"
-
+import { fetchAndParseWalls } from '../services/dxfHelpers.js';
 import {useEffect, useRef, useState} from "react"
 import {
     ChevronLeft,
@@ -24,7 +24,7 @@ import api from "../services/api.js"
 import FileUploadModal from "../components/Maker/FileUploadModal.jsx"
 import Loader from '../components/Maker/Loader.jsx'
 import LoadingIndicator from "../components/LoadingIndicator.jsx";
-
+import TwoDViewer from "../components/Maker/TwoDViewer.jsx"; // Import the new component
 function Viewer3D() {
     const [height, setHeight] = useState(1)
     const [rotation, setRotation] = useState(0)
@@ -48,7 +48,9 @@ function Viewer3D() {
     const [screenshotDescription, setScreenshotDescription] = useState("")
     const [canvasReady, setCanvasReady] = useState(false)
     const [isRendererReady, setIsRendererReady] = useState(false)
-
+    const [viewMode, setViewMode] = useState('2d'); // Default to '2d' so it shows first
+    const [extractedWalls, setExtractedWalls] = useState([]); // Store wall data from DXF
+    const [userDesign, setUserDesign] = useState({ doors: [], rooms: [] });
     const componentRef = useRef();
     const sceneRef = useRef(null);
     const houseRef = useRef();
@@ -249,17 +251,22 @@ function Viewer3D() {
 
     const uploadFile = async (selectedFilePath) => {
         try {
-            const response = await api.get(`files/${selectedFilePath.path}`, {
-                responseType: "json"
-            })
-            setSelectedFile(selectedFilePath)
-            setFileListVisible(false)
+            // 1. Set file selection state
+            setSelectedFile(selectedFilePath);
+            setFileListVisible(false);
+
+            // 2. Switch to 2D view
+            setViewMode('2d');
+
+            // 3. FETCH AND PARSE WALLS IMMEDIATELY
+            const walls = await fetchAndParseWalls(selectedFilePath.path);
+            setExtractedWalls(walls);
+
         } catch (error) {
-            console.error("Error fetching DXF file:", error)
-            setAlert("Error loading file: " + (error.response?.data?.message || error.message));
+            console.error("Error loading file:", error);
+            setAlert("Error loading file: " + error.message);
         }
     }
-
     useEffect(() => {
         const fetchExistingModel = async () => {
             if (isExistingModel) {
@@ -477,7 +484,7 @@ function Viewer3D() {
                                     </div>
                                 </div>
                             ) : (
-                                selectedFile && savedComponent ? (
+                                selectedFile ? (
                                     <div className="relative w-full h-full" ref={componentRef} style={{
                                         overflow: 'hidden',
                                         '--background': '240, 10%, 96%',
@@ -485,7 +492,40 @@ function Viewer3D() {
                                         backgroundColor: 'hsl(var(--background))',
                                         color: 'hsl(var(--foreground))',
                                     }}>
-                                        <House file={selectedFile.path} components={savedComponent} height={height} ref={houseRef} onCanvasReady={handleCanvasReady} />
+                                        {/* CONDITIONAL RENDERING START */}
+                                        {viewMode === '2d' ? (
+                                            <TwoDViewer
+                                                walls={extractedWalls}  // <--- Pass the extracted walls here
+                                                onUpdateDesign={(doors, rooms) => setUserDesign({ doors, rooms })}
+                                            />
+                                        ) :(
+                                            <>
+                                                <House
+                                                    file={selectedFile.path}
+                                                    components={savedComponent}
+                                                    height={height}
+                                                    ref={houseRef}
+                                                    onCanvasReady={handleCanvasReady}
+                                                    // Pass the design data to the 3D House
+                                                    userDesign={userDesign}
+                                                    // Pass the extracted walls to DXFModel to avoid re-parsing if possible
+                                                    preParsedWalls={extractedWalls}
+                                                />
+
+                                                {/* Button to go back to 2D */}
+                                                <div className="absolute top-4 left-4 z-10">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => setViewMode('2d')}
+                                                        className="bg-white/90 backdrop-blur"
+                                                    >
+                                                        Back to 2D Editor
+                                                    </Button>
+                                                </div>
+                                            </>
+                                        )}
+                                        {/* CONDITIONAL RENDERING END */}
+
                                         <div className="absolute top-4 right-4 flex gap-2">
                                             <Button
                                                 className="bg-blue-600 text-white hover:bg-blue-700 shadow-lg flex items-center gap-2"
@@ -496,7 +536,7 @@ function Viewer3D() {
                                             </Button>
                                         </div>
                                     </div>
-                                ) : (
+                                ): (
                                     <div className="text-center p-8 bg-white rounded-xl shadow-lg max-w-md">
                                         <FileIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                                         <p className="text-gray-700 mb-4">No file selected. Please select a file to continue.</p>

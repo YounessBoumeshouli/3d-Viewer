@@ -5,10 +5,10 @@ import { useTexture } from '@react-three/drei';
 import Loader from '../components/Loader';
 import api from "../services/api.js";
 
-const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, file , wallH  }) => {
-    console.log(wallH)
+const DXFModel = ({ scale, position, setLongestWall, file, wallH, onWallsLoaded }) => {    console.log(wallH)
     let path = file.file;
     const [entities, setEntities] = useState([]);
+
     // Load textures for different wall materials
     const stoneTextures = useTexture({
         map: '/textures/stone/stone_diffuse.jpg',
@@ -72,7 +72,9 @@ const DXFModel = ({ scale = [1, 1, 1], position = [0, 0, 0], setLongestWall, fil
                 }
             }
         });
-
+        if (onWallsLoaded) {
+            onWallsLoaded(walls);
+        }
         if (maxLengthWallIndex !== -1) {
             walls[maxLengthWallIndex].isMaxLengthWall = true;
 
