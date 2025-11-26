@@ -239,8 +239,12 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
 
                             {/* RENDER USER ELEMENTS */}
 
-                            {userDesign?.rooms?.map((room) => (
-                                <Room key={room.id} position={room} />
+                            {/* RENDER USER DRAWN ROOMS */}
+                            {userDesign?.rooms?.map((roomPoints, index) => (
+                                <Room
+                                    key={`room-${index}`}
+                                    shapePoints={roomPoints} // Pass the array of points
+                                />
                             ))}
 
                             {calculatedDoors.map((door) => (

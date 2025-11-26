@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { useTexture } from '@react-three/drei';
 
-const Room = ({ position, width = 5, length = 5 }) => {
-    // Load textures for the floor
+const Room = ({ shapePoints }) => {
+    // 1. Load Textures
     const floorTextures = useTexture({
         map: '/textures/floor/wooden_floor_diffuse.jpg',
         normalMap: '/textures/floor/wooden_floor_normal.jpg',
@@ -11,30 +11,56 @@ const Room = ({ position, width = 5, length = 5 }) => {
         aoMap: '/textures/floor/wooden_floor_ambient_occlusion.jpg',
     });
 
-    // Configure texture repeating
+    // 2. Create Geometry from Points
+    const geometry = useMemo(() => {
+        // Need at least 3 points to make a shape
+        if (!shapePoints || shapePoints.length < 3) return null;
+
+        const shape = new THREE.Shape();
+
+        // Move to first point
+        shape.moveTo(shapePoints[0].x, shapePoints[0].y);
+
+        // Connect the rest
+        shapePoints.slice(1).forEach(p => {
+            shape.lineTo(p.x, p.y);
+        });
+
+        // Close shape
+        shape.closePath();
+
+        // Create geometry (flat plane)
+        return new THREE.ShapeGeometry(shape);
+    }, [shapePoints]);
+
+    // 3. Configure Texture Repeating
     useMemo(() => {
+        if (!geometry) return;
+
+        // Calculate bounding box to determine texture repeat scale
+        geometry.computeBoundingBox();
+        const box = geometry.boundingBox;
+        const width = box.max.x - box.min.x;
+        const height = box.max.y - box.min.y;
+
         Object.values(floorTextures).forEach(t => {
             t.wrapS = t.wrapT = THREE.RepeatWrapping;
-            t.repeat.set(width / 2, length / 2);
+            t.repeat.set(width / 2, height / 2); // Adjust scaling factor as needed
         });
-    }, [floorTextures, width, length]);
+    }, [floorTextures, geometry]);
+
+    if (!geometry) return null;
 
     return (
-        // FIX: Position uses (x, y, z). Z is height.
-        // Since we are inside the rotated group, Z is 'up' relative to the floorplan.
-        <group position={[position.x, position.y, 0.05]}>
-
-            {/* FIX: Remove rotation={[-Math.PI/2, 0, 0]} because the parent group is already rotated */}
-            <mesh receiveShadow>
-                <planeGeometry args={[width, length]} />
-                <meshStandardMaterial {...floorTextures} side={THREE.DoubleSide} />
-            </mesh>
-
-            {/* Optional: Label */}
-            <mesh position={[0, 0, 2]}>
-                {/* Floating text marker if needed */}
-            </mesh>
-        </group>
+        // Render slightly above Z=0 to avoid z-fighting
+        <mesh
+            geometry={geometry}
+            position={[0, 0, 0.02]}
+            rotation={[0, 0, 0]}
+            receiveShadow
+        >
+            <meshStandardMaterial {...floorTextures} side={THREE.DoubleSide} />
+        </mesh>
     );
 };
 
