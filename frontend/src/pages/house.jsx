@@ -10,42 +10,35 @@ import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
 import Room from "../components/Room/Room.jsx";
 
-// --- HELPER: Find nearest wall and calculate door orientation ---
-const calculateDoorCoordinates = (doorPoint, walls) => {
+// --- GENERIC SNAP HELPER (Used for Doors and Windows) ---
+const calculateElementCoordinates = (point, walls, width = 1.0) => {
     if (!walls || walls.length === 0) {
-        // Fallback if no walls found: Horizontal default
         return {
-            start: [doorPoint.x - 0.5, doorPoint.y, 0],
-            end: [doorPoint.x + 0.5, doorPoint.y, 0]
+            start: [point.x - width/2, point.y, 0],
+            end: [point.x + width/2, point.y, 0]
         };
     }
 
     let minDistance = Infinity;
     let bestWall = null;
-    let bestPoint = { x: doorPoint.x, y: doorPoint.y };
+    let bestPoint = { x: point.x, y: point.y };
 
-    // 1. Find the wall segment closest to the door click
+    // 1. Find the wall segment closest to the click
     walls.forEach(wall => {
         const A = wall.start;
         const B = wall.end;
-        const P = doorPoint;
+        const P = point;
 
-        // Vector AB
         const dx = B.x - A.x;
         const dy = B.y - A.y;
         const lenSq = dx * dx + dy * dy;
 
-        // Project point P onto line segment AB
         let t = ((P.x - A.x) * dx + (P.y - A.y) * dy) / lenSq;
-
-        // Clamp t to segment [0, 1]
         t = Math.max(0, Math.min(1, t));
 
-        // Find closest point on this wall segment
         const closestX = A.x + t * dx;
         const closestY = A.y + t * dy;
 
-        // Calculate distance
         const distSq = (P.x - closestX) ** 2 + (P.y - closestY) ** 2;
 
         if (distSq < minDistance) {
@@ -55,28 +48,25 @@ const calculateDoorCoordinates = (doorPoint, walls) => {
         }
     });
 
-    // 2. Calculate start/end based on that wall's angle
+    // 2. Create a segment centered on that point, aligned with the wall
     if (bestWall) {
         const dx = bestWall.end.x - bestWall.start.x;
         const dy = bestWall.end.y - bestWall.start.y;
         const angle = Math.atan2(dy, dx);
 
-        const width = 1.0; // Door width
         const half = width / 2;
-
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
 
         return {
-            // Center the door on the 'bestPoint' (projection on wall)
             start: [bestPoint.x - half * cos, bestPoint.y - half * sin, 0],
             end: [bestPoint.x + half * cos, bestPoint.y + half * sin, 0]
         };
     }
 
     return {
-        start: [doorPoint.x - 0.5, doorPoint.y, 0],
-        end: [doorPoint.x + 0.5, doorPoint.y, 0]
+        start: [point.x - width/2, point.y, 0],
+        end: [point.x + width/2, point.y, 0]
     };
 };
 
@@ -96,11 +86,7 @@ const Floor = () => {
     return (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
             <planeGeometry args={[100, 100]} />
-            <meshStandardMaterial
-                {...floorTextures}
-                color={0xffffff}
-                roughness={0.8}
-            />
+            <meshStandardMaterial {...floorTextures} color={0xffffff} roughness={0.8} />
         </mesh>
     );
 };
@@ -179,18 +165,14 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
     const [islandScale, islandPosition] = adjustIslandForScreenSize();
 
     useEffect(() => {
-        if (longestWall) {
-            setLoading(false);
-        }
+        if (longestWall) setLoading(false);
     }, [longestWall]);
 
     const onCreated = ({ gl, scene: threeScene, camera: threeCamera }) => {
         setRenderer(gl);
         setScene(threeScene);
         setCamera(threeCamera);
-        if (onCanvasReady) {
-            setTimeout(() => onCanvasReady(), 100);
-        }
+        if (onCanvasReady) setTimeout(() => onCanvasReady(), 100);
     };
 
     useImperativeHandle(ref, () => ({
@@ -198,25 +180,29 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
         getScene: () => scene,
         getCamera: () => camera,
         updateScene: () => {
-            if (renderer && scene && camera) {
-                renderer.render(scene, camera);
-            }
+            if (renderer && scene && camera) renderer.render(scene, camera);
         },
         getCanvas: () => renderer?.domElement || null
     }));
 
-    // Calculate doors with proper rotation using useMemo to avoid re-calc on every frame
+    // 1. CALCULATE DOORS (Snap to wall)
     const calculatedDoors = useMemo(() => {
         if (!userDesign?.doors) return [];
         return userDesign.doors.map(door => {
-            const coords = calculateDoorCoordinates(door, preParsedWalls || []);
-            return {
-                ...door,
-                wallStart: coords.start,
-                wallEnd: coords.end
-            };
+            const coords = calculateElementCoordinates(door, preParsedWalls || [], 1.0); // 1m width
+            return { ...door, wallStart: coords.start, wallEnd: coords.end };
         });
     }, [userDesign?.doors, preParsedWalls]);
+
+    // 2. CALCULATE WINDOWS (Snap to wall)
+    const calculatedWindows = useMemo(() => {
+        if (!userDesign?.windows) return [];
+        return userDesign.windows.map(win => {
+            // Windows are usually wider, e.g., 1.5m
+            const coords = calculateElementCoordinates(win, preParsedWalls || [], 1.5);
+            return { ...win, wallStart: coords.start, wallEnd: coords.end };
+        });
+    }, [userDesign?.windows, preParsedWalls]);
 
     return (
         <>
@@ -251,15 +237,12 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                                 wallH={height}
                             />
 
-                            {/* Render Rooms */}
+                            {/* RENDER USER ELEMENTS */}
+
                             {userDesign?.rooms?.map((room) => (
-                                <Room
-                                    key={room.id}
-                                    position={room}
-                                />
+                                <Room key={room.id} position={room} />
                             ))}
 
-                            {/* Render Calculated Doors (Snaps to nearest wall) */}
                             {calculatedDoors.map((door) => (
                                 <Door
                                     key={door.id}
@@ -268,32 +251,21 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                                     path={selectedComponent.find(item => item.category === "door")?.path}
                                 />
                             ))}
-                            {longestWall && height && (
-                                <>
-                                    {Array.from({ length: height }, (_, i) => (
-                                        <React.Fragment key={i}>
-                                            <Window
-                                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                                position="left"
-                                                key={`left-window-${i}`}
-                                                stage={i}
-                                                path={selectedComponent.find(item => item.category === "window")?.path}
-                                            />
-                                            <Window
-                                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                                position="right"
-                                                key={`right-window-${i}`}
-                                                path={selectedComponent.find(item => item.category === "window")?.path}
-                                                stage={i}
-                                            />
-                                        </React.Fragment>
-                                    ))}
-                                </>
-                            )}
-                        </group>
 
+                            {/* RENDER CALCULATED WINDOWS */}
+                            {calculatedWindows.map((win) => (
+                                <Window
+                                    key={win.id}
+                                    wallStart={win.wallStart}
+                                    wallEnd={win.wallEnd}
+                                    // "Left" or "Right" doesn't matter here because our
+                                    // wallStart/End is a small segment CENTERED on the click.
+                                    // So the window will appear exactly where clicked.
+                                    path={selectedComponent.find(item => item.category === "window")?.path}
+                                    stage={0} // Default to ground floor, extend logic if you have floors
+                                />
+                            ))}
+                        </group>
                     </Suspense>
                 </Canvas>
             </div>

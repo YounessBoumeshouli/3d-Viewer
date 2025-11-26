@@ -50,11 +50,10 @@ function Viewer3D() {
     const [isRendererReady, setIsRendererReady] = useState(false)
     const [viewMode, setViewMode] = useState('2d'); // Default to '2d' so it shows first
     const [extractedWalls, setExtractedWalls] = useState([]); // Store wall data from DXF
-    const [userDesign, setUserDesign] = useState({ doors: [], rooms: [] });
     const componentRef = useRef();
     const sceneRef = useRef(null);
     const houseRef = useRef();
-
+    const [userDesign, setUserDesign] = useState({ doors: [], rooms: [], windows: [] }); // Initialize windows array
     const handleCategoryClick = async (category) => {
         setActiveCategory(category.name)
         setShowModal(true)
@@ -497,8 +496,7 @@ function Viewer3D() {
                                             <div className="w-full h-full bg-white relative">
                                                 <TwoDViewer
                                                     walls={extractedWalls}
-                                                    onUpdateDesign={(doors, rooms) => setUserDesign({ doors, rooms })}
-                                                />
+                                                    onUpdateDesign={(doors, rooms, windows) => setUserDesign({ doors, rooms, windows })}                                                />
 
                                                 {/* --- ADDED BUTTON HERE --- */}
                                                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
