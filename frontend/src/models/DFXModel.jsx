@@ -84,6 +84,10 @@ const DXFModel = ({ scale, position, setLongestWall, file, wallH, onWallsLoaded 
                 end: walls[maxLengthWallIndex].end,
                 length: maxLength
             });
+            console.log(walls[maxLengthWallIndex].start)
+            console.log(walls[maxLengthWallIndex].end)
+            console.log(maxLength)
+
         }
 
         return walls;

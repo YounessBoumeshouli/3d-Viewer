@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { Suspense, useEffect, useState, useRef, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { AxesHelper, GridHelper, Vector3 } from 'three';
 import Sky from "../models/Sky.jsx";
@@ -8,7 +8,77 @@ import Door from '../components/Door/Door.jsx';
 import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
-import Room from "../components/Room/Room.jsx"; // Make sure to import Room
+import Room from "../components/Room/Room.jsx";
+
+// --- HELPER: Find nearest wall and calculate door orientation ---
+const calculateDoorCoordinates = (doorPoint, walls) => {
+    if (!walls || walls.length === 0) {
+        // Fallback if no walls found: Horizontal default
+        return {
+            start: [doorPoint.x - 0.5, doorPoint.y, 0],
+            end: [doorPoint.x + 0.5, doorPoint.y, 0]
+        };
+    }
+
+    let minDistance = Infinity;
+    let bestWall = null;
+    let bestPoint = { x: doorPoint.x, y: doorPoint.y };
+
+    // 1. Find the wall segment closest to the door click
+    walls.forEach(wall => {
+        const A = wall.start;
+        const B = wall.end;
+        const P = doorPoint;
+
+        // Vector AB
+        const dx = B.x - A.x;
+        const dy = B.y - A.y;
+        const lenSq = dx * dx + dy * dy;
+
+        // Project point P onto line segment AB
+        let t = ((P.x - A.x) * dx + (P.y - A.y) * dy) / lenSq;
+
+        // Clamp t to segment [0, 1]
+        t = Math.max(0, Math.min(1, t));
+
+        // Find closest point on this wall segment
+        const closestX = A.x + t * dx;
+        const closestY = A.y + t * dy;
+
+        // Calculate distance
+        const distSq = (P.x - closestX) ** 2 + (P.y - closestY) ** 2;
+
+        if (distSq < minDistance) {
+            minDistance = distSq;
+            bestWall = wall;
+            bestPoint = { x: closestX, y: closestY };
+        }
+    });
+
+    // 2. Calculate start/end based on that wall's angle
+    if (bestWall) {
+        const dx = bestWall.end.x - bestWall.start.x;
+        const dy = bestWall.end.y - bestWall.start.y;
+        const angle = Math.atan2(dy, dx);
+
+        const width = 1.0; // Door width
+        const half = width / 2;
+
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+
+        return {
+            // Center the door on the 'bestPoint' (projection on wall)
+            start: [bestPoint.x - half * cos, bestPoint.y - half * sin, 0],
+            end: [bestPoint.x + half * cos, bestPoint.y + half * sin, 0]
+        };
+    }
+
+    return {
+        start: [doorPoint.x - 0.5, doorPoint.y, 0],
+        end: [doorPoint.x + 0.5, doorPoint.y, 0]
+    };
+};
 
 const Floor = () => {
     const floorTextures = useTexture({
@@ -38,18 +108,12 @@ const Floor = () => {
 const CameraController = () => {
     const { camera, gl } = useThree();
     const keys = useRef({});
-
     const moveSpeed = 0.15;
     const lookSpeed = 0.002;
 
     useEffect(() => {
-        const handleKeyDown = (e) => {
-            keys.current[e.code] = true;
-        };
-
-        const handleKeyUp = (e) => {
-            keys.current[e.code] = false;
-        };
+        const handleKeyDown = (e) => keys.current[e.code] = true;
+        const handleKeyUp = (e) => keys.current[e.code] = false;
 
         const handleMouseMove = (e) => {
             if (e.buttons === 2) {
@@ -59,9 +123,7 @@ const CameraController = () => {
             }
         };
 
-        const handleContextMenu = (e) => {
-            e.preventDefault();
-        };
+        const handleContextMenu = (e) => e.preventDefault();
 
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
@@ -91,14 +153,12 @@ const CameraController = () => {
     return null;
 };
 
-// ADDED: userDesign to props
-const House = forwardRef(({ file, components, height, onCanvasReady, userDesign }, ref) => {
+const House = forwardRef(({ file, components, height, onCanvasReady, userDesign, preParsedWalls }, ref) => {
     const [longestWall, setLongestWall] = useState(null);
     const [loading, setLoading] = useState(true);
     const [renderer, setRenderer] = useState(null);
     const [scene, setScene] = useState(null);
     const [camera, setCamera] = useState(null);
-
     const [selectedComponent, setSelectedComponent] = useState([]);
 
     useEffect(() => {
@@ -145,13 +205,26 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign 
         getCanvas: () => renderer?.domElement || null
     }));
 
+    // Calculate doors with proper rotation using useMemo to avoid re-calc on every frame
+    const calculatedDoors = useMemo(() => {
+        if (!userDesign?.doors) return [];
+        return userDesign.doors.map(door => {
+            const coords = calculateDoorCoordinates(door, preParsedWalls || []);
+            return {
+                ...door,
+                wallStart: coords.start,
+                wallEnd: coords.end
+            };
+        });
+    }, [userDesign?.doors, preParsedWalls]);
+
     return (
         <>
             {loading && <Loader />}
             <div className="w-full h-screen">
                 <Canvas
                     className="w-full h-screen bg-transparent threejs-canvas"
-                    camera={{ position: [10, 5, 10], fov: 75, near: 0.1, far: 1000 }}
+                    camera={{ position: [10, 15, 10], fov: 50, near: 0.1, far: 1000 }}
                     shadows
                     onCreated={onCreated}
                 >
@@ -170,72 +243,55 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign 
                         <hemisphereLight intensity={0.3} groundColor="#080820" />
 
                         <group rotation={[-Math.PI / 2, 0, 0]}>
-                            <DXFModel scale={islandScale} position={islandPosition} setLongestWall={setLongestWall} file={file} wallH={height} />
-
-
-                        {/* --- RENDER USER DESIGNED ELEMENTS --- */}
-
-                        {/* 1. User Designed Doors */}
-                        {userDesign?.doors?.map((door) => (
-                            <Door
-                                key={door.id}
-                                // UPDATED: Use door.x and door.y directly
-                                // We offset x by 0.5 to create a small width for the door opening simulation if needed
-                                wallStart={[door.x - 0.5, door.y, 0]}
-                                wallEnd={[door.x + 0.5, door.y, 0]}
-                                path={selectedComponent.find(item => item.category === "door")?.path}
+                            <DXFModel
+                                scale={islandScale}
+                                position={islandPosition}
+                                setLongestWall={setLongestWall}
+                                file={file}
+                                wallH={height}
                             />
-                        ))}
 
-                        {/* 2. User Designed Rooms */}
-                        {userDesign?.rooms?.map((room) => (
-                            <Room
-                                key={room.id}
-                                // UPDATED: Pass the room object directly (it contains x and y)
-                                position={room}
-                            />
-                        ))}
+                            {/* Render Rooms */}
+                            {userDesign?.rooms?.map((room) => (
+                                <Room
+                                    key={room.id}
+                                    position={room}
+                                />
+                            ))}
 
-                        {/* -------------------------------------- */}
-
-                        {/* Keep existing logic for automatic placement if longestWall is found (optional) */}
-                        {longestWall && !userDesign?.doors?.length && (
-                            <>
+                            {/* Render Calculated Doors (Snaps to nearest wall) */}
+                            {calculatedDoors.map((door) => (
                                 <Door
-                                    wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                    wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                    key={door.id}
+                                    wallStart={door.wallStart}
+                                    wallEnd={door.wallEnd}
                                     path={selectedComponent.find(item => item.category === "door")?.path}
                                 />
-                                <Table
-                                    wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                    wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                />
-                            </>
-                        )}
-                        {longestWall && height && (
-                            <>
-                                {Array.from({ length: height }, (_, i) => (
-                                    <React.Fragment key={i}>
-                                        <Window
-                                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                            position="left"
-                                            key={`left-window-${i}`}
-                                            stage={i}
-                                            path={selectedComponent.find(item => item.category === "window")?.path}
-                                        />
-                                        <Window
-                                            wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
-                                            wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
-                                            position="right"
-                                            key={`right-window-${i}`}
-                                            path={selectedComponent.find(item => item.category === "window")?.path}
-                                            stage={i}
-                                        />
-                                    </React.Fragment>
-                                ))}
-                            </>
-                        )}
+                            ))}
+                            {longestWall && height && (
+                                <>
+                                    {Array.from({ length: height }, (_, i) => (
+                                        <React.Fragment key={i}>
+                                            <Window
+                                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                                position="left"
+                                                key={`left-window-${i}`}
+                                                stage={i}
+                                                path={selectedComponent.find(item => item.category === "window")?.path}
+                                            />
+                                            <Window
+                                                wallStart={[longestWall.start.x, longestWall.start.y, 0.5]}
+                                                wallEnd={[longestWall.end.x, longestWall.end.y, 0.5]}
+                                                position="right"
+                                                key={`right-window-${i}`}
+                                                path={selectedComponent.find(item => item.category === "window")?.path}
+                                                stage={i}
+                                            />
+                                        </React.Fragment>
+                                    ))}
+                                </>
+                            )}
                         </group>
 
                     </Suspense>
