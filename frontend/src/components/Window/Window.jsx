@@ -1,65 +1,115 @@
-import { useLoader, useThree } from "@react-three/fiber";
+import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import React, { useEffect, useState, useRef, Suspense } from "react";
+import React, { useEffect, useState, useRef, Suspense, useMemo } from "react";
+import * as THREE from "three";
 import api from "./../../services/api.js";
-const WindowModel = ({ windowPath, position, rotation, scale }) => {
+
+// --- HELPER: Advanced Auto-Orientation ---
+const WindowModel = ({ windowPath, targetWidth = 1.5 }) => {
     const gltf = useLoader(GLTFLoader, windowPath);
-    console.log(position)
+    const [transform, setTransform] = useState({
+        scale: [1, 1, 1],
+        rotation: [0, 0, 0],
+        offset: [0, 0, 0]
+    });
+
+    useEffect(() => {
+        if (gltf.scene) {
+            // 1. Measure the raw model
+            const box = new THREE.Box3().setFromObject(gltf.scene);
+            const size = new THREE.Vector3();
+            const center = new THREE.Vector3();
+            box.getSize(size);
+            box.getCenter(center);
+
+            // 2. ANALYZE DIMENSIONS to find Orientation
+            // Assumption: A window's Thickness (Depth) is its SMALLEST dimension.
+            // We want to align this smallest dimension with the Z axis.
+
+            let rotX = 0;
+            let rotY = 0;
+            let rotZ = 0;
+            let modelWidth = size.x; // Default width assumption
+
+            const dims = [
+                { axis: 'x', val: size.x },
+                { axis: 'y', val: size.y },
+                { axis: 'z', val: size.z }
+            ];
+
+            // Sort to find smallest (Thickness) and largest (likely Width)
+            dims.sort((a, b) => a.val - b.val);
+            const thicknessAxis = dims[0].axis; // Smallest
+
+            // Calculate Rotation based on which axis represents thickness
+            if (thicknessAxis === 'x') {
+                // If X is thickness, model is rotated 90deg sideways.
+                // Rotate 90deg around Y to bring X to Z.
+                rotY = -Math.PI / 2;
+                modelWidth = size.z; // Z becomes the new width
+            } else if (thicknessAxis === 'y') {
+                // If Y is thickness, model is lying flat on floor.
+                // Rotate 90deg around X to bring Y to Z.
+                rotX = Math.PI / 2;
+                modelWidth = size.x; // X stays width
+            } else {
+                // If Z is thickness (Standard), no rotation needed.
+                modelWidth = size.x;
+            }
+
+            // 3. CALCULATE SCALE
+            // Force the window width to match targetWidth
+            const scaleFactor = modelWidth > 0 ? targetWidth / modelWidth : 1;
+
+            // 4. CENTER OFFSET
+            // We center the model so it rotates around its true center point
+            setTransform({
+                scale: [scaleFactor, scaleFactor, scaleFactor],
+                rotation: [rotX, rotY, rotZ],
+                offset: [-center.x, -center.y, -center.z]
+            });
+        }
+    }, [gltf.scene, targetWidth]);
+
+    // Clone scene to allow multiple instances
+    const scene = useMemo(() => gltf.scene.clone(), [gltf.scene]);
+
     return (
-        <primitive
-            object={gltf.scene}
-            position={position}
-            rotation={rotation}
-            scale={[scale, scale, scale]}
-        />
+        <group rotation={transform.rotation} scale={transform.scale}>
+            <primitive object={scene} position={transform.offset} />
+        </group>
     );
 };
-const Window = ({ wallStart, wallEnd, position , path, stage }) => {
+
+// --- MAIN COMPONENT ---
+const Window = ({ wallStart, wallEnd, position, path, stage }) => {
     const [windowPath, setWindowPath] = useState(null);
     const [modelError, setModelError] = useState(null);
-    const [scale, setScale] = useState(0.3);
-    const [windowPosition, setWindowPosition] = useState([0, 0, 0]);
-    const instanceId = useRef(Math.random().toString(36).substring(7));
-    const [angle, setAngle] = useState(0);
+    const [coords, setCoords] = useState({ pos: [0, 0, 0], rot: 0 });
     const [isReady, setIsReady] = useState(false);
     const lastFetchedPath = useRef(null);
 
+    // 1. Fetch Model
     useEffect(() => {
-        console.log(path)
         if (path) {
-            console.log(path)
             localStorage.setItem("window", path);
             fetchModel();
-
         }
     }, [path]);
 
     const fetchModel = async () => {
-        console.log('fetch model is running ')
-        console.log(localStorage.getItem("window"))
         try {
             const storedWindow = localStorage.getItem("window");
-
-            if (!storedWindow || storedWindow === "null") {
-                console.log("*********************No window model in localStorage*****************************")
-                setModelError("No window model in localStorage");
-                return;
-            }if (storedWindow === lastFetchedPath.current) {
-                console.log("Model already fetched, skipping...");
-                return;
-            }
+            if (!storedWindow || storedWindow === "null") return;
+            if (storedWindow === lastFetchedPath.current) return;
 
             lastFetchedPath.current = storedWindow;
-
             let image = storedWindow.split("/");
             const response = await api.get(`storage-proxy/components/${image[1]}/${image[2]}`, {
                 responseType: "blob",
             });
 
-            if (windowPath && windowPath.startsWith("blob:")) {
-                URL.revokeObjectURL(windowPath);
-            }
-
+            if (windowPath && windowPath.startsWith("blob:")) URL.revokeObjectURL(windowPath);
             const blobURL = URL.createObjectURL(response.data);
             setWindowPath(blobURL);
             setIsReady(true);
@@ -70,115 +120,74 @@ const Window = ({ wallStart, wallEnd, position , path, stage }) => {
     };
 
     useEffect(() => {
-        return () => {
-            if (windowPath && windowPath.startsWith("blob:")) {
-                URL.revokeObjectURL(windowPath);
-            }
-        };
-    }, [windowPath]);
-    useEffect(() => {
-        const onLocalStorageChange = (e) => {
-            console.log('$$$$$$$$$$$$$$$$$$window change$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-            fetchModel()
-        };
-
+        const onLocalStorageChange = () => fetchModel();
         window.addEventListener('local-storage', onLocalStorageChange);
-
-        return () => {
-            window.removeEventListener('local-storage', onLocalStorageChange);
-        };
+        return () => window.removeEventListener('local-storage', onLocalStorageChange);
     }, []);
 
+    // 2. Calculate Placement on Wall
     useEffect(() => {
         if (!wallStart || !wallEnd) return;
-        console.log(stage)
-        const wallLength = Math.sqrt(
-            Math.pow(wallEnd[0] - wallStart[0], 2) +
-            Math.pow(wallEnd[1] - wallStart[1], 2)
-        );
 
-        const dirX = wallEnd[0] - wallStart[0];
-        const dirY = wallEnd[1] - wallStart[1];
+        // A. Standardize Wall Direction (Left -> Right)
+        let p1 = { x: wallStart[0], y: wallStart[1] };
+        let p2 = { x: wallEnd[0], y: wallEnd[1] };
 
-        const length = Math.sqrt(dirX * dirX + dirY * dirY);
-        const normDirX = dirX / length;
-        const normDirY = dirY / length;
-
-        const centerX = (wallStart[0] + wallEnd[0]) / 2;
-        const centerY = (wallStart[1] + wallEnd[1]) / 2;
-
-        let offsetX = 0;
-        let offsetY = 0;
-        const offsetDistance = wallLength * 0.25;
-
-
-
-       if (stage === 0 ){
-           if (position === "left") {
-               offsetX = -normDirX * offsetDistance+1;
-               offsetY = -normDirY * offsetDistance+0.6;
-           } else if (position === "right") {
-               offsetX = normDirX * offsetDistance+4;
-               offsetY = normDirY * offsetDistance+2.4;
-           }
-           console.log('############ stage :',stage)
-
-           setWindowPosition([
-               centerX + offsetX,
-                1.2,
-               -(centerY + offsetY)
-           ]);
-       }else {
-           if (position === "left") {
-               offsetX = -normDirX * offsetDistance;
-               offsetY = -normDirY * offsetDistance;
-           } else if (position === "right") {
-               offsetX = normDirX * offsetDistance;
-               offsetY = normDirY * offsetDistance;
-           }
-           console.log('############ stage :',stage)
-           setWindowPosition([
-               centerX + offsetX,
-               stage * 3 + 2,
-               -(centerY + offsetY)
-           ]);
-       }
-
-        if (wallLength > 0) {
-            const maxWindowWidth = 1.5;
-            const calculatedScale = maxWindowWidth / wallLength + 1;
-            const minScale = 0.5;
-            setScale(Math.max(minScale, calculatedScale));
+        if (p1.x > p2.x || (Math.abs(p1.x - p2.x) < 0.01 && p1.y > p2.y)) {
+            [p1, p2] = [p2, p1];
         }
 
-        const newAngle = Math.atan2(wallEnd[1] - wallStart[1], wallEnd[0] - wallStart[0]);
-        setAngle(newAngle);
+        // B. Vector Math
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const dirX = dx / len;
+        const dirY = dy / len;
 
-        console.log(`Window ${instanceId.current} calculated position :`, [centerX + offsetX, 2, -(centerY + offsetY)]);
+        // C. Determine Center & Offset
+        let centerX = (p1.x + p2.x) / 2;
+        let centerY = (p1.y + p2.y) / 2;
+        const offsetAmt = len * 0.25;
+
+        if (position === "left") {
+            centerX -= dirX * offsetAmt;
+            centerY -= dirY * offsetAmt;
+        } else if (position === "right") {
+            centerX += dirX * offsetAmt;
+            centerY += dirY * offsetAmt;
+        }
+
+        // D. Height (Z is Up in House group)
+        const floorHeight = 3;
+        const sillHeight = 1.2;
+        const finalZ = (stage || 0) * floorHeight + sillHeight;
+
+        // E. Wall Angle (Rotation around Z)
+        const angle = Math.atan2(dy, dx);
+
+        setCoords({
+            pos: [centerX, centerY, finalZ],
+            rot: angle
+        });
+
     }, [wallStart, wallEnd, position, stage]);
 
-    if (!wallStart || !wallEnd) {
-        return null;
-    }
+    if (!wallStart || !wallEnd || !isReady || !windowPath) return null;
 
-    if (modelError) {
-        console.warn(`Window ${instanceId.current} model error:`, modelError);
-        return null;
-    }
-
-    if (!isReady || !windowPath) {
-        return null;
-    }
     return (
         <Suspense fallback={null}>
-            {stage != null &&
-                <WindowModel
-                    windowPath={windowPath}
-                    position={windowPosition}
-                    rotation={[0, angle, 0]}
-                    scale={scale}
-                />
-            }
+            {/* 1. Position on Wall, Rotate to match Wall Angle */}
+            <group position={coords.pos} rotation={[0, 0, coords.rot]}>
+
+                {/* 2. Stand Up Correction (Rotates X 90deg to make Y-up models Z-up) */}
+                <group rotation={[Math.PI / 2, 0, 0]}>
+
+                    {/* 3. The Model itself (Auto-corrects internal rotation/scale) */}
+                    <WindowModel windowPath={windowPath} targetWidth={1.5} />
+
+                </group>
+
+            </group>
         </Suspense>
     );
 };
