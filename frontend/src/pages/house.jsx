@@ -237,13 +237,12 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                                 wallH={height}
                             />
 
-                            {/* RENDER USER ELEMENTS */}
 
-                            {/* RENDER USER DRAWN ROOMS */}
                             {userDesign?.rooms?.map((roomPoints, index) => (
                                 <Room
                                     key={`room-${index}`}
-                                    shapePoints={roomPoints} // Pass the array of points
+                                    shapePoints={roomPoints}
+                                    height={height}
                                 />
                             ))}
 
@@ -255,18 +254,14 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                                     path={selectedComponent.find(item => item.category === "door")?.path}
                                 />
                             ))}
-
-                            {/* RENDER CALCULATED WINDOWS */}
                             {calculatedWindows.map((win) => (
                                 <Window
                                     key={win.id}
                                     wallStart={win.wallStart}
                                     wallEnd={win.wallEnd}
-                                    // "Left" or "Right" doesn't matter here because our
-                                    // wallStart/End is a small segment CENTERED on the click.
-                                    // So the window will appear exactly where clicked.
+
                                     path={selectedComponent.find(item => item.category === "window")?.path}
-                                    stage={0} // Default to ground floor, extend logic if you have floors
+                                    stage={0}
                                 />
                             ))}
                         </group>

@@ -1,19 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const TwoDViewer = ({ walls, onUpdateDesign }) => {
+const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
 
     // Viewport state
     const [transform, setTransform] = useState({ scale: 1, offsetX: 0, offsetY: 0 });
 
-    // Design State
+    // Design State: Initialize with empty arrays
     const [designElements, setDesignElements] = useState({ doors: [], rooms: [], windows: [] });
 
     // Drawing State
     const [mode, setMode] = useState('view'); // 'view', 'door', 'window', 'draw_room'
     const [currentPoly, setCurrentPoly] = useState([]); // Points for the room currently being drawn
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 }); // Track mouse for preview lines
+
+    // --- NEW: LOAD SAVED DESIGN ---
+    useEffect(() => {
+        if (savedDesign) {
+            setDesignElements({
+                doors: savedDesign.doors || [],
+                rooms: savedDesign.rooms || [],
+                windows: savedDesign.windows || []
+            });
+        }
+    }, [savedDesign]);
 
     // 1. AUTO-FIT (Standard Logic)
     useEffect(() => {
@@ -53,7 +64,7 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
             y: canvas.height - (y * transform.scale + transform.offsetY)
         });
 
-        // --- A. DRAW COMPLETED ROOMS (Polygons) ---
+        // --- DRAW COMPLETED ROOMS (Polygons) ---
         designElements.rooms.forEach(roomPoints => {
             if (!roomPoints || roomPoints.length < 3) return;
 
@@ -74,8 +85,7 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
             ctx.fill();
             ctx.stroke();
 
-            // Label
-            // Calculate center approximate
+            // Label Center
             const centerX = roomPoints.reduce((sum, p) => sum + p.x, 0) / roomPoints.length;
             const centerY = roomPoints.reduce((sum, p) => sum + p.y, 0) / roomPoints.length;
             const labelPos = toScreen(centerX, centerY);
@@ -86,13 +96,12 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
             ctx.fillText("ROOM", labelPos.x, labelPos.y);
         });
 
-        // --- B. DRAW CURRENT DRAWING (Lines in progress) ---
+        // --- DRAW CURRENT DRAWING (Lines in progress) ---
         if (currentPoly.length > 0) {
             ctx.strokeStyle = '#2563eb'; // Blue
             ctx.lineWidth = 2;
             ctx.beginPath();
 
-            // Draw committed lines
             const start = toScreen(currentPoly[0].x, currentPoly[0].y);
             ctx.moveTo(start.x, start.y);
 
@@ -101,9 +110,8 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
                 ctx.lineTo(pt.x, pt.y);
             });
 
-            // Draw "Rubber Band" line to mouse
+            // Draw rubber-band line
             const lastPt = currentPoly[currentPoly.length - 1];
-            const screenLast = toScreen(lastPt.x, lastPt.y);
             const screenMouse = toScreen(mousePos.x, mousePos.y);
 
             ctx.lineTo(screenMouse.x, screenMouse.y);
@@ -112,14 +120,14 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
             // Draw anchor points
             currentPoly.forEach((p, i) => {
                 const pt = toScreen(p.x, p.y);
-                ctx.fillStyle = i === 0 ? '#16a34a' : '#2563eb'; // Green for start point
+                ctx.fillStyle = i === 0 ? '#16a34a' : '#2563eb';
                 ctx.beginPath();
                 ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
                 ctx.fill();
             });
         }
 
-        // --- C. DRAW WALLS (Overlay) ---
+        // --- DRAW WALLS (Overlay) ---
         ctx.beginPath();
         ctx.strokeStyle = '#1e293b';
         ctx.lineWidth = 3;
@@ -132,7 +140,7 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
         });
         ctx.stroke();
 
-        // --- D. DRAW DOORS & WINDOWS ---
+        // --- DRAW DOORS ---
         designElements.doors.forEach(door => {
             const pos = toScreen(door.x, door.y);
             ctx.fillStyle = '#ef4444';
@@ -140,14 +148,19 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
             ctx.arc(pos.x, pos.y, 6, 0, 2 * Math.PI);
             ctx.fill();
             ctx.fillStyle = 'black';
+            ctx.font = '10px Arial';
             ctx.fillText("DOOR", pos.x + 8, pos.y);
         });
 
+        // --- DRAW WINDOWS ---
         designElements.windows.forEach(win => {
             const pos = toScreen(win.x, win.y);
             ctx.fillStyle = '#3b82f6';
-            ctx.fillRect(pos.x - 5, pos.y - 5, 10, 10);
+            ctx.beginPath();
+            ctx.rect(pos.x - 5, pos.y - 5, 10, 10);
+            ctx.fill();
             ctx.fillStyle = 'black';
+            ctx.font = '10px Arial';
             ctx.fillText("WINDOW", pos.x + 8, pos.y);
         });
 
@@ -176,22 +189,18 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
         const worldPos = getMouseWorldPos(e);
 
         if (mode === 'draw_room') {
-            // Check if clicking near Start Point to close loop
             if (currentPoly.length > 2) {
                 const start = currentPoly[0];
                 const dist = Math.sqrt((worldPos.x - start.x) ** 2 + (worldPos.y - start.y) ** 2);
-
-                // If clicked within ~0.5 meters of start, close polygon
                 if (dist < 0.5) {
                     const newRoom = [...currentPoly];
                     const updatedRooms = [...designElements.rooms, newRoom];
                     setDesignElements(prev => ({ ...prev, rooms: updatedRooms }));
-                    setCurrentPoly([]); // Reset
+                    setCurrentPoly([]);
                     onUpdateDesign(designElements.doors, updatedRooms, designElements.windows);
                     return;
                 }
             }
-            // Else, add point
             setCurrentPoly([...currentPoly, worldPos]);
         }
         else if (mode === 'door') {
@@ -206,7 +215,6 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
         }
     };
 
-    // Right click to undo last point
     const handleContextMenu = (e) => {
         e.preventDefault();
         if (mode === 'draw_room' && currentPoly.length > 0) {
@@ -216,22 +224,13 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
 
     return (
         <div className="flex flex-col h-full w-full bg-white rounded-lg shadow-sm overflow-hidden" ref={containerRef}>
-            {/* Toolbar */}
             <div className="flex gap-2 p-3 bg-gray-50 border-b overflow-x-auto">
                 <button onClick={() => setMode('view')} className={`px-4 py-2 rounded-md text-sm ${mode === 'view' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>View</button>
                 <button onClick={() => setMode('door')} className={`px-4 py-2 rounded-md text-sm ${mode === 'door' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Door</button>
                 <button onClick={() => setMode('window')} className={`px-4 py-2 rounded-md text-sm ${mode === 'window' ? 'bg-blue-600 text-white' : 'bg-white border'}`}>Window</button>
-
-                {/* DRAW ROOM BUTTON */}
-                <button
-                    onClick={() => { setMode('draw_room'); setCurrentPoly([]); }}
-                    className={`px-4 py-2 rounded-md text-sm font-bold transition-colors ${mode === 'draw_room' ? 'bg-green-600 text-white shadow' : 'bg-white text-gray-700 border'}`}
-                >
-                    ✏️ Draw Room
-                </button>
+                <button onClick={() => { setMode('draw_room'); setCurrentPoly([]); }} className={`px-4 py-2 rounded-md text-sm font-bold transition-colors ${mode === 'draw_room' ? 'bg-green-600 text-white shadow' : 'bg-white text-gray-700 border'}`}>✏️ Draw Room</button>
             </div>
 
-            {/* Canvas Area */}
             <div className="flex-1 relative bg-gray-50">
                 <canvas
                     ref={canvasRef}
@@ -243,11 +242,9 @@ const TwoDViewer = ({ walls, onUpdateDesign }) => {
                     className="w-full h-full cursor-crosshair block"
                     style={{ touchAction: 'none' }}
                 />
-                {mode === 'draw_room' && (
-                    <div className="absolute bottom-4 left-4 bg-white/90 p-2 rounded text-xs text-gray-700 border shadow pointer-events-none">
-                        {currentPoly.length === 0 ? "Click to start drawing" : "Click to add point. Click GREEN start point to finish."}
-                    </div>
-                )}
+                <div className="absolute bottom-4 left-4 bg-white/90 p-2 rounded text-xs text-gray-700 border shadow pointer-events-none">
+                    Mode: {mode.toUpperCase()}
+                </div>
             </div>
         </div>
     );

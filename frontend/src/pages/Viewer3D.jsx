@@ -142,6 +142,7 @@ function Viewer3D() {
             setAlert("Please wait while the model loads completely");
             return;
         }
+        const designPayload = userDesign;
 
         setIsLoading(true);
         let imgData = null;
@@ -166,13 +167,13 @@ function Viewer3D() {
                 .map((category) => ({
                     path: localStorage.getItem(category.name)
                 }));
-
             if (isExistingModel) {
                 setScreenshotDescription("Updating existing model...");
                 const response = await api.put(`houses/${selectedModel}`, {
                     "components": components,
                     "stage": height,
-                    "thumbnail": imgData
+                    "thumbnail": imgData,
+                    "design_data": designPayload // <--- Pass the full design object
                 });
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
@@ -185,7 +186,8 @@ function Viewer3D() {
                     "dxf_file_id": selectedFile.id,
                     "components": dataToSend,
                     "stage": height,
-                    "thumbnail": imgData
+                    "thumbnail": imgData,
+                    "design_data": designPayload
                 });
 
                 if (response) {
@@ -274,6 +276,9 @@ function Viewer3D() {
                     setSavedComponents(response.data.components)
                     setModelLoaded(true)
                     setHeight(response.data.stage)
+                    if(response.data.design_data) {
+                        setUserDesign(response.data.design_data);
+                    }
                     uploadFile(response.data.dxf_file)
                     console.log(response.data)
                 } catch (e) {
@@ -496,9 +501,15 @@ function Viewer3D() {
                                             <div className="w-full h-full bg-white relative">
                                                 <TwoDViewer
                                                     walls={extractedWalls}
-                                                    onUpdateDesign={(doors, rooms, windows) => setUserDesign({ doors, rooms, windows })}                                                />
 
-                                                {/* --- ADDED BUTTON HERE --- */}
+                                                    // --- PASS THE SAVED DESIGN HERE ---
+                                                    savedDesign={userDesign}
+
+                                                    // Handle updates
+                                                    onUpdateDesign={(doors, rooms, windows) => setUserDesign({ doors, rooms, windows })}
+                                                />
+
+                                                {/* Button to go to 3D */}
                                                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
                                                     <Button
                                                         className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg shadow-xl rounded-full transition-all hover:scale-105"

@@ -134,14 +134,12 @@ const DXFModel = ({ scale, position, setLongestWall, file, wallH, onWallsLoaded 
 
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
 
-        // Update UVs for proper texture mapping based on wall dimensions
         geometry.computeBoundingBox();
         const size = new THREE.Vector3();
         geometry.boundingBox.getSize(size);
 
         geometry.attributes.uv.needsUpdate = true;
 
-        // Calculate the wall direction for texture alignment
         const direction = new THREE.Vector2()
             .subVectors(wall.end, wall.start)
             .normalize();
