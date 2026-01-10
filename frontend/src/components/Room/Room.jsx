@@ -71,7 +71,7 @@ const Room = ({ shapePoints, height = 1 }) => {
             const centerY = (p1.y + p2.y) / 2;
 
             segments.push({
-                position: [centerX, centerY, wallHeight / 2], // Z is up in this group
+                position: [centerX, centerY, wallHeight / 2 +17], // Z is up in this group
                 rotation: [0, 0, angle], // Rotate around Z to align with floor plan
                 args: [len, wallThickness, wallHeight] // Length, Thickness, Height
             });
@@ -87,7 +87,7 @@ const Room = ({ shapePoints, height = 1 }) => {
             {/* 1. FLOOR */}
             <mesh
                 geometry={floorGeometry}
-                position={[0, 0, 0.02]}
+                position={[0, 0, 17.02]}
                 receiveShadow
             >
                 <meshStandardMaterial {...floorTextures} side={THREE.DoubleSide} />

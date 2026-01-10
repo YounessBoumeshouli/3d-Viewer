@@ -120,7 +120,7 @@ const Door = ({ wallStart, wallEnd, path }) => {
     return (
         <primitive
             object={sceneClone}
-            position={[centerX, centerY, 0]}
+            position={[centerX, centerY, 17]}
             rotation={[Math.PI/2, angle, 0]}
             scale={[1, 1, 1]}
         />

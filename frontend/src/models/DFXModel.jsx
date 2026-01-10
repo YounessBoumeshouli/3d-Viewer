@@ -9,7 +9,6 @@ const DXFModel = ({ scale, position, setLongestWall, file, wallH, onWallsLoaded 
     let path = file.file;
     const [entities, setEntities] = useState([]);
 
-    // Load textures for different wall materials
     const stoneTextures = useTexture({
         map: '/textures/stone/stone_diffuse.jpg',
         normalMap: '/textures/stone/stone_normal.jpg',

@@ -9,6 +9,7 @@ import * as THREE from "three";
 import Window from "../components/Window/Window.jsx";
 import Table from "../components/table/Table.jsx";
 import Room from "../components/Room/Room.jsx";
+import BigCity from "../components/BigCity/BigCity.jsx";
 
 // --- GENERIC SNAP HELPER (Used for Doors and Windows) ---
 const calculateElementCoordinates = (point, walls, width = 1.0) => {
@@ -159,7 +160,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
 
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];
-        return [screenScale, [0, 0, 0]];
+        return [screenScale, [0, 0, 17]];
     };
 
     const [islandScale, islandPosition] = adjustIslandForScreenSize();
@@ -185,7 +186,6 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
         getCanvas: () => renderer?.domElement || null
     }));
 
-    // 1. CALCULATE DOORS (Snap to wall)
     const calculatedDoors = useMemo(() => {
         if (!userDesign?.doors) return [];
         return userDesign.doors.map(door => {
@@ -194,11 +194,9 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
         });
     }, [userDesign?.doors, preParsedWalls]);
 
-    // 2. CALCULATE WINDOWS (Snap to wall)
     const calculatedWindows = useMemo(() => {
         if (!userDesign?.windows) return [];
         return userDesign.windows.map(win => {
-            // Windows are usually wider, e.g., 1.5m
             const coords = calculateElementCoordinates(win, preParsedWalls || [], 1.5);
             return { ...win, wallStart: coords.start, wallEnd: coords.end };
         });
@@ -219,7 +217,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
 
                     <CameraController />
                     <Sky />
-                    <Floor />
+                    <BigCity />
 
                     <Suspense fallback={null}>
                         <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
