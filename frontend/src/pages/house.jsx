@@ -140,7 +140,7 @@ const CameraController = () => {
     return null;
 };
 
-const House = forwardRef(({ file, components, height, onCanvasReady, userDesign, preParsedWalls }, ref) => {
+const House = forwardRef(({ file, components, height, onCanvasReady, userDesign, preParsedWalls, onStageSelect }, ref) => {
     const [longestWall, setLongestWall] = useState(null);
     const [loading, setLoading] = useState(true);
     const [renderer, setRenderer] = useState(null);
@@ -160,7 +160,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
 
     const adjustIslandForScreenSize = () => {
         let screenScale = window.innerWidth <= 768 ? [0.9, 0.9, 0.9] : [1, 1, 1];
-        return [screenScale, [0, 0, 17]];
+        return [screenScale, [0, 0, 0]];
     };
 
     const [islandScale, islandPosition] = adjustIslandForScreenSize();
@@ -187,20 +187,38 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
     }));
 
     const calculatedDoors = useMemo(() => {
-        if (!userDesign?.doors) return [];
-        return userDesign.doors.map(door => {
+        const allDoors = [];
+        if (userDesign) {
+            for (const stage in userDesign) {
+                if (userDesign[stage]?.doors) {
+                    userDesign[stage].doors.forEach(door => {
+                        allDoors.push({ ...door, stage: parseInt(stage, 10) });
+                    });
+                }
+            }
+        }
+        return allDoors.map(door => {
             const coords = calculateElementCoordinates(door, preParsedWalls || [], 1.0); // 1m width
             return { ...door, wallStart: coords.start, wallEnd: coords.end };
         });
-    }, [userDesign?.doors, preParsedWalls]);
+    }, [userDesign, preParsedWalls]);
 
     const calculatedWindows = useMemo(() => {
-        if (!userDesign?.windows) return [];
-        return userDesign.windows.map(win => {
+        const allWindows = [];
+        if (userDesign) {
+            for (const stage in userDesign) {
+                if (userDesign[stage]?.windows) {
+                    userDesign[stage].windows.forEach(win => {
+                        allWindows.push({ ...win, stage: parseInt(stage, 10) });
+                    });
+                }
+            }
+        }
+        return allWindows.map(win => {
             const coords = calculateElementCoordinates(win, preParsedWalls || [], 1.5);
             return { ...win, wallStart: coords.start, wallEnd: coords.end };
         });
-    }, [userDesign?.windows, preParsedWalls]);
+    }, [userDesign, preParsedWalls]);
 
     return (
         <>
@@ -217,7 +235,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
 
                     <CameraController />
                     <Sky />
-                    <BigCity />
+                    {/*<BigCity />*/}
 
                     <Suspense fallback={null}>
                         <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
@@ -227,6 +245,26 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                         <hemisphereLight intensity={0.3} groundColor="#080820" />
 
                         <group rotation={[-Math.PI / 2, 0, 0]}>
+                            {/* Clickable Floor Planes */}
+                            {Array.from({ length: height }, (_, i) => {
+                                const stage = i + 1;
+                                return (
+                                    <mesh
+                                        key={`floor-selector-${stage}`}
+                                        position={[0, 0, (stage - 1) * 3]} // Z is up in this group
+                                        rotation={[0, 0, 0]}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (onStageSelect) {
+                                                onStageSelect(stage);
+                                            }
+                                        }}
+                                    >
+                                        <planeGeometry args={[100, 100]} />
+                                        <meshBasicMaterial visible={false} side={THREE.DoubleSide} />
+                                    </mesh>
+                                );
+                            })}
                             <DXFModel
                                 scale={islandScale}
                                 position={islandPosition}
@@ -236,19 +274,36 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                             />
 
 
-                            {userDesign?.rooms?.map((roomPoints, index) => (
-                                <Room
-                                    key={`room-${index}`}
-                                    shapePoints={roomPoints}
-                                    height={height}
-                                />
-                            ))}
+                            {useMemo(() => {
+                                const allRooms = [];
+                                if (userDesign) {
+                                    for (const stage in userDesign) {
+                                        if (userDesign[stage]?.rooms) {
+                                            userDesign[stage].rooms.forEach((roomPoints, index) => {
+                                                allRooms.push({
+                                                    id: `room-${stage}-${index}`,
+                                                    points: roomPoints,
+                                                    stage: parseInt(stage, 10)
+                                                });
+                                            });
+                                        }
+                                    }
+                                }
+                                return allRooms.map(room => (
+                                    <Room
+                                        key={room.id}
+                                        shapePoints={room.points}
+                                        stage={room.stage}
+                                    />
+                                ));
+                            }, [userDesign, height])}
 
                             {calculatedDoors.map((door) => (
                                 <Door
                                     key={door.id}
                                     wallStart={door.wallStart}
                                     wallEnd={door.wallEnd}
+                                    stage={door.stage}
                                     path={selectedComponent.find(item => item.category === "door")?.path}
                                 />
                             ))}
@@ -259,7 +314,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                                     wallEnd={win.wallEnd}
 
                                     path={selectedComponent.find(item => item.category === "window")?.path}
-                                    stage={0}
+                                    stage={win.stage}
                                 />
                             ))}
                         </group>

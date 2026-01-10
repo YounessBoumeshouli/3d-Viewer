@@ -10,7 +10,7 @@ const WindowModel = ({ windowPath, targetWidth = 1.5 }) => {
     const [transform, setTransform] = useState({
         scale: [1, 1, 1],
         rotation: [0, 0, 0],
-        offset: [0, 0, 17]
+        offset: [0, 0, 0]
     });
 
     useEffect(() => {
@@ -160,7 +160,7 @@ const Window = ({ wallStart, wallEnd, position, path, stage }) => {
         // D. Height (Z is Up in House group)
         const floorHeight = 3;
         const sillHeight = 1.2;
-        const finalZ = (stage || 0) * floorHeight + sillHeight + 17;
+        const finalZ = ((stage || 1) - 1) * floorHeight + sillHeight;
 
         // E. Wall Angle (Rotation around Z)
         const angle = Math.atan2(dy, dx);

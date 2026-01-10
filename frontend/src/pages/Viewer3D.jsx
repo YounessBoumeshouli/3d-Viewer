@@ -53,7 +53,13 @@ function Viewer3D() {
     const componentRef = useRef();
     const sceneRef = useRef(null);
     const houseRef = useRef();
-    const [userDesign, setUserDesign] = useState({ doors: [], rooms: [], windows: [] }); // Initialize windows array
+        const [userDesign, setUserDesign] = useState({}); // Initialize as an empty object
+
+    const handleStageSelect = (stage) => {
+        setHeight(stage);
+        setViewMode('2d');
+    };
+
     const handleCategoryClick = async (category) => {
         setActiveCategory(category.name)
         setShowModal(true)
@@ -276,8 +282,15 @@ function Viewer3D() {
                     setSavedComponents(response.data.components)
                     setModelLoaded(true)
                     setHeight(response.data.stage)
-                    if(response.data.design_data) {
-                        setUserDesign(response.data.design_data);
+                    if (response.data.design_data) {
+                        // Check if data is in the old format (flat object) vs new (object of stages)
+                        if (Array.isArray(response.data.design_data.windows)) {
+                            // Old format: place it under the specific stage
+                            setUserDesign({ [response.data.stage]: response.data.design_data });
+                        } else {
+                            // New format: load it directly
+                            setUserDesign(response.data.design_data);
+                        }
                     }
                     uploadFile(response.data.dxf_file)
                     console.log(response.data)
@@ -501,12 +514,10 @@ function Viewer3D() {
                                             <div className="w-full h-full bg-white relative">
                                                 <TwoDViewer
                                                     walls={extractedWalls}
-
-                                                    // --- PASS THE SAVED DESIGN HERE ---
-                                                    savedDesign={userDesign}
-
-                                                    // Handle updates
-                                                    onUpdateDesign={(doors, rooms, windows) => setUserDesign({ doors, rooms, windows })}
+                                                    savedDesign={userDesign[height] || { doors: [], rooms: [], windows: [] }} // Pass design for current floor
+                                                    onUpdateDesign={(doors, rooms, windows) =>
+                                                        setUserDesign(prev => ({ ...prev, [height]: { doors, rooms, windows } }))
+                                                    }
                                                 />
 
                                                 {/* Button to go to 3D */}
@@ -529,6 +540,7 @@ function Viewer3D() {
                                                     onCanvasReady={handleCanvasReady}
                                                     userDesign={userDesign}
                                                     preParsedWalls={extractedWalls}
+                                                    onStageSelect={handleStageSelect}
                                                 />
 
                                                 <div className="absolute top-4 left-4 z-10">

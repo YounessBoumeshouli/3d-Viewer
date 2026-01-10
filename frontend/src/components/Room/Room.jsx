@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import * as THREE from 'three';
 import { useTexture } from '@react-three/drei';
 
-const Room = ({ shapePoints, height = 1 }) => {
+const Room = ({ shapePoints, stage = 1 }) => {
     // A. Load Textures
     const floorTextures = useTexture({
         map: '/textures/floor/wooden_floor_diffuse.jpg',
@@ -54,7 +54,7 @@ const Room = ({ shapePoints, height = 1 }) => {
 
         // 2. Calculate Wall Segments
         const segments = [];
-        const wallHeight = height * 4; // Matching DXFModel scale (4 units per floor)
+        const wallHeight = 3; // Fixed floor height
         const wallThickness = 0.2;
 
         for (let i = 0; i < shapePoints.length; i++) {
@@ -71,14 +71,14 @@ const Room = ({ shapePoints, height = 1 }) => {
             const centerY = (p1.y + p2.y) / 2;
 
             segments.push({
-                position: [centerX, centerY, wallHeight / 2 +17], // Z is up in this group
+                position: [centerX, centerY, (stage - 1) * 3 + wallHeight / 2], // Z is up in this group
                 rotation: [0, 0, angle], // Rotate around Z to align with floor plan
                 args: [len, wallThickness, wallHeight] // Length, Thickness, Height
             });
         }
 
         return { floorGeometry: fGeo, wallSegments: segments };
-    }, [shapePoints, height, floorTextures]);
+    }, [shapePoints, floorTextures]);
 
     if (!floorGeometry) return null;
 
@@ -87,7 +87,7 @@ const Room = ({ shapePoints, height = 1 }) => {
             {/* 1. FLOOR */}
             <mesh
                 geometry={floorGeometry}
-                position={[0, 0, 17.02]}
+                position={[0, 0, (stage - 1) * 3 + 0.02]}
                 receiveShadow
             >
                 <meshStandardMaterial {...floorTextures} side={THREE.DoubleSide} />

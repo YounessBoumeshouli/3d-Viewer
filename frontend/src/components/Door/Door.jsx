@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-const Door = ({ wallStart, wallEnd, path }) => {
+const Door = ({ wallStart, wallEnd, path, stage }) => {
     const [texture, setTexture] = useState(null);
     const [textureLoaded, setTextureLoaded] = useState(false);
     const { scene } = useGLTF("/door.glb");
@@ -120,7 +120,7 @@ const Door = ({ wallStart, wallEnd, path }) => {
     return (
         <primitive
             object={sceneClone}
-            position={[centerX, centerY, 17]}
+            position={[centerX, centerY, ((stage || 1) - 1) * 3]}
             rotation={[Math.PI/2, angle, 0]}
             scale={[1, 1, 1]}
         />
