@@ -1,4 +1,4 @@
-# 3D House Maker (FillRouge)
+# 3D House Maker (FilRouge)
 
 A comprehensive web application for 3D architectural modeling and design. This platform allows users to upload 2D DXF floor plans, visualize them in 3D, furnishing the interior with a library of components, and manage their designs.
 
