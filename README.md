@@ -104,4 +104,5 @@ Follow these instructions to set up the project locally.
 
 ## 📖 Documentation
 
-*   **[Modeling Lifecycle](modeling_life_cycly.md)**: Detailed explanation of how DXF files are processed and rendered in 3D.
+*   i will a documentation ASAP
+
