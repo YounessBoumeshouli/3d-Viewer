@@ -18,34 +18,21 @@ class BroadcastNotificationCreated implements ShouldBroadcast
 
     public $notificationData;
 
-    /**
-     * Create a new event instance.
-     *
-     * @param $notificationData
-     * @return void
-     */
+    
     public function __construct($notificationData)
     {
         $this->notificationData = $notificationData;
         Log::info('users.' . $this->notificationData['user_id']);
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return Channel|PresenceChannel
-     */
+    
     public function broadcastOn()
     {
 
         return new PrivateChannel('users.' . $this->notificationData['user_id']);
     }
 
-    /**
-     * Broadcast the notification data.
-     *
-     * @return array
-     */
+    
     public function broadcastWith()
     {
         return [
@@ -55,11 +42,7 @@ class BroadcastNotificationCreated implements ShouldBroadcast
         ];
     }
 
-    /**
-     * The name of the event that will be triggered on the front end.
-     *
-     * @return string
-     */
+    
     public function broadcastAs()
     {
         return 'BroadcastNotificationCreated';

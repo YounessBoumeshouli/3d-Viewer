@@ -61,9 +61,9 @@ function Layout({ children }) {
                 </div>
             </div>
 
-            {/* Main content */}
+            {}
             <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Header */}
+                {}
                 <header className="h-20 border-b border-[#3e435d]/20 flex items-center px-6 gap-4">
                     <div className="flex gap-4">
                         <Link
@@ -138,7 +138,7 @@ function Layout({ children }) {
                     </div>
                 </header>
 
-                {/* Page content */}
+                {}
                 <main className="flex-1 overflow-auto p-6">{children}</main>
             </div>
         </div>

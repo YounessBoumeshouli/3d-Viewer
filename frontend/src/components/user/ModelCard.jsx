@@ -16,7 +16,7 @@ const ModelCard = (props) => {
             <Link to={`/model/${id}`}>
                 <div className="relative">
                     <img
-                        src={`http://127.0.0.1:8000/storage/${image}`}
+                        src={`http:
                         alt={title}
                         className="w-full h-48 object-cover"
                     />

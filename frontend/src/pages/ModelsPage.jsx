@@ -53,7 +53,7 @@ const ModelsPage = () => {
     return (
         <Layout>
             <div className="container mx-auto px-4 py-8">
-                {/* Header with search and filters */}
+                {}
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                     <div className="flex items-center">
                         <h1 className="text-2xl font-bold mr-4">Featured Models</h1>
@@ -87,7 +87,7 @@ const ModelsPage = () => {
                     </div>
                 </div>
 
-                {/* Models Grid */}
+                {}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {featuredModels.map(model => (
                         <div key={model.id} className="bg-white rounded-lg overflow-hidden shadow-md">
@@ -128,7 +128,7 @@ const ModelsPage = () => {
                     ))}
                 </div>
 
-                {/* Footer Links */}
+                {}
                 <div className="mt-16 grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>
                         <h3 className="font-semibold mb-4">About</h3>

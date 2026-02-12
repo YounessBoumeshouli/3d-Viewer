@@ -11,7 +11,7 @@ import Table from "../components/table/Table.jsx";
 import Room from "../components/Room/Room.jsx";
 import BigCity from "../components/BigCity/BigCity.jsx";
 
-// --- GENERIC SNAP HELPER (Used for Doors and Windows) ---
+
 const calculateElementCoordinates = (point, walls, width = 1.0) => {
     if (!walls || walls.length === 0) {
         return {
@@ -24,7 +24,7 @@ const calculateElementCoordinates = (point, walls, width = 1.0) => {
     let bestWall = null;
     let bestPoint = { x: point.x, y: point.y };
 
-    // 1. Find the wall segment closest to the click
+    
     walls.forEach(wall => {
         const A = wall.start;
         const B = wall.end;
@@ -49,7 +49,7 @@ const calculateElementCoordinates = (point, walls, width = 1.0) => {
         }
     });
 
-    // 2. Create a segment centered on that point, aligned with the wall
+    
     if (bestWall) {
         const dx = bestWall.end.x - bestWall.start.x;
         const dy = bestWall.end.y - bestWall.start.y;
@@ -141,6 +141,7 @@ const CameraController = () => {
 };
 
 const House = forwardRef(({ file, components, height, onCanvasReady, userDesign, preParsedWalls, onStageSelect }, ref) => {
+    const [hoveredStage, setHoveredStage] = useState(null);
     const [longestWall, setLongestWall] = useState(null);
     const [loading, setLoading] = useState(true);
     const [renderer, setRenderer] = useState(null);
@@ -198,7 +199,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
             }
         }
         return allDoors.map(door => {
-            const coords = calculateElementCoordinates(door, preParsedWalls || [], 1.0); // 1m width
+            const coords = calculateElementCoordinates(door, preParsedWalls || [], 1.0); 
             return { ...door, wallStart: coords.start, wallEnd: coords.end };
         });
     }, [userDesign, preParsedWalls]);
@@ -235,7 +236,7 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
 
                     <CameraController />
                     <Sky />
-                    {/*<BigCity />*/}
+                    {}
 
                     <Suspense fallback={null}>
                         <directionalLight position={[5, 10, 5]} intensity={1.5} castShadow>
@@ -245,14 +246,15 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                         <hemisphereLight intensity={0.3} groundColor="#080820" />
 
                         <group rotation={[-Math.PI / 2, 0, 0]}>
-                            {/* Clickable Floor Planes */}
+                            {}
                             {Array.from({ length: height }, (_, i) => {
                                 const stage = i + 1;
                                 return (
                                     <mesh
                                         key={`floor-selector-${stage}`}
-                                        position={[0, 0, (stage - 1) * 3]} // Z is up in this group
-                                        rotation={[0, 0, 0]}
+                                        position={[0, 0, (stage - 1) * 3]} 
+                                        onPointerEnter={(e) => { e.stopPropagation(); setHoveredStage(stage); }}
+                                        onPointerLeave={(e) => { e.stopPropagation(); setHoveredStage(null); }}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             if (onStageSelect) {
@@ -261,7 +263,13 @@ const House = forwardRef(({ file, components, height, onCanvasReady, userDesign,
                                         }}
                                     >
                                         <planeGeometry args={[100, 100]} />
-                                        <meshBasicMaterial visible={false} side={THREE.DoubleSide} />
+                                        <meshBasicMaterial
+                                            visible={hoveredStage === stage}
+                                            color={0x0000ff}
+                                            transparent={true}
+                                            opacity={0.2}
+                                            side={THREE.DoubleSide}
+                                        />
                                     </mesh>
                                 );
                             })}

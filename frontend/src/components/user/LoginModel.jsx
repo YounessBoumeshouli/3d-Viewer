@@ -59,12 +59,12 @@ function LoginModel({ title = 'hello', onClose }) {
                     </div>
 
                     <div className="grid grid-cols-2 gap-6">
-                        {/* Left Side (Image or Illustration) */}
+                        {}
                         <div className="hidden md:flex items-center justify-center bg-gray-100 rounded-lg">
                             <img src="/login-illustration.svg" alt="Login" className="w-3/4 h-auto" />
                         </div>
 
-                        {/* Right Side (Login Form) */}
+                        {}
                         <div className="flex flex-col justify-center">
                             <form className="space-y-4"
                                   onSubmit={handleSubmit}

@@ -86,7 +86,7 @@ const Header = () => {
         );
     }
 
-    // Default header for other pages
+    
     return (
         <header className="bg-white shadow-sm">
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">

@@ -3,12 +3,12 @@ import Layout from '../components/user/Layout';
 import { Link } from 'react-router-dom';
 
 const ViewerPage = () => {
-    // This renders Image 6 - the 3D viewer page
+    
 
     return (
         <Layout>
             <div className="max-w-6xl mx-auto px-4 py-8">
-                {/* Header with upload button */}
+                {}
                 <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 flex items-center justify-center bg-gray-900 text-white rounded">
@@ -32,7 +32,7 @@ const ViewerPage = () => {
                     </div>
                 </div>
 
-                {/* Featured Models section */}
+                {}
                 <div className="mb-12">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-2xl font-bold">Featured Models</h2>
@@ -61,7 +61,7 @@ const ViewerPage = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Model cards - normally would be components */}
+                        {}
                         <div className="bg-white rounded-lg shadow overflow-hidden">
                             <Link to="/model/1">
                                 <div className="relative">
@@ -122,7 +122,7 @@ const ViewerPage = () => {
                     </div>
                 </div>
 
-                {/* Footer */}
+                {}
                 <div className="pt-12 border-t mt-16">
                     <div className="flex justify-between">
                         <div>

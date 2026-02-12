@@ -1,4 +1,4 @@
-// src/utils/reverbSocket.js
+
 
 let socket = null;
 
@@ -7,7 +7,7 @@ export function connectToReverb(channelName, onMessageCallback) {
     const REVERB_HOST = import.meta.env.VITE_REVERB_HOST || '127.0.0.1';
     const REVERB_PORT = import.meta.env.VITE_REVERB_PORT || 8080;
     socket = new WebSocket(
-        `ws://${REVERB_HOST}:${REVERB_PORT}/app/${REVERB_KEY}?protocol=7&client=js&version=1.0&flash=false`
+        `ws:
     );
 
     socket.onopen = () => {

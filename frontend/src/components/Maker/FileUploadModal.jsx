@@ -16,7 +16,7 @@ function FileUploadModel({ title = 'Upload a new File', onClose }) {
         }
     }
     const handleSubmit = async (e) =>{
-        e.preventDefault(); // Prevents full page refresh
+        e.preventDefault(); 
 
         if (!modelFile) {
             console.error("No file selected");
@@ -41,7 +41,7 @@ function FileUploadModel({ title = 'Upload a new File', onClose }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
                 <div className="p-6">
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold flex items-center">
                             {title}
@@ -53,10 +53,10 @@ function FileUploadModel({ title = 'Upload a new File', onClose }) {
 
                     <div className="grid grid-cols-2 gap-6">
 
-                        {/* Right Side (Form) */}
+                        {}
                         <div className="flex flex-col justify-center">
                             <form className="space-y-4">
-                                {/* Image Upload */}
+                                {}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
                                         Upload new File
@@ -69,9 +69,9 @@ function FileUploadModel({ title = 'Upload a new File', onClose }) {
                                     />
                                 </div>
 
-                                {/* Name Input */}
+                                {}
 
-                                {/* Description Input */}
+                                {}
 
                                 <button
                                     type="submit"

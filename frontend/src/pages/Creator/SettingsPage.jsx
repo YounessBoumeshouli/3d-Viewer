@@ -25,7 +25,7 @@ const SettingsPage = () => {
         fetchData();
     }, []);
     useEffect(() => {
-        let isMounted = true; // Track mounted state
+        let isMounted = true; 
 
         const fetchData = async () => {
             try {
@@ -41,7 +41,7 @@ const SettingsPage = () => {
         fetchData();
 
         return () => {
-            isMounted = false; // Cleanup on unmount
+            isMounted = false; 
         };
     }, []);
     if (!profile){

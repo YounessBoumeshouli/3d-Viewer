@@ -57,7 +57,7 @@ function CategoryModel({ title = 'hello', onClose ,onSubmit }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
                 <div className="p-6">
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold flex items-center">
                             {title}
@@ -76,13 +76,13 @@ function CategoryModel({ title = 'hello', onClose ,onSubmit }) {
                             />
                         </div>
 
-                        {/* Right Side (Form) */}
+                        {}
                         <div className="flex flex-col justify-center">
                             <form className="space-y-4" onSubmit={(e) => {
                                 handleSubmit(e);
                                 onSubmit();
                             }}>
-                                {/* Image Upload */}
+                                {}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
                                         Upload Image
@@ -95,7 +95,7 @@ function CategoryModel({ title = 'hello', onClose ,onSubmit }) {
                                     />
                                 </div>
 
-                                {/* Name Input */}
+                                {}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
                                         Category Name
@@ -109,7 +109,7 @@ function CategoryModel({ title = 'hello', onClose ,onSubmit }) {
                                     />
                                 </div>
 
-                                {/* Description Input */}
+                                {}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
                                         Description

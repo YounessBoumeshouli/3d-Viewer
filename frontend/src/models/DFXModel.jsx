@@ -18,7 +18,7 @@ const DXFModel = ({ scale, position, setLongestWall, file, wallH, onWallsLoaded 
 
     Object.values(stoneTextures).forEach(texture => {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(1, 1); // Adjust based on your wall size
+        texture.repeat.set(1, 1); 
     });
 
     const WALL_MATERIAL = new THREE.MeshStandardMaterial({
@@ -77,7 +77,7 @@ const DXFModel = ({ scale, position, setLongestWall, file, wallH, onWallsLoaded 
         if (maxLengthWallIndex !== -1) {
             walls[maxLengthWallIndex].isMaxLengthWall = true;
 
-            // Send the longest wall data to House.jsx
+            
             setLongestWall({
                 start: walls[maxLengthWallIndex].start,
                 end: walls[maxLengthWallIndex].end,

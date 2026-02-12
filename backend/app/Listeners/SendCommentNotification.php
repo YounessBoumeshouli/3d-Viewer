@@ -13,17 +13,13 @@ use Illuminate\Support\Facades\Log;
 
 class SendCommentNotification
 {
-    /**
-     * Create the event listener.
-     */
+    
     public function __construct()
     {
-        //
+        
     }
 
-    /**
-     * Handle the event.
-     */
+    
     public function handle(CommentEvent $event): void
     {
         $comment = $event->comment->load('house.dxfFile.designer.user');

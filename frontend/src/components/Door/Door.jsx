@@ -41,7 +41,7 @@ const Door = ({ wallStart, wallEnd, path, stage }) => {
             const parts = storedDoor.split("/");
             const localPath = `/textures/door/${parts[2]}`;
             console.log(parts[2]);
-            const backendUrl = `http://127.0.0.1:8000/api/storage-proxy/components/door/${parts[2]}`;
+            const backendUrl = `http:
 
             try {
                 const tex = await new THREE.TextureLoader().loadAsync(localPath);

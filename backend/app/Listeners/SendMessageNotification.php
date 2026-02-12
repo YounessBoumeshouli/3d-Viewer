@@ -11,12 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class SendMessageNotification
 {
-    /**
-     * Handle the event.
-     *
-     * @param  \App\Events\MessageEvent  $event
-     * @return void
-     */
+    
     public function handle(MessageEvent $event)
     {
         $message = $event->message;

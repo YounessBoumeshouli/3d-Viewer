@@ -15,7 +15,7 @@ class SendComment implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(public Comment $comment) {
-        //
+        
     }
 
     public function handle(): void {

@@ -5,24 +5,24 @@ export default function UserModel({creator,onClose}) {
 console.log(creator)
     const [activeTab, setActiveTab] = useState('profile');
 
-    // Calculate remaining subscription days
+    
     const endDate = new Date(creator.useroffer.end_date);
     const today = new Date();
     const remainingDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-    // Calculate storage usage percentage
+    
     const storageUsagePercent = (parseFloat(creator.storage_size) / creator.useroffer.offer.storage) * 100;
 
-    // Calculate model usage
+    
     const modelsCreated = creator.houses.length;
     const modelsLimit = creator.useroffer.offer.models;
     const modelsUsagePercent = (modelsCreated / modelsLimit) * 100;
 
     return (
             <div key={creator.id} className=" fixed absolute top-4 left-100 inset-0 z-50 w-full max-w-3xl bg-white rounded-xl shadow-lg overflow-hidden">
-                {/* Header */}
+                {}
                 <div className="relative">
-                    {/* Banner image */}
+                    {}
 
                     <div className="h-48 bg-gradient-to-r from-blue-500 to-purple-600"></div>
                     <div className="absolute top-4 left-4 bg-white  w-6 h-6 rounded-full shadow flex items-center text-sm">
@@ -30,7 +30,7 @@ console.log(creator)
                             <X className="h-6 w-6" />
                         </button>
                     </div>
-                    {/* Avatar */}
+                    {}
                     <div className="absolute bottom-0 left-8 transform translate-y-1/2">
                         <div className="h-24 w-24 rounded-full bg-gray-300 border-4 border-white flex items-center justify-center text-gray-600">
                             {creator.avatar ? (
@@ -45,16 +45,16 @@ console.log(creator)
                         </div>
                     </div>
 
-                    {/* Subscription badge */}
+                    {}
                     <div className="absolute top-4 right-4 bg-white py-1 px-3 rounded-full shadow flex items-center text-sm">
                         <Award className="h-4 w-4 text-yellow-500 mr-1" />
                         <span className="font-semibold">{creator.useroffer.offer.title}</span>
                     </div>
                 </div>
 
-                {/* Content */}
+                {}
                 <div className="pt-16 px-8 pb-8">
-                    {/* Creator Info */}
+                    {}
                     <div className="flex justify-between items-start">
                         <div>
                             <h1 className="text-2xl font-bold text-gray-800">{creator.user.name}</h1>
@@ -63,7 +63,7 @@ console.log(creator)
                                 <span className="text-sm">{creator.user.email}</span>
                             </div>
 
-                            {/* Rating */}
+                            {}
                             <div className="flex items-center mt-2">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
@@ -75,7 +75,7 @@ console.log(creator)
                             </div>
                         </div>
 
-                        {/* Subscription info */}
+                        {}
                         <div className="flex flex-col items-end">
                             <div className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium flex items-center">
                                 <CheckCircle className="h-4 w-4 mr-1" />
@@ -87,12 +87,12 @@ console.log(creator)
                         </div>
                     </div>
 
-                    {/* Bio */}
+                    {}
                     <div className="mt-4 text-gray-600">
                         <p>{creator.bio || "No bio available"}</p>
                     </div>
 
-                    {/* Tabs */}
+                    {}
                     <div className="mt-6 border-b border-gray-200">
                         <div className="flex space-x-8">
                             <button
@@ -128,11 +128,11 @@ console.log(creator)
                         </div>
                     </div>
 
-                    {/* Tab Content */}
+                    {}
                     <div className="mt-6">
                         {activeTab === 'profile' && (
                             <div className="space-y-4">
-                                {/* Storage Usage */}
+                                {}
                                 <div>
                                     <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium text-gray-700 flex items-center">
@@ -150,7 +150,7 @@ console.log(creator)
                                     </div>
                                 </div>
 
-                                {/* Models Usage */}
+                                {}
                                 <div>
                                     <div className="flex justify-between mb-1">
                     <span className="text-sm font-medium text-gray-700 flex items-center">
@@ -168,7 +168,7 @@ console.log(creator)
                                     </div>
                                 </div>
 
-                                {/* Social Links */}
+                                {}
                                 <div className="pt-4">
                                     <h3 className="text-sm font-medium text-gray-700 mb-2">Social Links</h3>
                                     {creator.social_links && creator.social_links.length > 0 ? (

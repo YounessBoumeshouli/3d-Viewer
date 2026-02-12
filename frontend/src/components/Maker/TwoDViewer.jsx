@@ -1,21 +1,56 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+
+const getClosestPointOnSegment = (p, a, b) => {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    if (dx === 0 && dy === 0) return a;
+
+    const lenSq = dx * dx + dy * dy;
+    let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+
+    return { x: a.x + t * dx, y: a.y + t * dy };
+};
+
+const snapToPoint = (point, walls, snapThreshold) => {
+    if (snapThreshold <= 0) return point;
+    let minDistanceSq = snapThreshold * snapThreshold;
+    let snappedPoint = null;
+
+    walls.forEach(wall => {
+        const closestPointOnWall = getClosestPointOnSegment(point, wall.start, wall.end);
+        const distSq = (point.x - closestPointOnWall.x) ** 2 + (point.y - closestPointOnWall.y) ** 2;
+
+        if (distSq < minDistanceSq) {
+            minDistanceSq = distSq;
+            snappedPoint = closestPointOnWall;
+        }
+    });
+
+    return snappedPoint || point;
+};
+
+
 const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
     const canvasRef = useRef(null);
     const containerRef = useRef(null);
 
-    // Viewport state
+    
     const [transform, setTransform] = useState({ scale: 1, offsetX: 0, offsetY: 0 });
 
-    // Design State: Initialize with empty arrays
+    
     const [designElements, setDesignElements] = useState({ doors: [], rooms: [], windows: [] });
 
-    // Drawing State
-    const [mode, setMode] = useState('view'); // 'view', 'door', 'window', 'draw_room'
-    const [currentPoly, setCurrentPoly] = useState([]); // Points for the room currently being drawn
-    const [mousePos, setMousePos] = useState({ x: 0, y: 0 }); // Track mouse for preview lines
+    
+    const [mode, setMode] = useState('view'); 
+    const [currentPoly, setCurrentPoly] = useState([]); 
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 }); 
 
-    // --- NEW: LOAD SAVED DESIGN ---
+    
+    const [snapIndicator, setSnapIndicator] = useState(null);
+
+    
     useEffect(() => {
         if (savedDesign) {
             setDesignElements({
@@ -26,7 +61,7 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
         }
     }, [savedDesign]);
 
-    // 1. AUTO-FIT (Standard Logic)
+    
     useEffect(() => {
         if (!walls || walls.length === 0 || !canvasRef.current) return;
         let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -49,26 +84,26 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
         setTransform({ scale, offsetX, offsetY });
     }, [walls]);
 
-    // 2. RENDER LOOP
+    
     useEffect(() => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
 
-        // Clear
+        
         ctx.fillStyle = '#f9fafb';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Helper: World to Screen
+        
         const toScreen = (x, y) => ({
             x: x * transform.scale + transform.offsetX,
             y: canvas.height - (y * transform.scale + transform.offsetY)
         });
 
-        // --- DRAW COMPLETED ROOMS (Polygons) ---
+        
         designElements.rooms.forEach(roomPoints => {
             if (!roomPoints || roomPoints.length < 3) return;
 
-            ctx.fillStyle = 'rgba(34, 197, 94, 0.3)'; // Green transparent
+            ctx.fillStyle = 'rgba(34, 197, 94, 0.3)'; 
             ctx.strokeStyle = '#166534';
             ctx.lineWidth = 2;
 
@@ -85,7 +120,7 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
             ctx.fill();
             ctx.stroke();
 
-            // Label Center
+            
             const centerX = roomPoints.reduce((sum, p) => sum + p.x, 0) / roomPoints.length;
             const centerY = roomPoints.reduce((sum, p) => sum + p.y, 0) / roomPoints.length;
             const labelPos = toScreen(centerX, centerY);
@@ -96,9 +131,9 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
             ctx.fillText("ROOM", labelPos.x, labelPos.y);
         });
 
-        // --- DRAW CURRENT DRAWING (Lines in progress) ---
+        
         if (currentPoly.length > 0) {
-            ctx.strokeStyle = '#2563eb'; // Blue
+            ctx.strokeStyle = '#2563eb'; 
             ctx.lineWidth = 2;
             ctx.beginPath();
 
@@ -110,14 +145,14 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
                 ctx.lineTo(pt.x, pt.y);
             });
 
-            // Draw rubber-band line
+            
             const lastPt = currentPoly[currentPoly.length - 1];
             const screenMouse = toScreen(mousePos.x, mousePos.y);
 
             ctx.lineTo(screenMouse.x, screenMouse.y);
             ctx.stroke();
 
-            // Draw anchor points
+            
             currentPoly.forEach((p, i) => {
                 const pt = toScreen(p.x, p.y);
                 ctx.fillStyle = i === 0 ? '#16a34a' : '#2563eb';
@@ -127,7 +162,7 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
             });
         }
 
-        // --- DRAW WALLS (Overlay) ---
+        
         ctx.beginPath();
         ctx.strokeStyle = '#1e293b';
         ctx.lineWidth = 3;
@@ -140,7 +175,7 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
         });
         ctx.stroke();
 
-        // --- DRAW DOORS ---
+        
         designElements.doors.forEach(door => {
             const pos = toScreen(door.x, door.y);
             ctx.fillStyle = '#ef4444';
@@ -152,7 +187,7 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
             ctx.fillText("DOOR", pos.x + 8, pos.y);
         });
 
-        // --- DRAW WINDOWS ---
+        
         designElements.windows.forEach(win => {
             const pos = toScreen(win.x, win.y);
             ctx.fillStyle = '#3b82f6';
@@ -164,9 +199,18 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
             ctx.fillText("WINDOW", pos.x + 8, pos.y);
         });
 
-    }, [walls, transform, designElements, currentPoly, mousePos]);
+        
+        if (snapIndicator) {
+            const pt = toScreen(snapIndicator.x, snapIndicator.y);
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
-    // 3. INTERACTION
+    }, [walls, transform, designElements, currentPoly, mousePos, snapIndicator]);
+
+    
     const getMouseWorldPos = (e) => {
         const canvas = canvasRef.current;
         const rect = canvas.getBoundingClientRect();
@@ -182,17 +226,28 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
     };
 
     const handleMouseMove = (e) => {
-        setMousePos(getMouseWorldPos(e));
+        const worldPos = getMouseWorldPos(e);
+        const snapThreshold = transform.scale > 0 ? 10 / transform.scale : 0;
+        const snappedPos = snapToPoint(worldPos, walls, snapThreshold);
+        setMousePos(snappedPos);
+
+        if (snappedPos !== worldPos) {
+            setSnapIndicator(snappedPos);
+        } else {
+            setSnapIndicator(null);
+        }
     };
 
     const handleCanvasClick = (e) => {
         const worldPos = getMouseWorldPos(e);
+        const snapThreshold = transform.scale > 0 ? 10 / transform.scale : 0;
+        const snappedPos = snapToPoint(worldPos, walls, snapThreshold);
 
         if (mode === 'draw_room') {
             if (currentPoly.length > 2) {
                 const start = currentPoly[0];
-                const dist = Math.sqrt((worldPos.x - start.x) ** 2 + (worldPos.y - start.y) ** 2);
-                if (dist < 0.5) {
+                const dist = Math.sqrt((snappedPos.x - start.x) ** 2 + (snappedPos.y - start.y) ** 2);
+                if (dist < snapThreshold) { 
                     const newRoom = [...currentPoly];
                     const updatedRooms = [...designElements.rooms, newRoom];
                     setDesignElements(prev => ({ ...prev, rooms: updatedRooms }));
@@ -201,15 +256,15 @@ const TwoDViewer = ({ walls, savedDesign, onUpdateDesign }) => {
                     return;
                 }
             }
-            setCurrentPoly([...currentPoly, worldPos]);
+            setCurrentPoly([...currentPoly, snappedPos]);
         }
         else if (mode === 'door') {
-            const newDoors = [...designElements.doors, { x: worldPos.x, y: worldPos.y, id: Date.now() }];
+            const newDoors = [...designElements.doors, { x: snappedPos.x, y: snappedPos.y, id: Date.now() }];
             setDesignElements(prev => ({ ...prev, doors: newDoors }));
             onUpdateDesign(newDoors, designElements.rooms, designElements.windows);
         }
         else if (mode === 'window') {
-            const newWindows = [...designElements.windows, { x: worldPos.x, y: worldPos.y, id: Date.now() }];
+            const newWindows = [...designElements.windows, { x: snappedPos.x, y: snappedPos.y, id: Date.now() }];
             setDesignElements(prev => ({ ...prev, windows: newWindows }));
             onUpdateDesign(designElements.doors, designElements.rooms, newWindows);
         }

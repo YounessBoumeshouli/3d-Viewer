@@ -84,7 +84,7 @@ function Analytics() {
                         }</CardContent>
                 </Card>
 
-                {/* Feature Effort Estimation */}
+                {}
                 <Card className="bg-[#242634] border-[#3e435d]/20 text-white">
                     <CardHeader>
                         <CardTitle className="text-sm font-medium text-gray-400">Feature Effort Estimation</CardTitle>
@@ -92,10 +92,10 @@ function Analytics() {
                     <CardContent className="flex flex-col items-center">
                         <div className="relative w-48 h-48 mb-8">
                             <svg viewBox="0 0 100 100" className="w-full h-full">
-                                {/* Background circle */}
+                                {}
                                 <circle cx="50" cy="50" r="40" fill="none" stroke="#a5c9e6" strokeWidth="10" />
 
-                                {/* Progress circle - 75% complete */}
+                                {}
                                 <circle
                                     cx="50"
                                     cy="50"
@@ -132,7 +132,7 @@ function Analytics() {
                 </Card>
             </div>
 
-            {/* Monthly Project Views */}
+            {}
             <Card className="bg-[#242634] border-[#3e435d]/20 text-white mb-6">
                 <CardHeader className="flex flex-col space-y-1.5">
                     <CardTitle className="text-sm font-medium text-gray-400">Monthly Project Views</CardTitle>
@@ -153,16 +153,16 @@ function Analytics() {
                 </CardHeader>
                 <CardContent>
                     <div className="h-[300px] w-full relative">
-                        {/* Grid lines */}
+                        {}
                         {[0, 1, 2, 3, 4, 5].map((line, i) => (
                             <div key={i} className="absolute w-full border-t border-[#3e435d]/20" style={{ top: `${i * 20}%` }}>
                                 <span className="absolute -left-12 -top-3 text-gray-400 text-sm">{(5 - i) * 100}</span>
                             </div>
                         ))}
 
-                        {/* Line chart */}
+                        {}
                         <svg viewBox="0 0 1000 300" className="w-full h-full" preserveAspectRatio="none">
-                            {/* Line */}
+                            {}
                             <path
                                 d="M50,250 L150,200 L250,150 L350,140 L450,160 L550,150 L650,120 L750,80 L850,50 L950,30"
                                 fill="none"
@@ -170,7 +170,7 @@ function Analytics() {
                                 strokeWidth="3"
                             />
 
-                            {/* Data points */}
+                            {}
                             <circle cx="50" cy="250" r="6" fill="#4353ff" />
                             <circle cx="150" cy="200" r="6" fill="#4353ff" />
                             <circle cx="250" cy="150" r="6" fill="#4353ff" />
@@ -183,7 +183,7 @@ function Analytics() {
                             <circle cx="950" cy="30" r="6" fill="#4353ff" />
                         </svg>
 
-                        {/* X-axis labels */}
+                        {}
                         <div className="flex justify-between mt-4 px-4">
                             {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"].map((month, i) => (
                                 <div key={i} className="text-gray-400 text-sm">

@@ -81,7 +81,7 @@ function Components() {
                     </CardContent>
                 </Card>
 
-                {/* Components Grid */}
+                {}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                     {categoryList.map((component, i) => (
                         <Dialog
@@ -190,7 +190,7 @@ function Components() {
                                                     className="w-1/2 md:w-1/3 lg:w-1/4 p-4 border rounded hover:bg-blue-50 text-gray-700 hover:text-blue-600"
                                                 >
                                                     <img
-                                                        src={`http://127.0.0.1:8000/storage/${item.path}`}
+                                                        src={`http:
                                                         alt={item.name}
                                                         className="w-full h-32 object-cover rounded"
                                                     />
@@ -202,7 +202,7 @@ function Components() {
                                     )}
 
                                 </DialogHeader>
-                                <div className="py-6">{/* Empty content for door dialog */}</div>
+                                <div className="py-6">{}</div>
                                 <Button
                                     className="w-full bg-[#6366f1] hover:bg-[#4f46e5]"
                                     onClick={() => {

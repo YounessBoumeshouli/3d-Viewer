@@ -24,7 +24,7 @@ import api from "../services/api.js"
 import FileUploadModal from "../components/Maker/FileUploadModal.jsx"
 import Loader from '../components/Maker/Loader.jsx'
 import LoadingIndicator from "../components/LoadingIndicator.jsx";
-import TwoDViewer from "../components/Maker/TwoDViewer.jsx"; // Import the new component
+import TwoDViewer from "../components/Maker/TwoDViewer.jsx"; 
 function Viewer3D() {
     const [height, setHeight] = useState(1)
     const [rotation, setRotation] = useState(0)
@@ -48,12 +48,12 @@ function Viewer3D() {
     const [screenshotDescription, setScreenshotDescription] = useState("")
     const [canvasReady, setCanvasReady] = useState(false)
     const [isRendererReady, setIsRendererReady] = useState(false)
-    const [viewMode, setViewMode] = useState('2d'); // Default to '2d' so it shows first
-    const [extractedWalls, setExtractedWalls] = useState([]); // Store wall data from DXF
+    const [viewMode, setViewMode] = useState('2d'); 
+    const [extractedWalls, setExtractedWalls] = useState([]); 
     const componentRef = useRef();
     const sceneRef = useRef(null);
     const houseRef = useRef();
-        const [userDesign, setUserDesign] = useState({}); // Initialize as an empty object
+        const [userDesign, setUserDesign] = useState({}); 
 
     const handleStageSelect = (stage) => {
         setHeight(stage);
@@ -154,7 +154,7 @@ function Viewer3D() {
         let imgData = null;
 
         try {
-            // Attempt to take screenshot with retries
+            
             let retries = 0;
             while (retries < 3 && !imgData) {
                 imgData = await takeScreenshot();
@@ -179,7 +179,7 @@ function Viewer3D() {
                     "components": components,
                     "stage": height,
                     "thumbnail": imgData,
-                    "design_data": designPayload // <--- Pass the full design object
+                    "design_data": designPayload 
                 });
                 await fetchCreatorModels();
                 await fetchCreatorInfo();
@@ -258,14 +258,14 @@ function Viewer3D() {
 
     const uploadFile = async (selectedFilePath) => {
         try {
-            // 1. Set file selection state
+            
             setSelectedFile(selectedFilePath);
             setFileListVisible(false);
 
-            // 2. Switch to 2D view
+            
             setViewMode('2d');
 
-            // 3. FETCH AND PARSE WALLS IMMEDIATELY
+            
             const walls = await fetchAndParseWalls(selectedFilePath.path);
             setExtractedWalls(walls);
 
@@ -283,12 +283,12 @@ function Viewer3D() {
                     setModelLoaded(true)
                     setHeight(response.data.stage)
                     if (response.data.design_data) {
-                        // Check if data is in the old format (flat object) vs new (object of stages)
+                        
                         if (Array.isArray(response.data.design_data.windows)) {
-                            // Old format: place it under the specific stage
+                            
                             setUserDesign({ [response.data.stage]: response.data.design_data });
                         } else {
-                            // New format: load it directly
+                            
                             setUserDesign(response.data.design_data);
                         }
                     }
@@ -509,18 +509,18 @@ function Viewer3D() {
                                         backgroundColor: 'hsl(var(--background))',
                                         color: 'hsl(var(--foreground))',
                                     }}>
-                                        {/* CONDITIONAL RENDERING START */}
+                                        {}
                                         {viewMode === '2d' ? (
                                             <div className="w-full h-full bg-white relative">
                                                 <TwoDViewer
                                                     walls={extractedWalls}
-                                                    savedDesign={userDesign[height] || { doors: [], rooms: [], windows: [] }} // Pass design for current floor
+                                                    savedDesign={userDesign[height] || { doors: [], rooms: [], windows: [] }} 
                                                     onUpdateDesign={(doors, rooms, windows) =>
                                                         setUserDesign(prev => ({ ...prev, [height]: { doors, rooms, windows } }))
                                                     }
                                                 />
 
-                                                {/* Button to go to 3D */}
+                                                {}
                                                 <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
                                                     <Button
                                                         className="bg-green-600 hover:bg-green-700 text-white px-8 py-6 text-lg shadow-xl rounded-full transition-all hover:scale-105"
@@ -554,7 +554,7 @@ function Viewer3D() {
                                                 </div>
                                             </>
                                         )}
-                                        {/* CONDITIONAL RENDERING END */}
+                                        {}
 
                                         <div className="absolute top-4 right-4 flex gap-2">
                                             <Button

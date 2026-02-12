@@ -9,17 +9,16 @@ return new class extends Migration
     
     public function up(): void
     {
-        Schema::table('designers', function (Blueprint $table) {
-            $table->double('storage_size')->default(0);
-
+        Schema::table('houses', function (Blueprint $table) {
+            $table->json('design_data')->nullable()->after('thumbnail');
         });
     }
 
     
     public function down(): void
     {
-        Schema::table('designers', function (Blueprint $table) {
-            $table->dropColumn('storage_size');
+        Schema::table('houses', function (Blueprint $table) {
+            $table->dropColumn('design_data');
         });
     }
 };

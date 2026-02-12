@@ -68,7 +68,7 @@ function ItemModel({ title = 'hello', onClose ,category }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] overflow-auto">
                 <div className="p-6">
-                    {/* Header */}
+                    {}
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold flex items-center">
                             {title}
@@ -87,10 +87,10 @@ function ItemModel({ title = 'hello', onClose ,category }) {
                             />
                         </div>
 
-                        {/* Right Side (Form) */}
+                        {}
                         <div className="flex flex-col justify-center">
                             <form className="space-y-4" onSubmit={handleSubmit}>
-                                {/* Image Upload */}
+                                {}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">
                                         Upload Image

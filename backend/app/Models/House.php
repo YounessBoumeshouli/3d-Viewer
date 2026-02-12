@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class House extends Model
 {
     protected $guarded = [];
-
+    protected $casts = [
+        'design_data' => 'array',
+    ];
     public function dxfFile()
     {
       return $this->belongsTo(DxfFile::class);

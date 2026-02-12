@@ -45,7 +45,8 @@ class HouseController extends Controller
         $validated = $request->validate([
             'components' => 'array|nullable',
             'components.*.path' => 'string|nullable',
-            'stage'=>'required|integer'
+            'stage'=>'required|integer',
+            'design_data' => 'nullable|array'
         ]);
         $thumbnail = $request->input('thumbnail');
         $thumbnail = str_replace('data:image/png;base64,', '', $thumbnail);
@@ -54,7 +55,8 @@ class HouseController extends Controller
 
         Storage::disk('public')->put($filename, $thumbnail);
         $house->update([
-            'stage' => $validated['stage']
+            'stage' => $validated['stage'],
+            'design_data' => $request->input('design_data')
         ]);
 
 
@@ -111,7 +113,8 @@ class HouseController extends Controller
             "dxf_file_id"=>'required|integer',
             'components' => 'array|nullable',
             'components.*.path' => 'string|nullable',
-            'stage'=>'required|integer'
+            'stage'=>'required|integer',
+            'design_data' => 'nullable|array'
         ]);
 
 
@@ -146,6 +149,7 @@ class HouseController extends Controller
             $house->designer_id = $designer_id;
             $house->token = $token;
             $house->thumbnail = $filename;
+            $house->design_data = $request->input('design_data');
             $house->save();
             $house->load('components');
             if ($validated['components']){

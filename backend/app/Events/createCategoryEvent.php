@@ -24,7 +24,7 @@ class createCategoryEvent implements ShouldBroadcast
     {
         try {
             Log::info("Broadcasting message: {$this->message}");
-            return new Channel('comments-global'); // Use Channel class
+            return new Channel('comments-global'); 
         } catch (\Exception $e) {
             Log::error("Broadcasting failed: " . $e->getMessage());
             throw $e;

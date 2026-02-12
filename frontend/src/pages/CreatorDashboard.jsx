@@ -278,7 +278,7 @@ const CreatorDashboard = () => {
 
     return (
         <div className="flex min-h-screen bg-gray-50">
-            {/* Sidebar */}
+            {}
             <div className="w-64 border-r border-gray-200 bg-white">
                 <div className="p-4 flex items-center">
                     <div className="bg-blue-600 text-white rounded w-8 h-8 flex items-center justify-center font-bold mr-2">
@@ -314,7 +314,7 @@ const CreatorDashboard = () => {
                 </nav>
             </div>
 
-            {/* Main Content */}
+            {}
             <div className="flex-1">
                 <header className="bg-white p-4 border-b border-gray-200 flex justify-between items-center">
                     <div>

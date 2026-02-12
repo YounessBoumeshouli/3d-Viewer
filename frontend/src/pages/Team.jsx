@@ -33,7 +33,7 @@ function Team() {
     return (
         <Layout>
             <div className="grid grid-cols-1 gap-6">
-                {/* Top creators */}
+                {}
                 <Card className="bg-[#242634] border-[#3e435d]/20 text-white">
                     <CardHeader>
                         <CardTitle>Top creators</CardTitle>
@@ -53,7 +53,7 @@ function Team() {
                     </CardContent>
                 </Card>
 
-                {/* Members */}
+                {}
               <div className="flex justify-around">
                   <Card className="bg-[#242634] border-[#3e435d]/20 text-white w-[400px]" >
                       <CardHeader>

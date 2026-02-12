@@ -23,16 +23,16 @@ class PaypalController extends Controller
         $provider = new PayPalClient;
         $provider->setApiCredentials(config('paypal'));
         $paypalToken = $provider->getAccessToken();
-//        if (isset($paypalToken['access_token'])) {
-//            Log::info('PayPal Token OK');
-//        } else {
-//            Log::error('PayPal Token Failed', $paypalToken);
-//            return response()->json([
-//                'status' => 'error',
-//                'message' => 'Failed to get PayPal access token',
-//                'details' => $paypalToken
-//            ], 500);
-//        }
+
+
+
+
+
+
+
+
+
+
 
         $response = $provider->createOrder([
             "intent" => "CAPTURE",
@@ -51,22 +51,22 @@ class PaypalController extends Controller
                 ]
             ]
         ]);
-//        Log::info('PayPal createOrder response:', $response);
-//        if (isset($response['id'])) {
-//            Log::info('id offer is OK',$response['id']);
-//        } else {
-//            Log::error('id offer is Failed', $paypalToken);
-//
-//        }
+
+
+
+
+
+
+
         if (isset($response['id']) && $response['id'] != null) {
 
             session(['offer_id' => $offer->id]);
-//            if (isset($response['links'])) {
-//                Log::info('links offer is OK',$response['links']);
-//            } else {
-//                Log::error('links offer is Failed', $paypalToken);
-//
-//            }
+
+
+
+
+
+
             foreach ($response['links'] as $link) {
                 if ($link['rel'] === 'approve') {
                     return response()->json([

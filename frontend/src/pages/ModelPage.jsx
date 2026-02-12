@@ -215,10 +215,10 @@ const ModelPage = () => {
         <Layout>
             <div className="bg-gradient-to-b from-gray-900 to-gray-800 text-white min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {/* Main content area */}
+                    {}
                     <div className="flex flex-col lg:flex-row gap-8">
 
-                        {/* Left side - viewer */}
+                        {}
                         <div className="w-full lg:w-2/3">
                             {model && (
                                 <div className="bg-gray-800 rounded-xl shadow-2xl border border-gray-700 relative h-[600px] overflow-hidden">
@@ -327,7 +327,7 @@ const ModelPage = () => {
                             )}
 
 
-                            {/* Share panel */}
+                            {}
                             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-lg">
                                 <h3 className="text-lg font-semibold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Share</h3>
                                 <div className="grid grid-cols-4 gap-2">
@@ -385,7 +385,7 @@ const ModelPage = () => {
                         </div>
                     </div>
 
-                    {/* Comments section */}
+                    {}
                     <div
                         className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700 shadow-lg mt-8">
                         <div className="flex items-center justify-between mb-6">
@@ -423,7 +423,7 @@ const ModelPage = () => {
                             </div>
                         </form>
 
-                        {/* Comments list */}
+                        {}
                         <div className="space-y-6">
                             {comments && comments.map((comment) => (
 
@@ -511,7 +511,7 @@ const ModelPage = () => {
                                         </form>
                                     )}
 
-                                    {/* Replies list */}
+                                    {}
                                     {comment.replies && comment.replies.length > 0 && (
                                         <div className="ml-12 space-y-4 mt-4">
                                             {comment.replies.map((reply) => (

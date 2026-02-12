@@ -31,7 +31,7 @@ function ComponentModal({ title, icon, items, onClose }) {
                         {items.map((item) => (
                             <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden">
                                 <div className="bg-gray-100 h-48 flex items-center justify-center">
-                                    <img src={`http://127.0.0.1:8000/storage/${item.path}`} alt={item.name} className="max-h-full max-w-full" />
+                                    <img src={`http:
                                 </div>
                                 <div className="p-4">
                                     <h3 className="font-medium text-lg">{item.name}</h3>

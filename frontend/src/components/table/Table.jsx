@@ -12,7 +12,7 @@ const Table = ({ wallStart, wallEnd }) => {
         if (storedTable) {
             let image = storedTable.split("/");
             const localURL = `/textures/table/${image[2]}`;
-            const backendURL = `http://127.0.0.1:8000/api/image/${image[1]}/${image[2]}`;
+            const backendURL = `http:
 
             const img = new Image();
             img.src = localURL;
@@ -28,7 +28,7 @@ const Table = ({ wallStart, wallEnd }) => {
                     })
                     .then((blob) => {
                         const objectURL = URL.createObjectURL(blob);
-                        setTablePath(objectURL); // Use object URL
+                        setTablePath(objectURL); 
                     })
                     .catch((error) => {
                         console.error("⚠️ Error downloading image:", error);
@@ -39,7 +39,7 @@ const Table = ({ wallStart, wallEnd }) => {
         }
     };
 
-    // Initial load
+    
     useEffect(() => {
         loadTableTexture();
 

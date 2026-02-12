@@ -11,17 +11,13 @@ class SendMessage implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Create a new job instance.
-     */
+    
     public function __construct(public Message $message)
     {
-        //
+        
     }
 
-    /**
-     * Execute the job.
-     */
+    
     public function handle(): void
     {
         MessageEvent::dispatch([

@@ -11,12 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class SendFollowNotification
 {
-    /**
-     * Handle the event.
-     *
-     * @param  \App\Events\BroadcastNotificationCreated  $event
-     * @return void
-     */
+    
     public function handle(BroadcastNotificationCreated $event)
     {
 
