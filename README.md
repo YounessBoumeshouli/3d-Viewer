@@ -104,5 +104,5 @@ Follow these instructions to set up the project locally.
 
 ## 📖 Documentation
 
-*   i will a documentation ASAP
+*   i will create a documentation ASAP
 
